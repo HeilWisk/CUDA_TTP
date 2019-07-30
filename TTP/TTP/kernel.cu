@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <vector>
+#include <sstream>
 
 #define DIMENSION "DIMENSION:"
 #define ITEM_QTY "NUMBER OF ITEMS:"
@@ -118,12 +120,25 @@ int CountMatrixRows(char fileName[], char sectionName[])
 	return rows;
 }
 
+std::vector<std::string> split(const std::string& s, char delimiter) 
+{
+	std::vector<std::string> tokens;
+	std::string token;
+	std::istringstream tokenStream(s);
+	
+	while (std::getline(tokenStream, token, delimiter))
+	{
+		tokens.push_back(token);
+	}
+	return tokens;
+}
+
 int** ExtractMatrix(char fileName[], char sectionName[], int col)
 {
 	FILE *filePtr;
 	int** matrixResult;
-	char str[255], sub[255];
-	int lineCount = 0, initialPosition, rows;
+	char str[255], sub[255], *token;
+	int lineCount = 0, initialPosition = 0, rows, matrixRow, matrixCol;
 
 	filePtr = fopen(fileName, "r");
 	rows = CountMatrixRows(fileName, sectionName);
@@ -134,13 +149,27 @@ int** ExtractMatrix(char fileName[], char sectionName[], int col)
 		matrixResult[h] = new int[col];
 	}
 
-	while (fgets(str, 60, filePtr) != NULL) {
+	while (fgets(str, 100, filePtr) != NULL) {
 		if (strncmp(str, sectionName, strlen(sectionName)) == 0) {
 			initialPosition = lineCount;
 		}
-		SubString(str, sub, 0, 1);
+		SubString(str, sub, 1, 1);
 		if (initialPosition != NULL && lineCount > initialPosition && isdigit(sub[0])) {
-			rows++;
+			token = strtok(str, "	");
+			matrixCol = 0;
+			matrixRow = atoi(token) - 1;
+			//matrixResult[matrixRow][matrixCol] = atoi(token);
+			while (token != NULL)
+			{
+				matrixResult[matrixRow][matrixCol] = atoi(token);
+				token = strtok(NULL, "	");
+				if(matrixCol < col)
+					matrixCol++;				
+			}
+		}
+		else if (initialPosition != NULL && lineCount > initialPosition && isalpha(sub[0]))
+		{
+			break;
 		}
 		lineCount++;
 	}
@@ -148,11 +177,28 @@ int** ExtractMatrix(char fileName[], char sectionName[], int col)
 	return matrixResult;
 }
 
+int FileExists(const char *path)
+{
+	// Try to open file
+	FILE *fptr = fopen(path, "r");
+
+	// If file doesn't exists
+	if (fptr == NULL)
+		return 0;
+
+	// File exists hence close file and return true
+	fclose(fptr);
+
+	return 1;
+}
+
 int main()
 {
 	char file_name[255], str[255], sub[255];
 	FILE *fp;
 	int position;
+	int** nodeMatrix;
+	int** itemMatrix;
 
 	printf("Enter name of a file you wish to see\n");
 	gets_s(file_name);
@@ -169,58 +215,59 @@ int main()
 
 	printf("The line quantity in file are: %d \n", CountFileLines(file_name));
 
-	while (fgets(str, 60, fp) != NULL) {
+	while (fgets(str, 100, fp) != NULL) {
 		position = FindCharacterPosition(str, ':');
-		//printf("Position of ':' \"%d\"\n", position);
+		//printf("Position of ':' %d \n", position);
 		if (strncmp(str, DIMENSION, strlen(DIMENSION)) == 0)
 		{
 			SubString(str, sub, position + 1, strlen(str) - position);
 			Dimension = atof(sub);
-			printf("Dimension is \"%lf\"\n", Dimension);
+			printf("Dimension is %lf \n", Dimension);
 		}
 		else if (strncmp(str, ITEM_QTY, strlen(ITEM_QTY)) == 0)
 		{
 			SubString(str, sub, position + 1, strlen(str) - position);
 			ItemQuantity = atof(sub);
-			printf("Item Quantity is \"%lf\"\n", ItemQuantity);
+			printf("Item Quantity is %lf \n", ItemQuantity);
 		}
 		else if (strncmp(str, KNAPSACK_CAPACITY, strlen(KNAPSACK_CAPACITY)) == 0)
 		{
 			SubString(str, sub, position + 1, strlen(str) - position);
 			KnapsackCapacity = atof(sub);
-			printf("Knapsack Capacity is \"%lf\"\n", KnapsackCapacity);
+			printf("Knapsack Capacity is %lf \n", KnapsackCapacity);
 		}
 		else if (strncmp(str, MIN_SPEED, strlen(MIN_SPEED)) == 0)
 		{
 			SubString(str, sub, position + 1, strlen(str) - position);
 			MinSpeed = atof(sub);
-			printf("Min Speed is \"%lf\"\n", MinSpeed);
+			printf("Min Speed is %lf \n", MinSpeed);
 		}
 		else if (strncmp(str, MAX_SPEED, strlen(MAX_SPEED)) == 0)
 		{
 			SubString(str, sub, position + 1, strlen(str) - position);
 			MaxSpeed = atof(sub);
-			printf("Max Speed is \"%lf\"\n", MaxSpeed);
+			printf("Max Speed is %lf \n", MaxSpeed);
 		}
 		else if (strncmp(str, RENTING_RATIO, strlen(RENTING_RATIO)) == 0)
 		{
 			SubString(str, sub, position + 1, strlen(str) - position);
-			//printf("Required substring is \"%s\"\n", sub);
+			//printf("Required substring is %s \n", sub);
 			RentingRatio = atof(sub);
-			printf("Renting Ratio is \"%lf\"\n", RentingRatio);
+			printf("Renting Ratio is %lf \n", RentingRatio);
 		}
 		else if (strncmp(str, EDGE_WEIGHT_TYPE, strlen(EDGE_WEIGHT_TYPE)) == 0)
 		{
 			SubString(str, sub, position + 1, strlen(str) - position);			
 			strcpy(EdgeWeightType, sub);
-			printf("Edge Weight Type is \"%s\"\n", EdgeWeightType);
+			printf("Edge Weight Type is %s \n", EdgeWeightType);
 		}
-			// 
-			//puts(str);
 	}
 
 	printf("Matrix of Nodes has %d rows \n", CountMatrixRows(file_name, NODE_COORD_SECTION));
 	printf("Matrix of items has %d rows \n", CountMatrixRows(file_name, ITEMS_SECTION));
+
+	nodeMatrix = ExtractMatrix(file_name, NODE_COORD_SECTION, 3);
+	itemMatrix = ExtractMatrix(file_name, ITEMS_SECTION, 4);
 
 	fclose(fp);
 	return 0;
@@ -248,21 +295,6 @@ int main()
     }
 
     return 0;*/
-}
-
-int FileExists(const char *path)
-{
-	// Try to open file
-	FILE *fptr = fopen(path, "r");
-
-	// If file doesn't exists
-	if (fptr == NULL)
-		return 0;
-
-	// File exists hence close file and return true
-	fclose(fptr);
-
-	return 1;
 }
 
 // Helper function for using CUDA to add vectors in parallel.
