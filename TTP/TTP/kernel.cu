@@ -277,16 +277,16 @@ void euclideanDistance(int** srcPoint, int** dstPoint, float** out, int rCount, 
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rCount; xSrc++) {
 			for (int xDst = 0; xDst < rCount; xDst++) {
-				out[s][0] = srcPoint[xSrc][0];
-				out[s][1] = dstPoint[xDst][0];
-				out[s][2] = sqrt(pow(dstPoint[xDst][1] - srcPoint[xSrc][1], 2) + pow(dstPoint[xDst][2] - srcPoint[xSrc][2], 2) * 1.0);
+				out[s][0] = (float)srcPoint[xSrc][0];
+				out[s][1] = (float)dstPoint[xDst][0];
+				out[s][2] = (float)sqrt(pow(dstPoint[xDst][1] - srcPoint[xSrc][1], 2) + pow(dstPoint[xDst][2] - srcPoint[xSrc][2], 2) * 1.0);
 				s++;
 			}
 		}
 	}
 }
 
-__global__ void euclideanDistance(int** srcPts, int** dstPts, float** outDistMat, int rQty, int size) {
+__global__ void euclideanDistanceParallel(int** srcPts, int** dstPts, float** outDistMat, int rQty, int size) {
 	int ROW = blockIdx.y * blockDim.y + threadIdx.y;
 	int COL = blockIdx.x * blockDim.x + threadIdx.x;
 	for (int s = 0; s < size; s++) {

@@ -308,8 +308,8 @@ void euclideanDistance(node* srcPoint, node* dstPoint, distance* out, int rCount
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rCount; xSrc++) {
 			for (int xDst = 0; xDst < rCount; xDst++) {
-				out[s].srcId = (float)srcPoint[xSrc].id;
-				out[s].dstId = (float)dstPoint[xDst].id;
+				out[s].srcId = srcPoint[xSrc].id;
+				out[s].dstId = dstPoint[xDst].id;
 				out[s].d = (float)sqrt(pow(dstPoint[xDst].x - srcPoint[xSrc].x, 2) + pow(dstPoint[xDst].y - srcPoint[xSrc].y, 2) * 1.0);
 				s++;
 			}
@@ -317,7 +317,7 @@ void euclideanDistance(node* srcPoint, node* dstPoint, distance* out, int rCount
 	}
 }
 
-__global__ void euclideanDistance(int** srcPts, int** dstPts, float** outDistMat, int rQty, int size) {
+__global__ void euclideanDistanceStruct(int** srcPts, int** dstPts, float** outDistMat, int rQty, int size) {
 	int ROW = blockIdx.y * blockDim.y + threadIdx.y;
 	int COL = blockIdx.x * blockDim.x + threadIdx.x;
 	for (int s = 0; s < size; s++) {
