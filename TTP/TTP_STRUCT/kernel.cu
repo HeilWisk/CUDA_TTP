@@ -1,4 +1,4 @@
-#include "cuda_runtime.h"
+﻿#include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,13 +17,45 @@
 #define NODE_COORD_SECTION "NODE_COORD_SECTION	(INDEX, X, Y):"
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
 
-cudaError_t addWithCuda(int* c, const int* a, const int* b, unsigned int size);
+//cudaError_t addWithCuda(int* c, const int* a, const int* b, unsigned int size);
 
-__global__ void addKernel(int* c, const int* a, const int* b)
+/*__global__ void addKernel(int* c, const int* a, const int* b)
 {
 	int i = threadIdx.x;
 	c[i] = a[i] + b[i];
-}
+}*/
+
+#pragma region Struct Definition
+
+// Define struct for City information
+struct node{
+	int id;
+	float x;
+	float y;
+};
+
+// Define Struct for item information
+struct item{
+	int id;
+	float w;
+	float v;
+	int lId;
+};
+
+// Define struct for distances
+struct distance{
+	int srcId;
+	int dstId;
+	float d;
+};
+
+#pragma endregion
+
+#pragma region CUDA Kernels
+
+#pragma endregion
+
+#pragma region CUDA Functions
 
 void cudaCheckError()
 {
@@ -33,6 +65,8 @@ void cudaCheckError()
 		fprintf(stderr, "CUDA Failure %s:%d: '%s'\n", __FILE__, __LINE__, cudaGetErrorString(e));
 	}
 }
+
+#pragma endregion
 
 size_t findCharacterPosition(char stringToSearch[], char characterToFind)
 {
@@ -155,50 +189,6 @@ int fileExists(const char* path)
 	return 1;
 }
 
-int** extractMatrix(const char fileName[], const char sectionName[], int col)
-{
-	FILE* filePtr;
-	char str[255], sub[255], * token;
-	int lineCount = 0, initialPosition = 0, rows, matrixRow, matrixCol;
-	const char openMode[] = "r";
-
-	filePtr = fopen(fileName, openMode);
-	rows = countMatrixRows(fileName, sectionName);
-
-	int** matrixResult = (int**)malloc(rows * sizeof(int));
-	for (int i = 0; i < col; i++) {
-		matrixResult[i] = (int*)malloc(sizeof(int) * col);
-	}
-
-	while (fgets(str, 100, filePtr) != NULL) {
-		if (strncmp(str, sectionName, strlen(sectionName)) == 0) {
-			initialPosition = lineCount;
-		}
-		subString(str, sub, 1, 1);
-		if (initialPosition != NULL && lineCount > initialPosition && isdigit(sub[0])) {
-			token = strtok(str, "	");
-			matrixCol = 0;
-			matrixRow = atoi(token) - 1;
-			while (token != NULL)
-			{
-				matrixResult[matrixRow][matrixCol] = atoi(token);
-				token = strtok(NULL, "	");
-				if (matrixCol < col)
-					matrixCol++;
-			}
-		}
-		else if (initialPosition != NULL && lineCount > initialPosition && isalpha(sub[0]))
-		{
-			break;
-		}
-		lineCount++;
-	}
-
-	fclose(filePtr);
-
-	return matrixResult;
-}
-
 int** extractMatrix(const char fileName[], const char sectionName[], int rows, int cols)
 {
 	FILE* filePtr;
@@ -209,7 +199,7 @@ int** extractMatrix(const char fileName[], const char sectionName[], int rows, i
 	filePtr = fopen(fileName, openMode);
 
 	// Allocate memory for rows
-	int **matrixResult = (int**)malloc(rows * sizeof(int*));
+	int** matrixResult = (int**)malloc(rows * sizeof(int*));
 	if (matrixResult == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
@@ -223,7 +213,7 @@ int** extractMatrix(const char fileName[], const char sectionName[], int rows, i
 			exit(0);
 		}
 	}
-	
+
 	while (fgets(str, 100, filePtr) != NULL) {
 		if (strncmp(str, sectionName, strlen(sectionName)) == 0) {
 			initialPosition = lineCount;
@@ -253,10 +243,27 @@ int** extractMatrix(const char fileName[], const char sectionName[], int rows, i
 	return matrixResult;
 }
 
+void extractNodes(int** matrix, int rows, node* c) {
+	for (int i = 0; i < rows; i++) {
+		c[i].id = matrix[i][0];
+		c[i].x = (float)matrix[i][1];
+		c[i].y = (float)matrix[i][2];
+	}
+}
+
+void extractItems(int** matrix, int rows, item* i) {
+	for (int s = 0; s < rows; s++) {
+		i[s].id = matrix[s][0];
+		i[s].v = (float)matrix[s][1];
+		i[s].w = (float)matrix[s][2];
+		i[s].lId = matrix[s][3];
+	}
+}
+
 void display(int** matrix, int rows, int columns) {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
-			printf("%d ", matrix[i][j]);			
+			printf("%d ", matrix[i][j]);
 		}
 		printf("\n");
 	}
@@ -273,13 +280,37 @@ void display(float** matrix, int rows, int columns) {
 	printf("\n");
 }
 
-void euclideanDistance(int** srcPoint, int** dstPoint, float** out, int rCount, int size) {
+void display(node* c, int size) {
+	printf("ID	X	Y\n");
+	for (int i = 0; i < size; i++) {
+		printf("%d	%f	%f\n", c[i].id, c[i].x, c[i].y);
+	}
+	printf("\n");
+}
+
+void display(item* c, int size) {
+	printf("ID	X	Y	LOC\n");
+	for (int i = 0; i < size; i++) {
+		printf("%d	%f	%f	%d\n", c[i].id, c[i].v, c[i].w, c[i].lId);
+	}
+	printf("\n");
+}
+
+void display(distance* d, int size) {
+	printf("srcId	dstId	d\n");
+	for (int i = 0; i < size; i++) {
+		printf("%d	%d	%f\n", d[i].srcId, d[i].dstId, d[i].d);
+	}
+	printf("\n");
+}
+
+void euclideanDistance(node* srcPoint, node* dstPoint, distance* out, int rCount, int size) {
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rCount; xSrc++) {
 			for (int xDst = 0; xDst < rCount; xDst++) {
-				out[s][0] = srcPoint[xSrc][0];
-				out[s][1] = dstPoint[xDst][0];
-				out[s][2] = sqrt(pow(dstPoint[xDst][1] - srcPoint[xSrc][1], 2) + pow(dstPoint[xDst][2] - srcPoint[xSrc][2], 2) * 1.0);
+				out[s].srcId = (float)srcPoint[xSrc].id;
+				out[s].dstId = (float)dstPoint[xDst].id;
+				out[s].d = (float)sqrt(pow(dstPoint[xDst].x - srcPoint[xSrc].x, 2) + pow(dstPoint[xDst].y - srcPoint[xSrc].y, 2) * 1.0);
 				s++;
 			}
 		}
@@ -301,13 +332,13 @@ __global__ void euclideanDistance(int** srcPts, int** dstPts, float** outDistMat
 	}
 }
 
+
 int main()
 {
 	char file_name[255], str[255], sub[255];
 	FILE* fp;
-	size_t position;
-	int** nodeMatrix;
-	int** itemMatrix;
+	size_t position;	
+	int** matrix;
 	const char openMode[] = "r";
 	double Dimension, ItemQuantity, KnapsackCapacity, MinSpeed, MaxSpeed, RentingRatio;
 	char EdgeWeightType[1000];
@@ -378,169 +409,74 @@ int main()
 		}
 	}
 
-	// Close file
+	// Close file and free memory
 	fclose(fp);
 
-	// Obtain node matrix
+	// Obtain nodes
 	// Calculate amount of rows
 	int nodeRows = countMatrixRows(file_name, NODE_COORD_SECTION);
-	// Calculate amount of coluns
+	// Calculate amount of columns
 	int nodeColumns = 3;
 	// Get matrix
-	nodeMatrix = extractMatrix(file_name, NODE_COORD_SECTION, nodeRows, nodeColumns);
-	// Visualize values for node matrix
-	printf("Matrix of Nodes has %d rows \n", nodeRows);
-	display(nodeMatrix, nodeRows, nodeColumns);
-
-	// Obtain item matrix
-	// Calculate amount of rows
-	int itemRows = countMatrixRows(file_name, ITEMS_SECTION);
-	// Calculate amount of coluns
-	int itemColumns = 4;
-	// Get matrix
-	itemMatrix = extractMatrix(file_name, ITEMS_SECTION, itemRows, itemColumns);
-	// Visualize values for item matrix
-	printf("Matrix of items has %d rows \n", itemRows);
-	display(itemMatrix, itemRows, itemColumns);
-
-	// Calculate Distance Matrix
-	float** distanceMatrix;
-	distanceMatrix = (float**)malloc(nodeRows * nodeRows * sizeof(float*));
-	if (distanceMatrix == NULL) {
+	matrix = extractMatrix(file_name, NODE_COORD_SECTION, nodeRows, nodeColumns);
+	// Allocate memory for the array of structs
+	node* n = (node*)malloc(nodeRows * sizeof(node));
+	if (n == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
-	for (int i = 0; i < nodeRows * nodeRows; i++) {
-		distanceMatrix[i] = (float*)malloc(nodeColumns * sizeof(float));
-		if (distanceMatrix[i] == NULL) {
-			fprintf(stderr, "Out of Memory");
-			exit(0);
-		}
-	}
+	// Convert to array of struct
+	extractNodes(matrix, nodeRows, n);
+	// Visualize values for node matrix
+	printf("Array of Cities has %d cities \n", nodeRows);
+	display(n, nodeRows);
 
-	euclideanDistance(nodeMatrix, nodeMatrix, distanceMatrix, nodeRows, nodeRows * nodeRows);
-	display(distanceMatrix, nodeRows * nodeRows, 3);
+	// Obtain items
+	// Calculate amount of rows
+	int itemRows = countMatrixRows(file_name, ITEMS_SECTION);
+	// Calculate amount of columns
+	int itemColumns = 4;
+	// Get matrix
+	matrix = extractMatrix(file_name, ITEMS_SECTION, itemRows, itemColumns);
+	// Allocate memory for the array of structs
+	item* i = (item*)malloc(itemRows * sizeof(item));
+	if (i == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+	// Convert to array of struct
+	extractItems(matrix, itemRows, i);
+	printf("Array of items has %d items \n", itemRows);
+	display(i, itemRows);
+
+	// Calculate distances
+	distance* d = (distance*)malloc(nodeRows * nodeRows * sizeof(distance));
+	if (d == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+	
+	euclideanDistance(n, n, d, nodeRows, nodeRows * nodeRows);
+	display(d, nodeRows * nodeRows);
 
 	// Calculate Distance Matrix in CUDA
 	// Define device pointers
-	float** devDistanceMatrix;
-	int** devNodeMatrix;
-	cudaMalloc((void**)&devDistanceMatrix, nodeRows * nodeRows * sizeof(float*));
-	cudaMalloc((void**)&devNodeMatrix, sizeof(int*) * nodeRows + sizeof(int) * nodeRows * nodeColumns);
-	cudaMemcpy(devNodeMatrix, nodeMatrix, sizeof(int*) * nodeRows + sizeof(int) * nodeRows * nodeColumns, cudaMemcpyHostToDevice);
+	//float** devDistanceMatrix;
+	//int** devNodeMatrix;
+	//cudaMalloc((void**)&devDistanceMatrix, nodeRows * nodeRows * sizeof(float*));
+	//cudaMalloc((void**)&devNodeMatrix, sizeof(int*) * nodeRows + sizeof(int) * nodeRows * nodeColumns);
+	//cudaMemcpy(devNodeMatrix, nodeMatrix, sizeof(int*) * nodeRows + sizeof(int) * nodeRows * nodeColumns, cudaMemcpyHostToDevice);
 
 	// TODO: Implement CUDA Calls
 
-	cudaFree(devNodeMatrix);
-	cudaFree(devDistanceMatrix);
-	free(distanceMatrix);
-	free(nodeMatrix);
-	free(itemMatrix);
+	//cudaFree(devNodeMatrix);
+	//cudaFree(devDistanceMatrix);
+	free(matrix);
+	free(i);
+	free(n);
+	free(d);
+	free(fp);
 
 	// End Execution
-	return 0;
-	/*const int arraySize = 5;
-	const int a[arraySize] = { 1, 2, 3, 4, 5 };
-	const int b[arraySize] = { 10, 20, 30, 40, 50 };
-	int c[arraySize] = { 0 };
-
-	// Add vectors in parallel.
-	cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "addWithCuda failed!");
-		return 1;
-	}
-
-	printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
-		c[0], c[1], c[2], c[3], c[4]);
-
-	// cudaDeviceReset must be called before exiting in order for profiling and
-	// tracing tools such as Nsight and Visual Profiler to show complete traces.
-	cudaStatus = cudaDeviceReset();
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaDeviceReset failed!");
-		return 1;
-	}
-
-	return 0;*/
+	return 0;	
 }
-
-// Helper function for using CUDA to add vectors in parallel.
-/*/cudaError_t addWithCuda(int* c, const int* a, const int* b, unsigned int size)
-{
-	int *dev_a = 0;
-	int *dev_b = 0;
-	int *dev_c = 0;
-	cudaError_t cudaStatus;
-
-	// Choose which GPU to run on, change this on a multi-GPU system.
-	cudaStatus = cudaSetDevice(0);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
-		goto Error;
-	}
-
-	// Allocate GPU buffers for three vectors (two input, one output)    .
-	cudaStatus = cudaMalloc((void**)&dev_c, size * sizeof(int));
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMalloc failed!");
-		goto Error;
-	}
-
-	cudaStatus = cudaMalloc((void**)&dev_a, size * sizeof(int));
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMalloc failed!");
-		goto Error;
-	}
-
-	cudaStatus = cudaMalloc((void**)&dev_b, size * sizeof(int));
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMalloc failed!");
-		goto Error;
-	}
-
-	// Copy input vectors from host memory to GPU buffers.
-	cudaStatus = cudaMemcpy(dev_a, a, size * sizeof(int), cudaMemcpyHostToDevice);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed!");
-		goto Error;
-	}
-
-	cudaStatus = cudaMemcpy(dev_b, b, size * sizeof(int), cudaMemcpyHostToDevice);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed!");
-		goto Error;
-	}
-
-	// Launch a kernel on the GPU with one thread for each element.
-	addKernel<<<1, size>>>(dev_c, dev_a, dev_b);
-
-	// Check for any errors launching the kernel
-	cudaStatus = cudaGetLastError();
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "addKernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
-		goto Error;
-	}
-
-	// cudaDeviceSynchronize waits for the kernel to finish, and returns
-	// any errors encountered during the launch.
-	cudaStatus = cudaDeviceSynchronize();
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
-		goto Error;
-	}
-
-	// Copy output vector from GPU buffer to host memory.
-	cudaStatus = cudaMemcpy(c, dev_c, size * sizeof(int), cudaMemcpyDeviceToHost);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed!");
-		goto Error;
-	}
-
-Error:
-	cudaFree(dev_c);
-	cudaFree(dev_a);
-	cudaFree(dev_b);
-
-	return cudaStatus;
-}*/
