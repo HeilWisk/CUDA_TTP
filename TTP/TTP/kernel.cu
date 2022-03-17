@@ -437,8 +437,32 @@ int main()
 	free(nodeMatrix);
 	free(itemMatrix);
 
+	/*Initialize CUDA Sub Routines*/
+	int count;
+	cudaDeviceProp prop;
+	cudaGetDeviceCount(&count);
+	printf("**********************************************************************************************\n");
+	for (int i = 0; i < count; i++) {
+		cudaGetDeviceProperties(&prop, i);
+		printf("GPU: %s\n", prop.name);
+		printf("Compute Mode: %d\n", prop.computeMode);
+		printf("Max Grid Size: %d\n", prop.maxGridSize);
+		printf("Warp Size: %d\n", prop.warpSize);
+		printf("Total Global Memory: %zd\n", prop.totalGlobalMem);
+		printf("Total Constant Memory: %zd\n", prop.totalConstMem);
+		printf("Shared Memory Per Block: %zd\n", prop.sharedMemPerBlock);
+		printf("Multiprocessor: %d\n", prop.multiProcessorCount);
+		printf("Max Threads Per Multiprocessor: %d\n", prop.maxThreadsPerMultiProcessor);
+		printf("Max Blocks Per Multiprocessor: %d\n", prop.maxBlocksPerMultiProcessor);
+		printf("Max Threads Per Block: %d\n", prop.maxThreadsPerBlock);
+		printf("Max Size of Each Dimension of a Block: %d\n", prop.maxThreadsDim);
+	}
+	printf("**********************************************************************************************\n");
+
 	// End Execution
 	return 0;
+
+
 	/*const int arraySize = 5;
 	const int a[arraySize] = { 1, 2, 3, 4, 5 };
 	const int b[arraySize] = { 10, 20, 30, 40, 50 };
