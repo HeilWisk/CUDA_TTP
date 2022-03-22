@@ -317,9 +317,10 @@ void euclideanDistance(node* srcPoint, node* dstPoint, distance* out, int rCount
 	}
 }
 
-__global__ void euclideanDistanceStruct(int** srcPts, int** dstPts, float** outDistMat, int rQty, int size) {
+__global__ void euclideanDistanceParallel(node* srcPts, node* dstPts, distance* outDistMat, int rQty, int size) {
 	int ROW = blockIdx.y * blockDim.y + threadIdx.y;
 	int COL = blockIdx.x * blockDim.x + threadIdx.x;
+	int idx = COL + ROW * size;
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rQty; xSrc++) {
 			for (int xDst = 0; xDst < rQty; xDst++) {
@@ -461,16 +462,18 @@ int main()
 
 	// Calculate Distance Matrix in CUDA
 	// Define device pointers
-	//float** devDistanceMatrix;
-	//int** devNodeMatrix;
-	//cudaMalloc((void**)&devDistanceMatrix, nodeRows * nodeRows * sizeof(float*));
-	//cudaMalloc((void**)&devNodeMatrix, sizeof(int*) * nodeRows + sizeof(int) * nodeRows * nodeColumns);
-	//cudaMemcpy(devNodeMatrix, nodeMatrix, sizeof(int*) * nodeRows + sizeof(int) * nodeRows * nodeColumns, cudaMemcpyHostToDevice);
+	distance* dev_Distance;
+	node* dev_Node;
+	cudaMalloc((void**)&dev_Distance, nodeRows * nodeRows * sizeof(distance));
+	cudaMalloc((void**)&dev_Node, nodeRows * sizeof(node));
+	cudaMemcpy(dev_Node, n, nodeRows * sizeof(node), cudaMemcpyHostToDevice);
 
+	dim3 dimGrid0(8, 8);
+	dim3 dimBlock(128, 1);
 	// TODO: Implement CUDA Calls
 
-	//cudaFree(devNodeMatrix);
-	//cudaFree(devDistanceMatrix);
+	cudaFree(dev_Node);
+	cudaFree(dev_Distance);
 	free(matrix);
 	free(i);
 	free(n);
