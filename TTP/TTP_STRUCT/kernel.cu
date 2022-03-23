@@ -17,13 +17,9 @@
 #define NODE_COORD_SECTION "NODE_COORD_SECTION	(INDEX, X, Y):"
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
 
-//cudaError_t addWithCuda(int* c, const int* a, const int* b, unsigned int size);
+#define BLOCK_SIZE 16
 
-/*__global__ void addKernel(int* c, const int* a, const int* b)
-{
-	int i = threadIdx.x;
-	c[i] = a[i] + b[i];
-}*/
+const int blockPerGrid = 8;
 
 #pragma region Struct Definition
 
@@ -52,6 +48,65 @@ struct distance{
 #pragma endregion
 
 #pragma region CUDA Kernels
+
+/// <summary>
+/// Basic implementation of matrix transpose
+/// </summary>
+/// <param name="m_dev">- Matrix to be transposed on device memory</param>
+/// <param name="t_m_dev">- Matrix Transpose result on device memory</param>
+/// <param name="width">- Width of the matrix</param>
+/// <param name="height">- Height of the matrix</param>
+/// <returns></returns>
+__global__ void matrix_transpose(node* m_dev, node* t_m_dev, int width, int height) {
+
+	/* Calculate global index for this thread */
+	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int colIdx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	/* Copy m_dev[rowIdx][colIdx] to t_m_dev[rowIdx][colIdx] */
+	if (colIdx < width && rowIdx < height)
+	{
+		unsigned int index_in = colIdx + width * rowIdx;
+		unsigned int index_out = rowIdx + height * colIdx;
+		t_m_dev[index_out] = m_dev[index_in];
+	}
+}
+
+/// <summary>
+/// Optimized Kernel to ensure all global reads and writes are coalesced and to avoid bank conflicts in
+/// shared memory. This Kernel is up to 11x faster than "matrix_transpose" kernel.
+/// </summary>
+/// <param name="m_dev">- Matrix to be transposed on device memory</param>
+/// <param name="t_m_dev">- Matrix Transpose result on device memory</param>
+/// <param name="width">- Width of the matrix</param>
+/// <param name="height">- Height of the matrix</param>
+/// <returns></returns>
+__global__ void matrix_transpose_coalesced(node* m_dev, node* t_m_dev, int width, int height) {
+
+	__shared__ node block[BLOCK_SIZE][BLOCK_SIZE + 1];
+
+	// Read matrix tile into shared memory
+	// Load one element per thread from device memory (m_dev) and store it in transposed order in block[][]
+	unsigned int colIdx = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+	unsigned int rowIdx = blockIdx.y * BLOCK_SIZE + threadIdx.y;
+	if ((colIdx < width) && (rowIdx < height))
+	{
+		unsigned int index_in = rowIdx * width + colIdx;
+		block[threadIdx.y][threadIdx.x] = m_dev[index_in];
+	}
+
+	// Synchronise to ensure allwrites to block[][] have completed
+	__syncthreads();
+
+	// Write the transposed matrix tile to global memory (t_m_dev) in linear order
+	colIdx = blockIdx.y * BLOCK_SIZE + threadIdx.x;
+	rowIdx = blockIdx.x * BLOCK_SIZE + threadIdx.y;
+	if ((colIdx < height) && (rowIdx < width))
+	{
+		unsigned int index_out = rowIdx * height + colIdx;
+		t_m_dev[index_out] = block[threadIdx.x][threadIdx.y];
+	}
+}
 
 #pragma endregion
 
@@ -415,22 +470,24 @@ int main()
 
 	// Obtain nodes
 	// Calculate amount of rows
-	int nodeRows = countMatrixRows(file_name, NODE_COORD_SECTION);
+	int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
 	// Calculate amount of columns
-	int nodeColumns = 3;
+	int node_columns = 3;
+	// Calculate node matrix size
+	int node_matrix_size = node_columns * node_rows;
 	// Get matrix
-	matrix = extractMatrix(file_name, NODE_COORD_SECTION, nodeRows, nodeColumns);
+	matrix = extractMatrix(file_name, NODE_COORD_SECTION, node_rows, node_columns);
 	// Allocate memory for the array of structs
-	node* n = (node*)malloc(nodeRows * sizeof(node));
+	node* n = (node*)malloc(node_rows * sizeof(node));
 	if (n == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 	// Convert to array of struct
-	extractNodes(matrix, nodeRows, n);
+	extractNodes(matrix, node_rows, n);
 	// Visualize values for node matrix
-	printf("Array of Cities has %d cities \n", nodeRows);
-	display(n, nodeRows);
+	printf("Array of Cities has %d cities \n", node_rows);
+	display(n, node_rows);
 
 	// Obtain items
 	// Calculate amount of rows
@@ -450,27 +507,48 @@ int main()
 	printf("Array of items has %d items \n", itemRows);
 	display(i, itemRows);
 
-	// Calculate distances
-	distance* d = (distance*)malloc(nodeRows * nodeRows * sizeof(distance));
+	// Calculate distance matrix in CPU
+	int distance_matrix_size = node_rows * node_rows;
+	distance* d = (distance*)malloc(distance_matrix_size * sizeof(distance));
 	if (d == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 	
-	euclideanDistance(n, n, d, nodeRows, nodeRows * nodeRows);
-	display(d, nodeRows * nodeRows);
+	euclideanDistance(n, n, d, node_rows, distance_matrix_size);
+	printf("SOURCE	DESTINY	DISTANCE\n");
+	display(d, distance_matrix_size);
 
 	// Calculate Distance Matrix in CUDA
+	// First calculate the matrix transpose
 	// Define device pointers
-	distance* dev_Distance;
-	node* dev_Node;
-	cudaMalloc((void**)&dev_Distance, nodeRows * nodeRows * sizeof(distance));
-	cudaMalloc((void**)&dev_Node, nodeRows * sizeof(node));
-	cudaMemcpy(dev_Node, n, nodeRows * sizeof(node), cudaMemcpyHostToDevice);
+	node* d_node_matrix;
+	node* d_node_t_matrix;
 
-	dim3 dimGrid0(8, 8);
-	dim3 dimBlock(128, 1);
-	// TODO: Implement CUDA Calls
+	// Allocate memory on device
+	cudaMalloc((void**)&d_node_matrix, node_matrix_size * sizeof(node));
+	cudaMalloc((void**)&d_node_t_matrix, node_matrix_size * sizeof(node));
+	cudaMemcpy(d_node_matrix, n, node_matrix_size * sizeof(node), cudaMemcpyHostToDevice);
+
+	// Setup execution parameters
+	//dim3 grid(node_columns / BLOCK_SIZE, node_rows / BLOCK_SIZE, 1);
+	dim3 dimGrid0(blockPerGrid, blockPerGrid, 1);
+	dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
+	
+	// Execute CUDA Matrix Transposition
+	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, node_columns);
+	matrix_transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
+	cudaThreadSynchronize();
+
+	// Copy results from device to host
+	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_matrix_size);
+	cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node)* node_matrix_size, cudaMemcpyDeviceToHost);
+
+	// Show information on screen
+	display(h_node_t_matrix, node_matrix_size);
+
+
+	distance* dev_Distance;
 
 	cudaFree(dev_Node);
 	cudaFree(dev_Distance);

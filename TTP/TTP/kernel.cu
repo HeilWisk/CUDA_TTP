@@ -1,5 +1,6 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include "device_functions.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -366,6 +367,63 @@ __global__ void euclideanDistanceParallel(int** srcPts, int** dstPts, float** ou
 	}
 }
 
+/// <summary>
+/// Kernel for matrix multiplication
+/// </summary>
+/// <param name="m_a_dev">- Input Matrix A</param>
+/// <param name="m_b_dev">- Input Matrix B</param>
+/// <param name="m_out_dev">- Output Matrix (Result of A X B)</param>
+/// <param name="width">- Number of calculations per thread</param>
+/// <param name="m_out_dev_rows">- Total of rows of the output matrix (Rows of Matrix A)</param>
+/// <param name="m_out_dev_cols">- Total of columns of the output matrix (Columns of Matrix B)</param>
+/// <returns></returns>
+__global__ void matrix_multiplication(float* m_a_dev, float* m_b_dev, float* m_out_dev, int width, int m_out_dev_rows, int m_out_dev_cols) {
+	
+	/* Calculate global indexes*/
+	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int colIdx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	// Check boundry conditions
+	if (rowIdx < m_out_dev_rows && colIdx < m_out_dev_cols)
+	{
+		// Execute the multiplication for one row and one column
+		float value = 0;
+		for (int k = 0; k < width; k++)
+		{
+			value += m_a_dev[rowIdx * m_out_dev_rows + k] * m_b_dev[k * m_out_dev_cols + colIdx];
+		}
+		m_out_dev[rowIdx * m_out_dev_cols + colIdx] = value;
+	}
+}
+
+// TODO: Complete and Test Code
+__global__ void matrix_distances(float* m_src_dev, float* m_dst_dev, float* m_dist_dev, int width, int m_dist_dev_rows, int m_dist_dev_cols) {
+
+	// Calculate global indexes
+	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int colIdx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	// Check boundary conditions
+	if (rowIdx < m_dist_dev_rows && colIdx < m_dist_dev_cols)
+	{
+		// Execute distance calculation
+		float value = 0;
+		for (int k = 1; k < width; k++)
+		{
+			value += pow(m_dst_dev[k * m_dist_dev_cols + colIdx] - m_src_dev[rowIdx * m_dist_dev_rows + k], 2);
+		}
+		//m_dist_dev[] = 
+	}
+}
+
+/// <summary>
+/// Basic implementation of matrix transpose
+/// </summary>
+/// <param name="m_dev">- Matrix to be transposed on device memory</param>
+/// <param name="t_m_dev">- Matrix Transpose result on device memory</param>
+/// <param name="width">- Width of the matrix</param>
+/// <param name="height">- Height of the matrix</param>
+/// <returns></returns>
 __global__ void matrix_transpose(float* m_dev, float* t_m_dev, int width, int height) {
 
 	/* Calculate global index for this thread */
@@ -378,6 +436,42 @@ __global__ void matrix_transpose(float* m_dev, float* t_m_dev, int width, int he
 		unsigned int index_in = colIdx + width * rowIdx;
 		unsigned int index_out = rowIdx + height * colIdx;
 		t_m_dev[index_out] = m_dev[index_in];
+	}
+}
+
+/// <summary>
+/// Optimized Kernel to ensure all global reads and writes are coalesced and to avoid bank conflicts in
+/// shared memory. This Kernel is up to 11x faster than "matrix_transpose" kernel.
+/// </summary>
+/// <param name="m_dev">- Matrix to be transposed on device memory</param>
+/// <param name="t_m_dev">- Matrix Transpose result on device memory</param>
+/// <param name="width">- Width of the matrix</param>
+/// <param name="height">- Height of the matrix</param>
+/// <returns></returns>
+__global__ void matrix_transpose_coalesced(float* m_dev, float* t_m_dev, int width, int height) {
+
+	__shared__ float block[BLOCK_SIZE][BLOCK_SIZE + 1];
+
+	// Read matrix tile into shared memory
+	// Load one element per thread from device memory (m_dev) and store it in transposed order in block[][]
+	unsigned int colIdx = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+	unsigned int rowIdx = blockIdx.y * BLOCK_SIZE + threadIdx.y;
+	if ((colIdx < width) && (rowIdx < height))
+	{
+		unsigned int index_in = rowIdx * width + colIdx;
+		block[threadIdx.y][threadIdx.x] = m_dev[index_in];
+	}
+
+	// Synchronise to ensure allwrites to block[][] have completed
+	__syncthreads();
+
+	// Write the transposed matrix tile to global memory (t_m_dev) in linear order
+	colIdx = blockIdx.y * BLOCK_SIZE + threadIdx.x;
+	rowIdx = blockIdx.x * BLOCK_SIZE + threadIdx.y;
+	if ((colIdx < height) && (rowIdx < width))
+	{
+		unsigned int index_out = rowIdx * height + colIdx;
+		t_m_dev[index_out] = block[threadIdx.x][threadIdx.y];
 	}
 }
 
@@ -517,7 +611,6 @@ int main()
 
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, node_columns);
 	matrix_transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
-	//matrix_transpose << <grid, threads >> > (d_idata, d_odata, 3, 5);
 	cudaThreadSynchronize();
 
 	//Copy results from device to host
@@ -526,11 +619,11 @@ int main()
 
 	display(h_node_t_matrix, node_columns, node_rows);
 
-	//cudaFree(d_node_matrix);
-	//cudaFree(d_node_t_matrix);
-	//free(distance_matrix);
-	//free(node_matrix);
-	//free(item_matrix);
+	cudaFree(d_node_matrix);
+	cudaFree(d_node_t_matrix);
+	free(distance_matrix);
+	free(node_matrix);
+	free(item_matrix);
 	
 	/*Initialize CUDA Sub Routines*/
 	int count;
