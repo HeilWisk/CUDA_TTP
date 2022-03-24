@@ -427,6 +427,27 @@ void euclideanDistanceCPU(float* srcPoint, float* dstPoint, float* out, int srcS
 }
 
 /// <summary>
+/// Function to remove the first column from a matrix
+/// </summary>
+/// <param name="matrix">Input Matrix</param>
+void removeFirstColumn(float* matrix, float* out_matrix, int height, int width) {
+	int width_out = width - 1;
+	int pos = 0;
+	int posM = 0;
+	for (int i = 0; i < height; i++)
+	{		
+		for (int j = 0; j < width_out; j++)
+		{
+			pos = i * width_out + j;
+			posM = i * width + j + 1;
+			out_matrix[pos] = matrix[posM];
+		}
+	}
+}
+
+//TODO: Implement a function to remove any column from the matrix
+
+/// <summary>
 /// Kernel for matrix multiplication
 /// </summary>
 /// <param name="m_a_dev">- Input Matrix A</param>
@@ -664,33 +685,61 @@ int main()
 	printf("SOURCE	DESTINY	DISTANCE\n");
 	display(distance_matrix, node_rows * node_rows, 3);	
 
+	// Remove column
+	// Define new matrix
+	float* coordinate_matrix;
+	int coordinate_matrix_size = node_rows * (node_columns - 1);
+	coordinate_matrix = (float*)malloc(coordinate_matrix_size * sizeof(float));
+	if (coordinate_matrix == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+	removeFirstColumn(node_matrix, coordinate_matrix, node_rows, node_columns);
+	printf("X	Y\n");
+	display(coordinate_matrix, node_rows, node_columns - 1);
+
 	// Calculate Distance Matrix in CUDA
 	// Define device pointers
-	float* devDistanceMatrix;
-	float* d_node_matrix;
-	float* d_node_t_matrix;
+	float* d_distance_matrix;
+	int distance_matrix_size_gpu = node_rows * node_rows * (node_columns-1);
+	float* d_coordinate_matrix;
+	float* d_coordinate_t_matrix;
 	
-	cudaMalloc(&d_node_matrix, sizeof(float) * node_matrix_size);
-	cudaMalloc(&d_node_t_matrix, sizeof(float) * node_matrix_size);
-	cudaMemcpy(d_node_matrix, node_matrix, sizeof(float) * node_matrix_size, cudaMemcpyHostToDevice);
+	cudaMalloc(&d_coordinate_matrix, sizeof(float) * coordinate_matrix_size);
+	cudaMalloc(&d_coordinate_t_matrix, sizeof(float) * coordinate_matrix_size);
+	cudaMemcpy(d_coordinate_matrix, coordinate_matrix, sizeof(float) * coordinate_matrix_size, cudaMemcpyHostToDevice);
 
 	// Setup execution parameters
 	//dim3 grid(node_columns / BLOCK_SIZE, node_rows / BLOCK_SIZE, 1);
 	dim3 grid(blockPerGrid, blockPerGrid, 1);
 	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 
-	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, node_columns);
-	matrixTranspose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
+	printf("Transponiendo la matrix de coordenadas de tamaño [%d][%d]\n", node_rows, node_columns-1);
+	matrixTranspose << <grid, threads >> > (d_coordinate_matrix, d_coordinate_t_matrix, node_columns-1, node_rows);
 	cudaThreadSynchronize();
 
 	//Copy results from device to host
-	float* h_node_t_matrix = (float*)malloc(sizeof(float) * node_matrix_size);
-	cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(float) * node_matrix_size, cudaMemcpyDeviceToHost);
+	float* h_coordinate_t_matrix = (float*)malloc(sizeof(float) * coordinate_matrix_size);
+	cudaMemcpy(h_coordinate_t_matrix, d_coordinate_t_matrix, sizeof(float) * coordinate_matrix_size, cudaMemcpyDeviceToHost);
 
-	display(h_node_t_matrix, node_columns, node_rows);
+	display(h_coordinate_t_matrix, node_columns-1, node_rows);
 
-	cudaFree(d_node_matrix);
-	cudaFree(d_node_t_matrix);
+	cudaMalloc(&d_distance_matrix, sizeof(float)* distance_matrix_size_gpu);
+	printf("Calculando la matriz de distancias\n");
+	matrixDistances << <grid, threads >> > (d_coordinate_matrix, d_coordinate_t_matrix, d_distance_matrix, node_rows, node_rows);
+	cudaThreadSynchronize();
+
+	//Copy results from device to host
+	float* h_distance_matrix = (float*)malloc(sizeof(float) * distance_matrix_size_gpu);
+	cudaMemcpy(h_distance_matrix, d_distance_matrix, sizeof(float)* distance_matrix_size_gpu, cudaMemcpyDeviceToHost);
+
+	display(h_distance_matrix, node_rows, node_rows);
+
+	cudaFree(d_distance_matrix);
+	cudaFree(d_coordinate_matrix);
+	cudaFree(d_coordinate_t_matrix);
+	free(coordinate_matrix);
+	free(h_coordinate_t_matrix);
 	free(distance_matrix);
 	free(node_matrix);
 	free(item_matrix);
