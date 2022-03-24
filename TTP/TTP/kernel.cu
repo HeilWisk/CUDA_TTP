@@ -37,7 +37,7 @@ void cudaCheckError()
 /// </summary>
 /// <param name="stringToSearch">- String to search</param>
 /// <param name="characterToFind">- Character to find in the string</param>
-/// <returns>- Position in the string of the character</returns>
+/// <returns>Position in the string of the character</returns>
 size_t findCharacterPosition(char stringToSearch[], char characterToFind)
 {
 	size_t stringLength = 0, i, characterPosition = 0;
@@ -97,7 +97,7 @@ void subString(char originalString[], char subString[], size_t position, size_t 
 /// Function to count the amount of lines in a file
 /// </summary>
 /// <param name="fileName">- File path and name of the file to evaluate</param>
-/// <returns>- Amount of lines in the file</returns>
+/// <returns>Amount of lines in the file</returns>
 int countFileLines(char fileName[]) {
 
 	FILE* filePtr;
@@ -121,7 +121,7 @@ int countFileLines(char fileName[]) {
 /// </summary>
 /// <param name="fileName">- File path and name of the file to evaluate</param>
 /// <param name="sectionName">- Section name in the file where the matrix begins</param>
-/// <returns></returns>
+/// <returns>Amount of rows in the matrix</returns>
 int countMatrixRows(const char fileName[], const char sectionName[])
 {
 	FILE* filePtr;
@@ -153,7 +153,7 @@ int countMatrixRows(const char fileName[], const char sectionName[])
 /// Validates if a file exits
 /// </summary>
 /// <param name="path">- File path and name of the file</param>
-/// <returns>- 0: File does not exist, 1: File exist</returns>
+/// <returns>0: File does not exist, 1: File exist</returns>
 int fileExists(const char* path)
 {
 	// Try to open file

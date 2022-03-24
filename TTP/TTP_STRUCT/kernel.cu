@@ -57,7 +57,7 @@ struct distance{
 /// <param name="width">- Width of the matrix</param>
 /// <param name="height">- Height of the matrix</param>
 /// <returns></returns>
-__global__ void matrix_transpose(node* m_dev, node* t_m_dev, int width, int height) {
+__global__ void matrixTranspose(node* m_dev, node* t_m_dev, int width, int height) {
 
 	/* Calculate global index for this thread */
 	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
@@ -81,7 +81,7 @@ __global__ void matrix_transpose(node* m_dev, node* t_m_dev, int width, int heig
 /// <param name="width">- Width of the matrix</param>
 /// <param name="height">- Height of the matrix</param>
 /// <returns></returns>
-__global__ void matrix_transpose_coalesced(node* m_dev, node* t_m_dev, int width, int height) {
+__global__ void matrixTransposeCoalesced(node* m_dev, node* t_m_dev, int width, int height) {
 
 	__shared__ node block[BLOCK_SIZE][BLOCK_SIZE + 1];
 
@@ -108,6 +108,43 @@ __global__ void matrix_transpose_coalesced(node* m_dev, node* t_m_dev, int width
 	}
 }
 
+/// <summary>
+/// Kernel to calculate distances between point matrixes
+/// </summary>
+/// <param name="m_src_dev">- Matrix with source coodinates</param>
+/// <param name="m_dst_dev">- Matrix with destination coordinates</param>
+/// <param name="m_dist_dev">- Result Matrix with euclidean distances</param>
+/// <param name="m_dist_dev_rows">- Result matrix row count</param>
+/// <param name="m_dist_dev_cols">- Result matrix column count</param>
+/// <returns></returns>
+__global__ void matrixDistances(node* m_src_dev, node* m_dst_dev, distance* m_dist_dev, int m_dist_dev_rows, int m_dist_dev_cols) {
+
+	// Define variables
+	const unsigned int width = 1;
+
+	// Calculate global indexes
+	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int colIdx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	// Check boundary conditions
+	if (rowIdx < m_dist_dev_rows && colIdx < m_dist_dev_cols)
+	{
+		// Execute distance calculation
+		float value = 0;
+		int sourceId = 0;
+		int destinyId = 0;
+		for (int k = 0; k < width; k++)
+		{
+			sourceId = m_src_dev[rowIdx * width + k].id;
+			destinyId = m_dst_dev[k * m_dist_dev_cols + colIdx].id;
+			value += pow(m_dst_dev[k * m_dist_dev_cols + colIdx].x - m_src_dev[rowIdx * width + k].x, 2) + pow(m_dst_dev[k * m_dist_dev_cols + colIdx].y - m_src_dev[rowIdx * width + k].y, 2);
+		}
+		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].srcId = sourceId;
+		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].dstId = destinyId;
+		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].d = sqrt(value);
+	}
+}
+
 #pragma endregion
 
 #pragma region CUDA Functions
@@ -123,6 +160,12 @@ void cudaCheckError()
 
 #pragma endregion
 
+/// <summary>
+/// Function to find a character position in a string
+/// </summary>
+/// <param name="stringToSearch">- String to search</param>
+/// <param name="characterToFind">- Character to find in the string</param>
+/// <returns>Position in the string of the character</returns>
 size_t findCharacterPosition(char stringToSearch[], char characterToFind)
 {
 	size_t stringLength = 0, i, characterPosition = 0;
@@ -137,6 +180,13 @@ size_t findCharacterPosition(char stringToSearch[], char characterToFind)
 	return (characterPosition);
 }
 
+/// <summary>
+/// Extracts a string from another string
+/// </summary>
+/// <param name="originalString">- Original string</param>
+/// <param name="subString">- Resulting Substring</param>
+/// <param name="position">- Initial position where the substring is about to begin</param>
+/// <param name="length">- Length of the desired substring</param>
 void subString(char originalString[], char subString[], size_t position, size_t length)
 {
 	int c = 0, d = 0;
@@ -171,6 +221,11 @@ void subString(char originalString[], char subString[], size_t position, size_t 
 	strcpy(subString, tempSubString);
 }
 
+/// <summary>
+/// Function to count the amount of lines in a file
+/// </summary>
+/// <param name="fileName">- File path and name of the file to evaluate</param>
+/// <returns>Amount of lines in the file</returns>
 int countFileLines(char fileName[]) {
 
 	FILE* filePtr;
@@ -189,6 +244,12 @@ int countFileLines(char fileName[]) {
 	return lineCount;
 }
 
+/// <summary>
+/// Count the rows for a matrix in a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name of the file to evaluate</param>
+/// <param name="sectionName">- Section name in the file where the matrix begins</param>
+/// <returns>Amount of rows in the matrix</returns>
 int countMatrixRows(const char fileName[], const char sectionName[])
 {
 	FILE* filePtr;
@@ -216,19 +277,11 @@ int countMatrixRows(const char fileName[], const char sectionName[])
 	return rows;
 }
 
-std::vector<std::string> split(const std::string& s, char delimiter)
-{
-	std::vector<std::string> tokens;
-	std::string token;
-	std::istringstream tokenStream(s);
-
-	while (std::getline(tokenStream, token, delimiter))
-	{
-		tokens.push_back(token);
-	}
-	return tokens;
-}
-
+/// <summary>
+/// Validates if a file exits
+/// </summary>
+/// <param name="path">- File path and name of the file</param>
+/// <returns>0: File does not exist, 1: File exist</returns>
 int fileExists(const char* path)
 {
 	// Try to open file
@@ -244,7 +297,15 @@ int fileExists(const char* path)
 	return 1;
 }
 
-int** extractMatrix(const char fileName[], const char sectionName[], int rows, int cols)
+/// <summary>
+/// Extracts matrix from a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name</param>
+/// <param name="sectionName">- Section name in the file</param>
+/// <param name="rows">- Amount of columns</param>
+/// <param name="cols">- Amount of rows</param>
+/// <returns>Double pointer matrix of ints</returns>
+int** extractMatrixFromFile(const char fileName[], const char sectionName[], int rows, int cols)
 {
 	FILE* filePtr;
 	char str[255], sub[255], * token;
@@ -298,6 +359,12 @@ int** extractMatrix(const char fileName[], const char sectionName[], int rows, i
 	return matrixResult;
 }
 
+/// <summary>
+/// Function to convert the extracted matrix into an array of node structs
+/// </summary>
+/// <param name="matrix">- Matrix to extract</param>
+/// <param name="rows">- Amount of rows to extract</param>
+/// <param name="c">- Pointer to array of nodes structs</param>
 void extractNodes(int** matrix, int rows, node* c) {
 	for (int i = 0; i < rows; i++) {
 		c[i].id = matrix[i][0];
@@ -306,6 +373,12 @@ void extractNodes(int** matrix, int rows, node* c) {
 	}
 }
 
+/// <summary>
+/// Function to convert the extracted matrix into an array of item structs
+/// </summary>
+/// <param name="matrix">- Matrix to extract</param>
+/// <param name="rows">- Amount of rows to extract</param>
+/// <param name="i">- Pointer to array of item structs</param>
 void extractItems(int** matrix, int rows, item* i) {
 	for (int s = 0; s < rows; s++) {
 		i[s].id = matrix[s][0];
@@ -315,6 +388,12 @@ void extractItems(int** matrix, int rows, item* i) {
 	}
 }
 
+/// <summary>
+/// Displays a matrix on screen
+/// </summary>
+/// <param name="matrix">- Matrix to display</param>
+/// <param name="rows">- Amount of rows in the matrix</param>
+/// <param name="c">- Amount of columns in the matrix</param>
 void display(int** matrix, int rows, int columns) {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
@@ -325,6 +404,12 @@ void display(int** matrix, int rows, int columns) {
 	printf("\n");
 }
 
+/// <summary>
+/// Displays a matrix on screen
+/// </summary>
+/// <param name="matrix">- Matrix to display</param>
+/// <param name="rows">- Amount of rows in the matrix</param>
+/// <param name="c">- Amount of columns in the matrix</param>
 void display(float** matrix, int rows, int columns) {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
@@ -335,7 +420,12 @@ void display(float** matrix, int rows, int columns) {
 	printf("\n");
 }
 
-void display(node* c, int size) {
+/// <summary>
+/// Display the node array
+/// </summary>
+/// <param name="c">- Node array</param>
+/// <param name="size">- Size of the array</param>
+void displayNodes(node* c, int size) {
 	printf("ID	X	Y\n");
 	for (int i = 0; i < size; i++) {
 		printf("%d	%f	%f\n", c[i].id, c[i].x, c[i].y);
@@ -343,7 +433,12 @@ void display(node* c, int size) {
 	printf("\n");
 }
 
-void display(item* c, int size) {
+/// <summary>
+/// Display the item array
+/// </summary>
+/// <param name="c">- Item array</param>
+/// <param name="size">- Size of the array</param>
+void displayItems(item* c, int size) {
 	printf("ID	X	Y	LOC\n");
 	for (int i = 0; i < size; i++) {
 		printf("%d	%f	%f	%d\n", c[i].id, c[i].v, c[i].w, c[i].lId);
@@ -351,7 +446,12 @@ void display(item* c, int size) {
 	printf("\n");
 }
 
-void display(distance* d, int size) {
+/// <summary>
+/// Display the distances array
+/// </summary>
+/// <param name="d">- Distances array</param>
+/// <param name="size">- Size of the array</param>
+void displayDistance(distance* d, int size) {
 	printf("srcId	dstId	d\n");
 	for (int i = 0; i < size; i++) {
 		printf("%d	%d	%f\n", d[i].srcId, d[i].dstId, d[i].d);
@@ -359,7 +459,15 @@ void display(distance* d, int size) {
 	printf("\n");
 }
 
-void euclideanDistance(node* srcPoint, node* dstPoint, distance* out, int rCount, int size) {
+/// <summary>
+/// Calculates euclidean distance between a matrix of source points and a matrix of destination points
+/// </summary>
+/// <param name="srcPoint">- Matrix of source points</param>
+/// <param name="dstPoint">- Matrix of destination points</param>
+/// <param name="out">- Result matrix with distances</param>
+/// <param name="rCount">- Row count</param>
+/// <param name="size">- Total size of the result matrix</param>
+void euclideanDistanceCPU(node* srcPoint, node* dstPoint, distance* out, int rCount, int size) {
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rCount; xSrc++) {
 			for (int xDst = 0; xDst < rCount; xDst++) {
@@ -371,23 +479,6 @@ void euclideanDistance(node* srcPoint, node* dstPoint, distance* out, int rCount
 		}
 	}
 }
-
-__global__ void euclideanDistanceParallel(node* srcPts, node* dstPts, distance* outDistMat, int rQty, int size) {
-	int ROW = blockIdx.y * blockDim.y + threadIdx.y;
-	int COL = blockIdx.x * blockDim.x + threadIdx.x;
-	int idx = COL + ROW * size;
-	for (int s = 0; s < size; s++) {
-		for (int xSrc = 0; xSrc < rQty; xSrc++) {
-			for (int xDst = 0; xDst < rQty; xDst++) {
-				outDistMat[s][0] = srcPts[xSrc][0];
-				outDistMat[s][1] = dstPts[xDst][0];
-				outDistMat[s][2] = sqrt(pow(dstPts[xDst][1] - srcPts[xSrc][1], 2) + pow(dstPts[xDst][2] - srcPts[xSrc][2], 2) * 1.0);
-				s++;
-			}
-		}
-	}
-}
-
 
 int main()
 {
@@ -476,7 +567,7 @@ int main()
 	// Calculate node matrix size
 	int node_matrix_size = node_columns * node_rows;
 	// Get matrix
-	matrix = extractMatrix(file_name, NODE_COORD_SECTION, node_rows, node_columns);
+	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_rows, node_columns);
 	// Allocate memory for the array of structs
 	node* n = (node*)malloc(node_rows * sizeof(node));
 	if (n == NULL) {
@@ -487,7 +578,7 @@ int main()
 	extractNodes(matrix, node_rows, n);
 	// Visualize values for node matrix
 	printf("Array of Cities has %d cities \n", node_rows);
-	display(n, node_rows);
+	displayNodes(n, node_rows);
 
 	// Obtain items
 	// Calculate amount of rows
@@ -495,7 +586,7 @@ int main()
 	// Calculate amount of columns
 	int itemColumns = 4;
 	// Get matrix
-	matrix = extractMatrix(file_name, ITEMS_SECTION, itemRows, itemColumns);
+	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, itemRows, itemColumns);
 	// Allocate memory for the array of structs
 	item* i = (item*)malloc(itemRows * sizeof(item));
 	if (i == NULL) {
@@ -505,7 +596,7 @@ int main()
 	// Convert to array of struct
 	extractItems(matrix, itemRows, i);
 	printf("Array of items has %d items \n", itemRows);
-	display(i, itemRows);
+	displayItems(i, itemRows);
 
 	// Calculate distance matrix in CPU
 	int distance_matrix_size = node_rows * node_rows;
@@ -515,9 +606,9 @@ int main()
 		exit(0);
 	}
 	
-	euclideanDistance(n, n, d, node_rows, distance_matrix_size);
+	euclideanDistanceCPU(n, n, d, node_rows, distance_matrix_size);
 	printf("SOURCE	DESTINY	DISTANCE\n");
-	display(d, distance_matrix_size);
+	displayDistance(d, distance_matrix_size);
 
 	// Calculate Distance Matrix in CUDA
 	// First calculate the matrix transpose
@@ -532,12 +623,12 @@ int main()
 
 	// Setup execution parameters
 	//dim3 grid(node_columns / BLOCK_SIZE, node_rows / BLOCK_SIZE, 1);
-	dim3 dimGrid0(blockPerGrid, blockPerGrid, 1);
-	dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
+	dim3 grid(blockPerGrid, blockPerGrid, 1);
+	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 	
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, node_columns);
-	matrix_transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
+	matrixTranspose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
 	cudaThreadSynchronize();
 
 	// Copy results from device to host
@@ -545,18 +636,33 @@ int main()
 	cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node)* node_matrix_size, cudaMemcpyDeviceToHost);
 
 	// Show information on screen
-	display(h_node_t_matrix, node_matrix_size);
+	displayNodes(h_node_t_matrix, node_matrix_size);
 
+	// Calculate size of distance array
+	distance* d_distance;
+	int distance_size = node_rows * node_rows;
+	cudaMalloc(&d_distance, sizeof(distance)* distance_size);
+	printf("Calculando la matriz de distancias en GPU\n");
+	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_rows, node_rows);
+	cudaThreadSynchronize();
 
-	distance* dev_Distance;
+	//Copy results from device to host
+	distance* h_distance = (distance*)malloc(sizeof(distance) * distance_size);
+	cudaMemcpy(h_distance, d_distance, sizeof(distance)* distance_size, cudaMemcpyDeviceToHost);
 
-	cudaFree(dev_Node);
-	cudaFree(dev_Distance);
+	// Show Data
+	displayDistance(h_distance, distance_size);
+
+	// Free Memory
+	cudaFree(d_node_matrix);
+	cudaFree(d_node_t_matrix);
+	free(h_node_t_matrix);
+	cudaFree(d_distance);
+	free(h_distance);
 	free(matrix);
 	free(i);
 	free(n);
 	free(d);
-	free(fp);
 
 	// End Execution
 	return 0;	
