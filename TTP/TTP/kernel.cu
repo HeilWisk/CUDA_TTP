@@ -32,6 +32,12 @@ void cudaCheckError()
 	}
 }
 
+/// <summary>
+/// Function to find a character position in a string
+/// </summary>
+/// <param name="stringToSearch">- String to search</param>
+/// <param name="characterToFind">- Character to find in the string</param>
+/// <returns>- Position in the string of the character</returns>
 size_t findCharacterPosition(char stringToSearch[], char characterToFind)
 {
 	size_t stringLength = 0, i, characterPosition = 0;
@@ -46,6 +52,13 @@ size_t findCharacterPosition(char stringToSearch[], char characterToFind)
 	return (characterPosition);
 }
 
+/// <summary>
+/// Extracts a string from another string
+/// </summary>
+/// <param name="originalString">- Original string</param>
+/// <param name="subString">- Resulting Substring</param>
+/// <param name="position">- Initial position where the substring is about to begin</param>
+/// <param name="length">- Length of the desired substring</param>
 void subString(char originalString[], char subString[], size_t position, size_t length)
 {
 	int c = 0, d = 0;
@@ -80,6 +93,11 @@ void subString(char originalString[], char subString[], size_t position, size_t 
 	strcpy(subString, tempSubString);
 }
 
+/// <summary>
+/// Function to count the amount of lines in a file
+/// </summary>
+/// <param name="fileName">- File path and name of the file to evaluate</param>
+/// <returns>- Amount of lines in the file</returns>
 int countFileLines(char fileName[]) {
 
 	FILE* filePtr;
@@ -98,6 +116,12 @@ int countFileLines(char fileName[]) {
 	return lineCount;
 }
 
+/// <summary>
+/// Count the rows for a matrix in a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name of the file to evaluate</param>
+/// <param name="sectionName">- Section name in the file where the matrix begins</param>
+/// <returns></returns>
 int countMatrixRows(const char fileName[], const char sectionName[])
 {
 	FILE* filePtr;
@@ -125,19 +149,11 @@ int countMatrixRows(const char fileName[], const char sectionName[])
 	return rows;
 }
 
-std::vector<std::string> split(const std::string& s, char delimiter)
-{
-	std::vector<std::string> tokens;
-	std::string token;
-	std::istringstream tokenStream(s);
-
-	while (std::getline(tokenStream, token, delimiter))
-	{
-		tokens.push_back(token);
-	}
-	return tokens;
-}
-
+/// <summary>
+/// Validates if a file exits
+/// </summary>
+/// <param name="path">- File path and name of the file</param>
+/// <returns>- 0: File does not exist, 1: File exist</returns>
 int fileExists(const char* path)
 {
 	// Try to open file
@@ -153,6 +169,13 @@ int fileExists(const char* path)
 	return 1;
 }
 
+/// <summary>
+/// Extracts matrix from a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name</param>
+/// <param name="sectionName">- Section name in the file</param>
+/// <param name="col">- Amount of columns</param>
+/// <returns>- Double pointer matrix of integers</returns>
 int** extractMatrix(const char fileName[], const char sectionName[], int col)
 {
 	FILE* filePtr;
@@ -197,6 +220,14 @@ int** extractMatrix(const char fileName[], const char sectionName[], int col)
 	return matrixResult;
 }
 
+/// <summary>
+/// Extracts matrix from a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name</param>
+/// <param name="sectionName">- Section name in the file</param>
+/// <param name="rows">- Amount of columns</param>
+/// <param name="cols">- Amount of rows</param>
+/// <returns>- Double pointer matrix of floats</returns>
 float** extractMatrix(const char fileName[], const char sectionName[], int rows, int cols)
 {
 	FILE* filePtr;
@@ -251,7 +282,15 @@ float** extractMatrix(const char fileName[], const char sectionName[], int rows,
 	return matrixResult;
 }
 
-float* extract_matrix(const char fileName[], const char sectionName[], int rows, int cols)
+/// <summary>
+/// Extracts matrix from a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name</param>
+/// <param name="sectionName">- Section name in the file</param>
+/// <param name="rows">- Amount of columns</param>
+/// <param name="cols">- Amount of rows</param>
+/// <returns>Matrix pointer</returns>
+float* extractMatrixFromFile(const char fileName[], const char sectionName[], int rows, int cols)
 {
 	FILE* file_ptr;
 	char str[255], sub[255], * token;
@@ -297,6 +336,12 @@ float* extract_matrix(const char fileName[], const char sectionName[], int rows,
 	return matrix_result;
 }
 
+/// <summary>
+/// Displays a matrix on screen
+/// </summary>
+/// <param name="matrix">- Matrix to display</param>
+/// <param name="rows">- Amount of rows in the matrix</param>
+/// <param name="columns">- Amount of columns in the matrix</param>
 void display(int** matrix, int rows, int columns) {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
@@ -307,6 +352,12 @@ void display(int** matrix, int rows, int columns) {
 	printf("\n");
 }
 
+/// <summary>
+/// Displays a matrix on screen
+/// </summary>
+/// <param name="matrix">- Matrix to display</param>
+/// <param name="rows">- Amount of rows in the matrix</param>
+/// <param name="columns">- Amount of columns in the matrix</param>
 void display(float** matrix, int rows, int columns) {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
@@ -317,6 +368,12 @@ void display(float** matrix, int rows, int columns) {
 	printf("\n");
 }
 
+/// <summary>
+/// Displays a matrix on screen
+/// </summary>
+/// <param name="matrix">- Matrix to display</param>
+/// <param name="rows">- Amount of rows in the matrix</param>
+/// <param name="columns">- Amount of columns in the matrix</param>
 void display(float* matrix, int rows, int columns) {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
@@ -327,7 +384,15 @@ void display(float* matrix, int rows, int columns) {
 	printf("\n");
 }
 
-void euclideanDistance(float** srcPoint, float** dstPoint, float** out, int rCount, int size) {
+/// <summary>
+/// Calculates euclidean distance between a matrix of source points and a matrix of destination points
+/// </summary>
+/// <param name="srcPoint">- Matrix of source points</param>
+/// <param name="dstPoint">- Matrix of destination points</param>
+/// <param name="out">- Result matrix with distances</param>
+/// <param name="rCount">- Row count</param>
+/// <param name="size">- Total size of the result matrix</param>
+void euclideanDistanceCPU(float** srcPoint, float** dstPoint, float** out, int rCount, int size) {
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rCount; xSrc++) {
 			for (int xDst = 0; xDst < rCount; xDst++) {
@@ -340,7 +405,16 @@ void euclideanDistance(float** srcPoint, float** dstPoint, float** out, int rCou
 	}
 }
 
-void euclideanDistance(float* srcPoint, float* dstPoint, float* out, int srcSize, int dstSize, int cols) {
+/// <summary>
+/// Calculates euclidean distance between a matrix of source points and a matrix of destination points
+/// </summary>
+/// <param name="srcPoint">- Matrix of source points</param>
+/// <param name="dstPoint">- Matrix of destination points</param>
+/// <param name="out">- Result matrix with distances</param>
+/// <param name="srcSize">- Size of the source matrix</param>
+/// <param name="dstSize">- Size of the destination matrix</param>
+/// <param name="cols">- Amount of columns</param>
+void euclideanDistanceCPU(float* srcPoint, float* dstPoint, float* out, int srcSize, int dstSize, int cols) {
 	int s = 0;
 	for (int xSrc = 0; xSrc < srcSize; xSrc = xSrc + cols) {
 		for (int xDst = 0; xDst < dstSize; xDst = xDst + cols) {
@@ -348,21 +422,6 @@ void euclideanDistance(float* srcPoint, float* dstPoint, float* out, int srcSize
 			out[s + 1] = dstPoint[xDst];
 			out[s + 2] = sqrt(pow(dstPoint[xDst + 1] - srcPoint[xSrc + 1], 2) + pow(dstPoint[xDst + 2] - srcPoint[xSrc + 2], 2) * 1.0);
 			s = s + cols;
-		}
-	}
-}
-
-__global__ void euclideanDistanceParallel(int** srcPts, int** dstPts, float** outDistMat, int rQty, int size) {
-	int ROW = blockIdx.y * blockDim.y + threadIdx.y;
-	int COL = blockIdx.x * blockDim.x + threadIdx.x;
-	for (int s = 0; s < size; s++) {
-		for (int xSrc = 0; xSrc < rQty; xSrc++) {
-			for (int xDst = 0; xDst < rQty; xDst++) {
-				outDistMat[s][0] = srcPts[xSrc][0];
-				outDistMat[s][1] = dstPts[xDst][0];
-				outDistMat[s][2] = sqrt(pow(dstPts[xDst][1] - srcPts[xSrc][1], 2) + pow(dstPts[xDst][2] - srcPts[xSrc][2], 2) * 1.0);
-				s++;
-			}
 		}
 	}
 }
@@ -377,7 +436,7 @@ __global__ void euclideanDistanceParallel(int** srcPts, int** dstPts, float** ou
 /// <param name="m_out_dev_rows">- Total of rows of the output matrix (Rows of Matrix A)</param>
 /// <param name="m_out_dev_cols">- Total of columns of the output matrix (Columns of Matrix B)</param>
 /// <returns></returns>
-__global__ void matrix_multiplication(float* m_a_dev, float* m_b_dev, float* m_out_dev, int width, int m_out_dev_rows, int m_out_dev_cols) {
+__global__ void matrixMultiplicationGPU(float* m_a_dev, float* m_b_dev, float* m_out_dev, int width, int m_out_dev_rows, int m_out_dev_cols) {
 	
 	/* Calculate global indexes*/
 	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
@@ -396,8 +455,19 @@ __global__ void matrix_multiplication(float* m_a_dev, float* m_b_dev, float* m_o
 	}
 }
 
-// TODO: Complete and Test Code
-__global__ void matrix_distances(float* m_src_dev, float* m_dst_dev, float* m_dist_dev, int width, int m_dist_dev_rows, int m_dist_dev_cols) {
+/// <summary>
+/// Kernel to calculate distances between point matrixes
+/// </summary>
+/// <param name="m_src_dev">- Matrix with source coodinates</param>
+/// <param name="m_dst_dev">- Matrix with destination coordinates</param>
+/// <param name="m_dist_dev">- Result Matrix with euclidean distances</param>
+/// <param name="m_dist_dev_rows">- Result matrix row count</param>
+/// <param name="m_dist_dev_cols">- Result matrix column count</param>
+/// <returns></returns>
+__global__ void matrixDistances(float* m_src_dev, float* m_dst_dev, float* m_dist_dev, int m_dist_dev_rows, int m_dist_dev_cols) {
+
+	// Define variables
+	const unsigned int width = 2;
 
 	// Calculate global indexes
 	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
@@ -408,11 +478,11 @@ __global__ void matrix_distances(float* m_src_dev, float* m_dst_dev, float* m_di
 	{
 		// Execute distance calculation
 		float value = 0;
-		for (int k = 1; k < width; k++)
+		for (int k = 0; k < width; k++)
 		{
-			value += pow(m_dst_dev[k * m_dist_dev_cols + colIdx] - m_src_dev[rowIdx * m_dist_dev_rows + k], 2);
+			value += pow(m_dst_dev[k * m_dist_dev_cols + colIdx] - m_src_dev[rowIdx * width + k], 2);
 		}
-		//m_dist_dev[] = 
+		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx] = sqrt(value);
 	}
 }
 
@@ -424,7 +494,7 @@ __global__ void matrix_distances(float* m_src_dev, float* m_dst_dev, float* m_di
 /// <param name="width">- Width of the matrix</param>
 /// <param name="height">- Height of the matrix</param>
 /// <returns></returns>
-__global__ void matrix_transpose(float* m_dev, float* t_m_dev, int width, int height) {
+__global__ void matrixTranspose(float* m_dev, float* t_m_dev, int width, int height) {
 
 	/* Calculate global index for this thread */
 	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
@@ -448,7 +518,7 @@ __global__ void matrix_transpose(float* m_dev, float* t_m_dev, int width, int he
 /// <param name="width">- Width of the matrix</param>
 /// <param name="height">- Height of the matrix</param>
 /// <returns></returns>
-__global__ void matrix_transpose_coalesced(float* m_dev, float* t_m_dev, int width, int height) {
+__global__ void matrixTransposeCoalesced(float* m_dev, float* t_m_dev, int width, int height) {
 
 	__shared__ float block[BLOCK_SIZE][BLOCK_SIZE + 1];
 
@@ -562,7 +632,7 @@ int main()
 	// Calculate node matrix size
 	int node_matrix_size = node_columns * node_rows;
 	// Get matrix
-	node_matrix = extract_matrix(file_name, NODE_COORD_SECTION, node_rows, node_columns);
+	node_matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_rows, node_columns);
 	// Visualize values for node matrix
 	printf("Matrix of Nodes has %d rows \n\n", node_rows);
 	printf("INDEX	X	Y\n");
@@ -575,7 +645,7 @@ int main()
 	// Calculate amount of coluns
 	int item_columns = 4;
 	// Get matrix
-	item_matrix = extract_matrix(file_name, ITEMS_SECTION, item_rows, item_columns);
+	item_matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_rows, item_columns);
 	// Visualize values for item matrix
 	printf("Matrix of items has %d rows \n\n", item_rows);
 	printf("INDEX	PROFIT	WEIGHT	ASSIGNED NODE\n");
@@ -590,7 +660,7 @@ int main()
 		exit(0);
 	}
 
-	euclideanDistance(node_matrix, node_matrix, distance_matrix, node_matrix_size, node_matrix_size, node_columns);
+	euclideanDistanceCPU(node_matrix, node_matrix, distance_matrix, node_matrix_size, node_matrix_size, node_columns);
 	printf("SOURCE	DESTINY	DISTANCE\n");
 	display(distance_matrix, node_rows * node_rows, 3);	
 
@@ -610,7 +680,7 @@ int main()
 	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, node_columns);
-	matrix_transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
+	matrixTranspose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
 	cudaThreadSynchronize();
 
 	//Copy results from device to host
