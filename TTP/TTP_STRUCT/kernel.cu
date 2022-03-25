@@ -7,6 +7,10 @@
 #include <vector>
 #include <sstream>
 
+#include "headers/node.h"
+#include "headers/item.h"
+#include "headers/distance.h"
+
 #define DIMENSION "DIMENSION:"
 #define ITEM_QTY "NUMBER OF ITEMS:"
 #define KNAPSACK_CAPACITY "CAPACITY OF KNAPSACK:"
@@ -20,32 +24,6 @@
 #define BLOCK_SIZE 16
 
 const int blockPerGrid = 8;
-
-#pragma region Struct Definition
-
-// Define struct for City information
-struct node{
-	int id;
-	float x;
-	float y;
-};
-
-// Define Struct for item information
-struct item{
-	int id;
-	float w;
-	float v;
-	int lId;
-};
-
-// Define struct for distances
-struct distance{
-	int srcId;
-	int dstId;
-	float d;
-};
-
-#pragma endregion
 
 #pragma region CUDA Kernels
 
@@ -139,9 +117,9 @@ __global__ void matrixDistances(node* m_src_dev, node* m_dst_dev, distance* m_di
 			destinyId = m_dst_dev[k * m_dist_dev_cols + colIdx].id;
 			value += pow(m_dst_dev[k * m_dist_dev_cols + colIdx].x - m_src_dev[rowIdx * width + k].x, 2) + pow(m_dst_dev[k * m_dist_dev_cols + colIdx].y - m_src_dev[rowIdx * width + k].y, 2);
 		}
-		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].srcId = sourceId;
-		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].dstId = destinyId;
-		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].d = sqrt(value);
+		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].source = sourceId;
+		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].destiny = destinyId;
+		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].value = sqrt(value);
 	}
 }
 
@@ -382,9 +360,9 @@ void extractNodes(int** matrix, int rows, node* c) {
 void extractItems(int** matrix, int rows, item* i) {
 	for (int s = 0; s < rows; s++) {
 		i[s].id = matrix[s][0];
-		i[s].v = (float)matrix[s][1];
-		i[s].w = (float)matrix[s][2];
-		i[s].lId = matrix[s][3];
+		i[s].value = (float)matrix[s][1];
+		i[s].weight = (float)matrix[s][2];
+		i[s].node = matrix[s][3];
 	}
 }
 
@@ -441,7 +419,7 @@ void displayNodes(node* c, int size) {
 void displayItems(item* c, int size) {
 	printf("ID	X	Y	LOC\n");
 	for (int i = 0; i < size; i++) {
-		printf("%d	%f	%f	%d\n", c[i].id, c[i].v, c[i].w, c[i].lId);
+		printf("%d	%f	%f	%d\n", c[i].id, c[i].value, c[i].weight, c[i].node);
 	}
 	printf("\n");
 }
@@ -454,7 +432,7 @@ void displayItems(item* c, int size) {
 void displayDistance(distance* d, int size) {
 	printf("srcId	dstId	d\n");
 	for (int i = 0; i < size; i++) {
-		printf("%d	%d	%f\n", d[i].srcId, d[i].dstId, d[i].d);
+		printf("%d	%d	%f\n", d[i].source, d[i].destiny, d[i].value);
 	}
 	printf("\n");
 }
@@ -471,9 +449,9 @@ void euclideanDistanceCPU(node* srcPoint, node* dstPoint, distance* out, int rCo
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rCount; xSrc++) {
 			for (int xDst = 0; xDst < rCount; xDst++) {
-				out[s].srcId = srcPoint[xSrc].id;
-				out[s].dstId = dstPoint[xDst].id;
-				out[s].d = (float)sqrt(pow(dstPoint[xDst].x - srcPoint[xSrc].x, 2) + pow(dstPoint[xDst].y - srcPoint[xSrc].y, 2) * 1.0);
+				out[s].source = srcPoint[xSrc].id;
+				out[s].destiny = dstPoint[xDst].id;
+				out[s].value = (float)sqrt(pow(dstPoint[xDst].x - srcPoint[xSrc].x, 2) + pow(dstPoint[xDst].y - srcPoint[xSrc].y, 2) * 1.0);
 				s++;
 			}
 		}
@@ -629,7 +607,7 @@ int main()
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, node_columns);
 	matrixTranspose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	// Copy results from device to host
 	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_matrix_size);
@@ -644,7 +622,7 @@ int main()
 	cudaMalloc(&d_distance, sizeof(distance)* distance_size);
 	printf("Calculando la matriz de distancias en GPU\n");
 	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_rows, node_rows);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	//Copy results from device to host
 	distance* h_distance = (distance*)malloc(sizeof(distance) * distance_size);
