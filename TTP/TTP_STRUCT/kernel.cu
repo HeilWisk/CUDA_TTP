@@ -35,7 +35,7 @@ const int blockPerGrid = 8;
 /// <param name="width">- Width of the matrix</param>
 /// <param name="height">- Height of the matrix</param>
 /// <returns></returns>
-__global__ void matrixTranspose(node* m_dev, node* t_m_dev, int width, int height) {
+__global__ void transpose(node* m_dev, node* t_m_dev, int width, int height) {
 
 	/* Calculate global index for this thread */
 	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
@@ -593,11 +593,12 @@ int main()
 	// Define device pointers
 	node* d_node_matrix;
 	node* d_node_t_matrix;
+	int node_size = node_rows;
 
 	// Allocate memory on device
-	cudaMalloc((void**)&d_node_matrix, node_matrix_size * sizeof(node));
-	cudaMalloc((void**)&d_node_t_matrix, node_matrix_size * sizeof(node));
-	cudaMemcpy(d_node_matrix, n, node_matrix_size * sizeof(node), cudaMemcpyHostToDevice);
+	cudaMalloc(&d_node_matrix, node_size * sizeof(node));
+	cudaMalloc(&d_node_t_matrix, node_size * sizeof(node));
+	cudaMemcpy(d_node_matrix, n, node_size * sizeof(node), cudaMemcpyHostToDevice);
 
 	// Setup execution parameters
 	//dim3 grid(node_columns / BLOCK_SIZE, node_rows / BLOCK_SIZE, 1);
@@ -605,16 +606,16 @@ int main()
 	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 	
 	// Execute CUDA Matrix Transposition
-	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, node_columns);
-	matrixTranspose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_columns, node_rows);
+	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
+	transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_rows, 1);
 	cudaDeviceSynchronize();
 
 	// Copy results from device to host
-	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_matrix_size);
-	cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node)* node_matrix_size, cudaMemcpyDeviceToHost);
+	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_size);
+	cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node)* node_size, cudaMemcpyDeviceToHost);
 
 	// Show information on screen
-	displayNodes(h_node_t_matrix, node_matrix_size);
+	displayNodes(h_node_t_matrix, node_size);
 
 	// Calculate size of distance array
 	distance* d_distance;
@@ -642,6 +643,7 @@ int main()
 	free(n);
 	free(d);
 
+	cudaDeviceReset();
 	// End Execution
 	return 0;	
 }
