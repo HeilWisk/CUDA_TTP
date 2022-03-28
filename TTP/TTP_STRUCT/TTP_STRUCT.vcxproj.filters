@@ -18,5 +18,8 @@
     <ClInclude Include="headers\distance.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="headers\tour.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
