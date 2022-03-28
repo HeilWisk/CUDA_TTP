@@ -610,22 +610,21 @@ int main()
 
 	/****************************************************************************************************
 	****************************************************************************************************/
-
 	// Obtain nodes
-	// Calculate amount of rows
+	// Calculate amount of nodes
 	int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
 	// Calculate amount of columns
 	int node_columns = 3;
 	// Calculate node matrix size
 	int node_matrix_size = node_columns * node_rows;
-	// Get matrix
-	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_rows, node_columns);
 	// Allocate memory for the array of structs
 	node* n = (node*)malloc(node_rows * sizeof(node));
 	if (n == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
+	// Get matrix
+	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_rows, node_columns);	
 	// Convert to array of struct
 	extractNodes(matrix, node_rows, n);
 	// Visualize values for node matrix

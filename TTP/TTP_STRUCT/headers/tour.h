@@ -15,11 +15,27 @@ struct tour
 	/// <returns></returns>
 	__host__ __device__ tour(const int node_quantity, const int item_quantity)
 	{
+		//Allocate memory for the nodes (cities)
+		nodes = (node*)malloc(node_quantity * sizeof(node));
+		if (nodes == NULL) {
+			fprintf(stderr, "Unable to allocate memory for nodes");
+			exit(0);
+		}
+
+		//Load data on nodes
 		for (int n = 0; n < node_quantity; n++)
 		{
 			nodes[n] = node();
 		}
 
+		//Allocate memory for the items
+		items = (item*)malloc(item_quantity * sizeof(item));
+		if (items == NULL) {
+			fprintf(stderr, "Unable to allocate memory for items");
+			exit(0);
+		}
+
+		//Load data on items
 		for (int i = 0; i < item_quantity; i++)
 		{
 			items[i] = item();

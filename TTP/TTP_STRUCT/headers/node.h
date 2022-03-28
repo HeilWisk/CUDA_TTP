@@ -20,7 +20,7 @@ struct node {
 		y = y_coordinate; 
 	}
 
-	__host__ __device__ node& operator=(const node& var)
+	/*__host__ __device__ node& operator=(const node& var)
 	{
 		id = var.id;
 		x = var.x;
@@ -31,7 +31,7 @@ struct node {
 	__host__ __device__ bool operator==(const node& var)
 	const {
 		return(id == var.id && x == var.x && y == var.y);
-	}
+	}*/
 };
 
 __host__ __device__ float distanceBetweenNodes(const node& src_node, const node& dst_node)
