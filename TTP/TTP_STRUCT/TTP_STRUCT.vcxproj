@@ -78,13 +78,17 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="genetic_ttp.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\distance.h" />
     <ClInclude Include="headers\item.h" />
     <ClInclude Include="headers\node.h" />
+    <ClInclude Include="headers\population.h" />
     <ClInclude Include="headers\tour.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\w5_n4_bounded-strongly-corr.ttp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

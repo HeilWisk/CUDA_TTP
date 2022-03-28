@@ -1,20 +1,26 @@
 // DEFINES: Tour Data Type (An array of nodes with certain attributes: Fitness, Distance and an array of item)
 struct tour
 {
-	node nodes[DIMENSION];
+	node *nodes;
 	float fitness;
 	//TODO: Evaluate how it works with float to try to change for the struct distance
 	float distance;
-	item items[ITEM_QTY];
+	item *items;
 
-	__host__ __device__ tour()
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="node_quantity"></param>
+	/// <param name="item_quantity"></param>
+	/// <returns></returns>
+	__host__ __device__ tour(const int node_quantity, const int item_quantity)
 	{
-		for (int n = 0; n < DIMENSION; n++)
+		for (int n = 0; n < node_quantity; n++)
 		{
 			nodes[n] = node();
 		}
 
-		for (int i = 0; i < ITEM_QTY; i++)
+		for (int i = 0; i < item_quantity; i++)
 		{
 			items[i] = item();
 		}
@@ -24,18 +30,18 @@ struct tour
 	}
 };
 
-__host__ __device__ void evaluateTour(tour& tour, const float* cost_table)
+__host__ __device__ void evaluateTour(tour& tour, const float* cost_table, const int node_quantity)
 {
 	tour.distance = 0;
-	for (int i = 0; i < DIMENSION; ++i)
+	for (int i = 0; i < node_quantity; ++i)
 	{
-		if (i < DIMENSION - 1)
+		if (i < node_quantity - 1)
 		{
-			tour.distance += cost_table[(tour.nodes[i].id) * DIMENSION + (tour.nodes[i + 1]).id];
+			tour.distance += cost_table[(tour.nodes[i].id) * node_quantity + (tour.nodes[i + 1]).id];
 		}
 		else
 		{
-			tour.distance += cost_table[(tour.nodes[i].id) * DIMENSION + (tour.nodes[0]).id];
+			tour.distance += cost_table[(tour.nodes[i].id) * node_quantity + (tour.nodes[0]).id];
 		}
 
 		if (tour.distance != 0)
@@ -45,12 +51,12 @@ __host__ __device__ void evaluateTour(tour& tour, const float* cost_table)
 	}
 }
 
-void initializeRandomTour(tour &tour)
+void initializeRandomTour(tour &tour, const int node_quantity)
 {
 	// Only randomizes the tail of the tour
 	// this is because every tour stars in the same node
 	tour.nodes[0] = node(0, 0, 0);
-	for (int i = 1; i < DIMENSION; ++i)
+	for (int i = 1; i < node_quantity; ++i)
 	{
 		int random_x = rand() % MAX_COORD;
 		int random_y = rand() % MAX_COORD;
@@ -58,11 +64,12 @@ void initializeRandomTour(tour &tour)
 	}
 }
 
-__host__ __device__ void printTour(const tour& tour)
+__host__ __device__ void printTour(const tour& tour, const int node_quantity)
 {
-	for (int i = 0; i < DIMENSION; i++)
+	for (int i = 0; i < node_quantity; i++)
 	{
 		printf("%d ", tour.nodes[i].id + 1);
 	}
+	printf("\n");
 }
 

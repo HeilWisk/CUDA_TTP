@@ -7,9 +7,13 @@
 #include <vector>
 #include <sstream>
 
+#define MAX_COORD 250
+
 #include "headers/node.h"
 #include "headers/item.h"
 #include "headers/distance.h"
+#include "headers/tour.h"
+#include "headers/population.h"
 
 #define DIMENSION "DIMENSION:"
 #define ITEM_QTY "NUMBER OF ITEMS:"
@@ -22,6 +26,8 @@
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
 
 #define BLOCK_SIZE 16
+
+#define POPULATION_SIZE blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
 
 const int blockPerGrid = 8;
 
@@ -460,82 +466,150 @@ void euclideanDistanceCPU(node* srcPoint, node* dstPoint, distance* out, int rCo
 
 int main()
 {
+	/****************************************************************************************************
+	* DECLARE VARIABLES
+	****************************************************************************************************/
+	
+	// File variables
 	char file_name[255], str[255], sub[255];
 	FILE* fp;
-	size_t position;	
-	int** matrix;
+	size_t position;
 	const char openMode[] = "r";
-	double Dimension, ItemQuantity, KnapsackCapacity, MinSpeed, MaxSpeed, RentingRatio;
-	char EdgeWeightType[1000];
 
+	// Problem variables
+	int** matrix;	
+	float knapsack_capacity; 
+	float minimal_speed;
+	float maximun_speed;
+	float renting_ratio;
+	unsigned int node_quantity;
+	unsigned int item_quantity;
+	char edge_weight_type[1000];
+
+	/****************************************************************************************************
+	* PRINT START OF THE PROGRAM
+	****************************************************************************************************/
+	int count;
+	cudaDeviceProp properties;
+	cudaGetDeviceCount(&count);
+	printf("****************************************************************************************\n");
+	printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
+	printf("****************************************************************************************\n");
+	for (int i = 0; i < count; i++)
+	{
+		cudaGetDeviceProperties(&properties, i);
+		printf("GPU:					%s\n", properties.name);
+		printf("Warp Size:				%d\n", properties.warpSize);
+		printf("Total Global Memory:			%zd\n", properties.totalGlobalMem);
+		printf("Total Constant Memory:			%zd\n", properties.totalConstMem);
+		printf("Shared Memory Per Block:		%zd\n", properties.sharedMemPerBlock);
+		printf("Multiprocessor:				%d\n", properties.multiProcessorCount);
+		printf("Max Threads Per Multiprocessor:		%d\n", properties.maxThreadsPerMultiProcessor);
+		printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
+		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
+	}
+	printf("****************************************************************************************\n");
+	/****************************************************************************************************
+	* CAPTURE FILE PATH AND LOAD HIS DATA
+	****************************************************************************************************/
 	// Ask for the filepath & name where the problem is defined
 	printf("Enter name of a file you wish to see\n");
 	gets_s(file_name);
+	printf("\n");
 
 	// Open the file in read mode
 	fp = fopen(file_name, openMode);
-
-	// Valida que no se presente algun error en la apertura del archivo
+	
+	// Validates for errors on file opening
 	if (fp == NULL)
 	{
-		perror("Error while opening the file. \n");
+		perror("Error while opening the file.\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
 	// Print headers
-	printf("The contents of %s file are: \n", file_name);
-
-	printf("The line quantity in file are: %d \n", countFileLines(file_name));
-
+	printf("****************************************************************************************\n");
+	printf("CONTENTS OF THE FILE:\n");
+	printf("****************************************************************************************\n");
+	printf("The quantity of lines in the file are:	%d\n", countFileLines(file_name));
+	
 	// Obtain general data from file
 	while (fgets(str, 100, fp) != NULL) {
 		position = findCharacterPosition(str, ':');
+		// Extract amount of nodes (cities)
 		if (strncmp(str, DIMENSION, strlen(DIMENSION)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			Dimension = atof(sub);
-			printf("Dimension is %lf \n", Dimension);
+			node_quantity = atoi(sub);
+			printf("Nodes (Cities):				%d\n", node_quantity);
 		}
+		// Extract the amount of items
 		else if (strncmp(str, ITEM_QTY, strlen(ITEM_QTY)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			ItemQuantity = atof(sub);
-			printf("Item Quantity is %lf \n", ItemQuantity);
+			item_quantity = atoi(sub);
+			printf("Item:					%d\n", item_quantity);
 		}
+		// Extract the knapsack capacity
 		else if (strncmp(str, KNAPSACK_CAPACITY, strlen(KNAPSACK_CAPACITY)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			KnapsackCapacity = atof(sub);
-			printf("Knapsack Capacity is %lf \n", KnapsackCapacity);
+			knapsack_capacity = atof(sub);
+			printf("Knapsack Capacity:			%lf\n", knapsack_capacity);
 		}
+		// Extract the minimal speed
 		else if (strncmp(str, MIN_SPEED, strlen(MIN_SPEED)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			MinSpeed = atof(sub);
-			printf("Min Speed is %lf \n", MinSpeed);
+			minimal_speed = atof(sub);
+			printf("Minimum Speed:				%lf\n", minimal_speed);
 		}
+		// Extract the maximum speed
 		else if (strncmp(str, MAX_SPEED, strlen(MAX_SPEED)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			MaxSpeed = atof(sub);
-			printf("Max Speed is %lf \n", MaxSpeed);
+			maximun_speed = atof(sub);
+			printf("Maximum Speed:				%lf\n", maximun_speed);
 		}
+		// Extract the renting ratio
 		else if (strncmp(str, RENTING_RATIO, strlen(RENTING_RATIO)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			RentingRatio = atof(sub);
-			printf("Renting Ratio is %lf \n", RentingRatio);
+			renting_ratio = atof(sub);
+			printf("Renting Ratio:				%lf\n", renting_ratio);
 		}
+		// Extract the edge weight type
 		else if (strncmp(str, EDGE_WEIGHT_TYPE, strlen(EDGE_WEIGHT_TYPE)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			strcpy(EdgeWeightType, sub);
-			printf("Edge Weight Type is %s \n", EdgeWeightType);
+			strcpy(edge_weight_type, sub);
+			printf("Edge Weight Type is			%s", edge_weight_type);
 		}
 	}
 
 	// Close file and free memory
 	fclose(fp);
+	printf("****************************************************************************************\n");
+	printf("\n");
+	/****************************************************************************************************
+	* PRINT CUDA AND GENETIC VALUES
+	****************************************************************************************************/
+	printf("****************************************************************************************\n");
+	printf("PROPERTIES FOR THE PROBLEM\n");
+	printf("****************************************************************************************\n");
+	printf("THREADS:				PD\n");
+	printf("BLOCKS:					PD\n");
+	printf("TOURNAMENT SIZE:			PD\n");
+	printf("AMOUNT OF EVOLUTIONS:			PD\n");
+	printf("****************************************************************************************\n");
+	/*************************************************************************************************
+	* POPULATION INITIALIZATION ON HOST (CPU)
+	*************************************************************************************************/
+	tour initial_tour(node_quantity, item_quantity);
+	population initial_population;
+
+	/****************************************************************************************************
+	****************************************************************************************************/
 
 	// Obtain nodes
 	// Calculate amount of rows
@@ -631,6 +705,8 @@ int main()
 
 	// Show Data
 	displayDistance(h_distance, distance_size);
+
+	
 
 	// Free Memory
 	cudaFree(d_node_matrix);
