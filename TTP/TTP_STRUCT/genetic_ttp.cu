@@ -27,7 +27,7 @@
 
 #define BLOCK_SIZE 16
 
-#define POPULATION_SIZE blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
+#define POPULATION_SIZE 10//blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
 
 const int blockPerGrid = 8;
 
@@ -344,35 +344,6 @@ int** extractMatrixFromFile(const char fileName[], const char sectionName[], int
 }
 
 /// <summary>
-/// Function to convert the extracted matrix into an array of node structs
-/// </summary>
-/// <param name="matrix">- Matrix to extract</param>
-/// <param name="rows">- Amount of rows to extract</param>
-/// <param name="c">- Pointer to array of nodes structs</param>
-void extractNodes(int** matrix, int rows, node* c) {
-	for (int i = 0; i < rows; i++) {
-		c[i].id = matrix[i][0];
-		c[i].x = (float)matrix[i][1];
-		c[i].y = (float)matrix[i][2];
-	}
-}
-
-/// <summary>
-/// Function to convert the extracted matrix into an array of item structs
-/// </summary>
-/// <param name="matrix">- Matrix to extract</param>
-/// <param name="rows">- Amount of rows to extract</param>
-/// <param name="i">- Pointer to array of item structs</param>
-void extractItems(int** matrix, int rows, item* i) {
-	for (int s = 0; s < rows; s++) {
-		i[s].id = matrix[s][0];
-		i[s].value = (float)matrix[s][1];
-		i[s].weight = (float)matrix[s][2];
-		i[s].node = matrix[s][3];
-	}
-}
-
-/// <summary>
 /// Displays a matrix on screen
 /// </summary>
 /// <param name="matrix">- Matrix to display</param>
@@ -400,45 +371,6 @@ void display(float** matrix, int rows, int columns) {
 			printf("%f ", matrix[i][j]);
 		}
 		printf("\n");
-	}
-	printf("\n");
-}
-
-/// <summary>
-/// Display the node array
-/// </summary>
-/// <param name="c">- Node array</param>
-/// <param name="size">- Size of the array</param>
-void displayNodes(node* c, int size) {
-	printf("ID	X	Y\n");
-	for (int i = 0; i < size; i++) {
-		printf("%d	%f	%f\n", c[i].id, c[i].x, c[i].y);
-	}
-	printf("\n");
-}
-
-/// <summary>
-/// Display the item array
-/// </summary>
-/// <param name="c">- Item array</param>
-/// <param name="size">- Size of the array</param>
-void displayItems(item* c, int size) {
-	printf("ID	X	Y	LOC\n");
-	for (int i = 0; i < size; i++) {
-		printf("%d	%f	%f	%d\n", c[i].id, c[i].value, c[i].weight, c[i].node);
-	}
-	printf("\n");
-}
-
-/// <summary>
-/// Display the distances array
-/// </summary>
-/// <param name="d">- Distances array</param>
-/// <param name="size">- Size of the array</param>
-void displayDistance(distance* d, int size) {
-	printf("srcId	dstId	d\n");
-	for (int i = 0; i < size; i++) {
-		printf("%d	%d	%f\n", d[i].source, d[i].destiny, d[i].value);
 	}
 	printf("\n");
 }
@@ -478,14 +410,15 @@ int main()
 
 	// Problem variables
 	int** matrix;	
-	float knapsack_capacity; 
-	float minimal_speed;
-	float maximun_speed;
-	float renting_ratio;
+	double knapsack_capacity; 
+	double minimal_speed;
+	double maximun_speed;
+	double renting_ratio;
 	unsigned int node_quantity;
 	unsigned int item_quantity;
 	char edge_weight_type[1000];
 
+#pragma region PRINT GPU PROPERTIES
 	/****************************************************************************************************
 	* PRINT START OF THE PROGRAM
 	****************************************************************************************************/
@@ -509,6 +442,9 @@ int main()
 		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
 	}
 	printf("****************************************************************************************\n");
+#pragma endregion
+
+#pragma region CAPTURE FILE PATH
 	/****************************************************************************************************
 	* CAPTURE FILE PATH AND LOAD HIS DATA
 	****************************************************************************************************/
@@ -591,6 +527,8 @@ int main()
 	fclose(fp);
 	printf("****************************************************************************************\n");
 	printf("\n");
+#pragma endregion
+
 	/****************************************************************************************************
 	* PRINT CUDA AND GENETIC VALUES
 	****************************************************************************************************/
@@ -608,8 +546,6 @@ int main()
 	tour initial_tour(node_quantity, item_quantity);
 	population initial_population;
 
-	/****************************************************************************************************
-	****************************************************************************************************/
 	// Obtain nodes
 	// Calculate amount of nodes
 	int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
@@ -624,30 +560,32 @@ int main()
 		exit(0);
 	}
 	// Get matrix
-	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_rows, node_columns);	
+	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_rows, node_columns);
 	// Convert to array of struct
 	extractNodes(matrix, node_rows, n);
-	// Visualize values for node matrix
-	printf("Array of Cities has %d cities \n", node_rows);
+	// Visualize values for node matrix	
 	displayNodes(n, node_rows);
-
+	// Assign nodes to tour
+	extractNodes(matrix, node_rows, initial_tour);
 	// Obtain items
 	// Calculate amount of rows
-	int itemRows = countMatrixRows(file_name, ITEMS_SECTION);
+	int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
 	// Calculate amount of columns
-	int itemColumns = 4;
+	int item_columns = 4;
 	// Get matrix
-	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, itemRows, itemColumns);
+	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_rows, item_columns);
 	// Allocate memory for the array of structs
-	item* i = (item*)malloc(itemRows * sizeof(item));
+	item* i = (item*)malloc(item_rows * sizeof(item));
 	if (i == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 	// Convert to array of struct
-	extractItems(matrix, itemRows, i);
-	printf("Array of items has %d items \n", itemRows);
-	displayItems(i, itemRows);
+	extractItems(matrix, item_rows, i);
+	// Visualize values for item matrix	
+	displayItems(i, item_rows);
+	// Assign items to tour
+	extractItems(matrix, item_rows, initial_tour);
 
 	// Calculate distance matrix in CPU
 	int distance_matrix_size = node_rows * node_rows;
@@ -656,10 +594,19 @@ int main()
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
-	
+
 	euclideanDistanceCPU(n, n, d, node_rows, distance_matrix_size);
-	printf("SOURCE	DESTINY	DISTANCE\n");
 	displayDistance(d, distance_matrix_size);
+
+	// Initialize population by generating POPULATION_SIZE number of
+	// permutations of the initial tour, all starting at the same city
+	initializePopulation(initial_population, initial_tour, d, POPULATION_SIZE, node_rows);
+	printPopulation(initial_population, POPULATION_SIZE, node_rows);
+
+	/****************************************************************************************************
+	****************************************************************************************************/	
+
+	
 
 	// Calculate Distance Matrix in CUDA
 	// First calculate the matrix transpose
@@ -703,9 +650,7 @@ int main()
 	cudaMemcpy(h_distance, d_distance, sizeof(distance)* distance_size, cudaMemcpyDeviceToHost);
 
 	// Show Data
-	displayDistance(h_distance, distance_size);
-
-	
+	displayDistance(h_distance, distance_size);	
 
 	// Free Memory
 	cudaFree(d_node_matrix);

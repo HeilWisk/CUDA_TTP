@@ -3,8 +3,8 @@
 // DEFINES: Node Data Type
 struct node {
 	int id;
-	float x;
-	float y;
+	double x;
+	double y;
 
 	__host__ __device__ node() 
 	{ 
@@ -13,7 +13,7 @@ struct node {
 		y = -1; 
 	}
 
-	__host__ __device__ node(int id_node, float x_coordinate, float y_coordinate)
+	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate)
 	{ 
 		id = id_node; 
 		x = x_coordinate; 
@@ -34,9 +34,40 @@ struct node {
 	}*/
 };
 
-__host__ __device__ float distanceBetweenNodes(const node& src_node, const node& dst_node)
+__host__ __device__ double distanceBetweenNodes(const node& src_node, const node& dst_node)
 {
-	float x_distance = (float)pow(dst_node.x - src_node.x, 2);
-	float y_distance = (float)pow(dst_node.y - src_node.y, 2);
+	double x_distance = pow(dst_node.x - src_node.x, 2);
+	double y_distance = pow(dst_node.y - src_node.y, 2);
 	return sqrt(x_distance + y_distance);
+}
+
+/// <summary>
+/// Display the node array
+/// </summary>
+/// <param name="c">- Node array</param>
+/// <param name="size">- Size of the array</param>
+void displayNodes(node* c, int size) {
+	printf("****************************************************************************************\n");
+	printf("NODES (CITIES):		%d\n", size);
+	printf("****************************************************************************************\n");
+	printf("ID	X		Y\n");
+	for (int i = 0; i < size; i++) {
+		printf("%d	%f	%f\n", c[i].id, c[i].x, c[i].y);
+	}
+	printf("****************************************************************************************\n");
+	printf("\n");
+}
+
+/// <summary>
+/// Function to convert the extracted matrix into an array of node structs
+/// </summary>
+/// <param name="matrix">- Matrix to extract</param>
+/// <param name="rows">- Amount of rows to extract</param>
+/// <param name="c">- Pointer to array of nodes structs</param>
+void extractNodes(int** matrix, int rows, node* c) {
+	for (int i = 0; i < rows; i++) {
+		c[i].id = matrix[i][0];
+		c[i].x = (float)matrix[i][1];
+		c[i].y = (float)matrix[i][2];
+	}
 }
