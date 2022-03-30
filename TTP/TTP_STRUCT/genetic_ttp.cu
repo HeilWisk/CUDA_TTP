@@ -625,10 +625,6 @@ int main()
 	* POPULATION INITIALIZATION ON DEVICE (GPU)
 	*************************************************************************************************/
 
-	population gpu_initial_population;
-	tour* d_tours;	
-	tour d_i_tour(node_quantity, item_quantity, true);
-
 	// Setup execution parameters
 	//dim3 grid(node_columns / BLOCK_SIZE, node_rows / BLOCK_SIZE, 1);
 	dim3 grid(blockPerGrid, blockPerGrid, 1);
@@ -639,28 +635,46 @@ int main()
 	random_kernel << <grid, threads >> > (d_states, time(0));
 	cudaDeviceSynchronize();
 
-	cudaMalloc(&d_tours, sizeof(tour)* POPULATION_SIZE);
-	cudaMemcpy(d_tours, &d_i_tour, sizeof(tour) * POPULATION_SIZE, cudaMemcpyHostToDevice);
-	// Make an allocated region on device for use by pointer
-	node* host_node_data;
-	cudaMalloc(&host_node_data, sizeof(node));
-	cudaMemcpy(host_node_data, d_i_tour.nodes, sizeof(node), cudaMemcpyHostToDevice);
-	item* host_item_data;
-	cudaMalloc(&host_item_data, sizeof(item));
-	cudaMemcpy(host_item_data, d_i_tour.items, sizeof(item), cudaMemcpyHostToDevice);
-	// Copy pointer to allocated device storage to device struct
-	cudaMemcpy(&(d_tours->nodes), &host_node_data, sizeof(node*), cudaMemcpyHostToDevice);
-	cudaMemcpy(&(d_tours->items), &host_item_data, sizeof(item*), cudaMemcpyHostToDevice);
+	population* gpu_initial_population_d;
+	cudaMalloc((void**)&gpu_initial_population_d, sizeof(population));
+	cudaMalloc((void**)&(gpu_initial_population_d[0].tours), sizeof(tour) * POPULATION_SIZE);
+	for (int i = 0; i < POPULATION_SIZE; ++i)
+	{
+		cudaMalloc((void**)&(gpu_initial_population_d[0].tours[i].nodes), sizeof(node) * node_rows);
+		cudaMalloc((void**)&(gpu_initial_population_d[0].tours[i].items), sizeof(item) * item_rows);
+	}
 
-	initializePopulationGPU << <grid, threads >> > (d_tours, d_i_tour, d, node_rows, item_rows, d_states);
+	tour* d_initial_tour;
+	cudaMalloc((void**)&d_initial_tour, sizeof(tour));
+	cudaMemcpy(d_initial_tour, &initial_tour, sizeof(tour), cudaMemcpyHostToDevice);
+	cudaMalloc((void**)&(d_initial_tour[0].nodes), sizeof(node) * node_rows);
+	cudaMemcpy(&(d_initial_tour->nodes), &initial_tour.nodes, sizeof(node*), cudaMemcpyHostToDevice);
+	cudaMalloc((void**)&(d_initial_tour[0].items), sizeof(item) * item_rows);
+	cudaMemcpy(&(d_initial_tour->items), &initial_tour.items, sizeof(item*), cudaMemcpyHostToDevice);
+	
+	initializePopulationGPU << <grid, threads >> > (gpu_initial_population_d, d_initial_tour, d, node_rows, item_rows, d_states);
 
-	//gpu_initial_population.tours = (tour*)malloc(sizeof(tour) * POPULATION_SIZE);
-	//tour* h_tours = (tour*)malloc(sizeof(tour) * POPULATION_SIZE);
-	//cudaMemcpy(h_tours, d_tours, sizeof(tour*) * POPULATION_SIZE, cudaMemcpyDeviceToHost);
+	population gpu_initial_population;
+	gpu_initial_population.tours = (tour*)malloc(POPULATION_SIZE * sizeof(tour));
+	if (gpu_initial_population.tours == NULL) {
+		printf("Unable to allocate memory for nodes");
+		return;
+	}
 
-	//cudaMemcpy(&initial_tour, &d_initial_tour, sizeof(tour), cudaMemcpyDeviceToHost);
+	for (int i = 0; i < POPULATION_SIZE; ++i)
+	{
+		//Allocate memory for the nodes on tours
+		gpu_initial_population.tours[i].nodes = (node*)malloc(node_quantity * sizeof(node));
+		if (initial_population.tours[i].nodes == NULL) {
+			printf("Unable to allocate memory for nodes");
+			return;
+		}
+	}
+	cudaMemcpy(&gpu_initial_population, &gpu_initial_population_d, sizeof(population), cudaMemcpyDeviceToHost);
+	cudaMemcpy(&(gpu_initial_population.tours), &(gpu_initial_population_d->tours), sizeof(tour*), cudaMemcpyDeviceToHost);
+	cudaMemcpy(&(gpu_initial_population.tours->nodes), &(gpu_initial_population_d->tours->nodes), sizeof(tour*), cudaMemcpyDeviceToHost);
 	cudaDeviceSynchronize();
-	//printPopulation(gpu_initial_population, POPULATION_SIZE, node_rows);
+	printPopulation(gpu_initial_population, POPULATION_SIZE, node_rows);
 
 	/****************************************************************************************************
 	****************************************************************************************************/	
