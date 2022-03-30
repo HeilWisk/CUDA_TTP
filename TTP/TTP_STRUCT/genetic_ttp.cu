@@ -1,4 +1,5 @@
 ﻿#include "cuda_runtime.h"
+#include "curand_kernel.h"
 #include "device_launch_parameters.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +9,10 @@
 #include <sstream>
 
 #define MAX_COORD 250
+#define POPULATION_SIZE 10//blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
+#define BLOCK_SIZE 16
+
+const int blockPerGrid = 8;
 
 #include "headers/node.h"
 #include "headers/item.h"
@@ -24,12 +29,6 @@
 #define EDGE_WEIGHT_TYPE "EDGE_WEIGHT_TYPE:"
 #define NODE_COORD_SECTION "NODE_COORD_SECTION	(INDEX, X, Y):"
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
-
-#define BLOCK_SIZE 16
-
-#define POPULATION_SIZE 10//blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
-
-const int blockPerGrid = 8;
 
 #pragma region CUDA Kernels
 
@@ -127,6 +126,22 @@ __global__ void matrixDistances(node* m_src_dev, node* m_dst_dev, distance* m_di
 		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].destiny = destinyId;
 		m_dist_dev[rowIdx * m_dist_dev_cols + colIdx].value = sqrt(value);
 	}
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="state"></param>
+/// <param name="seed"></param>
+/// <returns></returns>
+__global__ void random_kernel(curandState* state, time_t seed)
+{
+	// Global index of every block on the grid
+	int block_global_index = blockIdx.x + blockIdx.y * blockPerGrid;
+	// Global index of every thread on the grid
+	int thread_global_index = threadIdx.x + threadIdx.y * blockDim.x + block_global_index * blockDim.x * blockDim.y;
+
+	curand_init(seed, thread_global_index, 0, &state[thread_global_index]);
 }
 
 #pragma endregion
@@ -540,10 +555,12 @@ int main()
 	printf("TOURNAMENT SIZE:			PD\n");
 	printf("AMOUNT OF EVOLUTIONS:			PD\n");
 	printf("****************************************************************************************\n");
+
+#pragma region POPULATION INITIALIZATION CPU
 	/*************************************************************************************************
 	* POPULATION INITIALIZATION ON HOST (CPU)
 	*************************************************************************************************/
-	tour initial_tour(node_quantity, item_quantity);
+	tour initial_tour(node_quantity, item_quantity, false);
 	population initial_population;
 
 	// Obtain nodes
@@ -600,13 +617,54 @@ int main()
 
 	// Initialize population by generating POPULATION_SIZE number of
 	// permutations of the initial tour, all starting at the same city
-	initializePopulation(initial_population, initial_tour, d, POPULATION_SIZE, node_rows);
+	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_rows);
 	printPopulation(initial_population, POPULATION_SIZE, node_rows);
+#pragma endregion
+
+	/*************************************************************************************************
+	* POPULATION INITIALIZATION ON DEVICE (GPU)
+	*************************************************************************************************/
+
+	population gpu_initial_population;
+	tour* d_tours;	
+	tour d_i_tour(node_quantity, item_quantity, true);
+
+	// Setup execution parameters
+	//dim3 grid(node_columns / BLOCK_SIZE, node_rows / BLOCK_SIZE, 1);
+	dim3 grid(blockPerGrid, blockPerGrid, 1);
+	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
+
+	curandState* d_states;
+	cudaMalloc((void**)&d_states, sizeof(curandState)* POPULATION_SIZE);
+	random_kernel << <grid, threads >> > (d_states, time(0));
+	cudaDeviceSynchronize();
+
+	cudaMalloc(&d_tours, sizeof(tour)* POPULATION_SIZE);
+	cudaMemcpy(d_tours, &d_i_tour, sizeof(tour) * POPULATION_SIZE, cudaMemcpyHostToDevice);
+	// Make an allocated region on device for use by pointer
+	node* host_node_data;
+	cudaMalloc(&host_node_data, sizeof(node));
+	cudaMemcpy(host_node_data, d_i_tour.nodes, sizeof(node), cudaMemcpyHostToDevice);
+	item* host_item_data;
+	cudaMalloc(&host_item_data, sizeof(item));
+	cudaMemcpy(host_item_data, d_i_tour.items, sizeof(item), cudaMemcpyHostToDevice);
+	// Copy pointer to allocated device storage to device struct
+	cudaMemcpy(&(d_tours->nodes), &host_node_data, sizeof(node*), cudaMemcpyHostToDevice);
+	cudaMemcpy(&(d_tours->items), &host_item_data, sizeof(item*), cudaMemcpyHostToDevice);
+
+	initializePopulationGPU << <grid, threads >> > (d_tours, d_i_tour, d, node_rows, item_rows, d_states);
+
+	//gpu_initial_population.tours = (tour*)malloc(sizeof(tour) * POPULATION_SIZE);
+	//tour* h_tours = (tour*)malloc(sizeof(tour) * POPULATION_SIZE);
+	//cudaMemcpy(h_tours, d_tours, sizeof(tour*) * POPULATION_SIZE, cudaMemcpyDeviceToHost);
+
+	//cudaMemcpy(&initial_tour, &d_initial_tour, sizeof(tour), cudaMemcpyDeviceToHost);
+	cudaDeviceSynchronize();
+	//printPopulation(gpu_initial_population, POPULATION_SIZE, node_rows);
 
 	/****************************************************************************************************
 	****************************************************************************************************/	
-
-	
+		
 
 	// Calculate Distance Matrix in CUDA
 	// First calculate the matrix transpose
@@ -619,12 +677,7 @@ int main()
 	cudaMalloc(&d_node_matrix, node_size * sizeof(node));
 	cudaMalloc(&d_node_t_matrix, node_size * sizeof(node));
 	cudaMemcpy(d_node_matrix, n, node_size * sizeof(node), cudaMemcpyHostToDevice);
-
-	// Setup execution parameters
-	//dim3 grid(node_columns / BLOCK_SIZE, node_rows / BLOCK_SIZE, 1);
-	dim3 grid(blockPerGrid, blockPerGrid, 1);
-	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
-	
+		
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
 	transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_rows, 1);

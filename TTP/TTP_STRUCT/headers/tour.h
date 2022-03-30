@@ -13,33 +13,47 @@ struct tour
 	/// <param name="node_quantity"></param>
 	/// <param name="item_quantity"></param>
 	/// <returns></returns>
-	__host__ __device__ tour(const int node_quantity, const int item_quantity)
+	__host__ __device__ tour(const int node_quantity, const int item_quantity, const bool gpu )
 	{
 		//Allocate memory for the nodes (cities)
-		nodes = (node*)malloc(node_quantity * sizeof(node));
-		if (nodes == NULL) {
-			printf("Unable to allocate memory for nodes");
-			return;
-		}
-
-		//Load data on nodes
-		for (int n = 0; n < node_quantity; n++)
+		if (gpu)
 		{
-			nodes[n] = node();
+			cudaMalloc(&nodes, sizeof(node) * node_quantity);
 		}
+		else
+		{
+			nodes = (node*)malloc(node_quantity * sizeof(node));
+			if (nodes == NULL) {
+				printf("Unable to allocate memory for nodes");
+				return;
+			}
+
+			//Load data on nodes
+			for (int n = 0; n < node_quantity; n++)
+			{
+				nodes[n] = node();
+			}
+		}		
 
 		//Allocate memory for the items
-		items = (item*)malloc(item_quantity * sizeof(item));
-		if (items == NULL) {
-			printf("Unable to allocate memory for items");
-			return;
-		}
-
-		//Load data on items
-		for (int i = 0; i < item_quantity; i++)
+		if (gpu)
 		{
-			items[i] = item();
+			cudaMalloc(&items, sizeof(item) * item_quantity);
 		}
+		else
+		{
+			items = (item*)malloc(item_quantity * sizeof(item));
+			if (items == NULL) {
+				printf("Unable to allocate memory for items");
+				return;
+			}
+
+			//Load data on items
+			for (int i = 0; i < item_quantity; i++)
+			{
+				items[i] = item();
+			}
+		}	
 
 		fitness = 0;
 		total_distance = 0;
@@ -83,12 +97,13 @@ void initializeRandomTour(tour &tour, const int node_quantity)
 __host__ __device__ void printTour(const tour& tour, const int node_quantity)
 {
 	printf("TOUR INFORMATION\n");
+	printf("FITNESS: %f\n", tour.fitness);
 	printf("NODES:\n");
 	for (int i = 0; i < node_quantity; ++i)
 	{
 		printf("NODE[%d]	ID: %d\n", i, tour.nodes[i].id);
 	}
-	printf("FITNESS: %f\n", tour.fitness);
+	
 	printf("TOTAL DISTANCE: %f\n", tour.total_distance);
 	printf("\n");
 }
