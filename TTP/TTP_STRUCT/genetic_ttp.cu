@@ -416,7 +416,7 @@ int main()
 	/****************************************************************************************************
 	* DECLARE VARIABLES
 	****************************************************************************************************/
-	
+
 	// File variables
 	char file_name[255], str[255], sub[255];
 	FILE* fp;
@@ -424,8 +424,8 @@ int main()
 	const char openMode[] = "r";
 
 	// Problem variables
-	int** matrix;	
-	double knapsack_capacity; 
+	int** matrix;
+	double knapsack_capacity;
 	double minimal_speed;
 	double maximun_speed;
 	double renting_ratio;
@@ -470,20 +470,20 @@ int main()
 
 	// Open the file in read mode
 	fp = fopen(file_name, openMode);
-	
+
 	// Validates for errors on file opening
 	if (fp == NULL)
 	{
 		perror("Error while opening the file.\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	// Print headers
 	printf("****************************************************************************************\n");
 	printf("CONTENTS OF THE FILE:\n");
 	printf("****************************************************************************************\n");
 	printf("The quantity of lines in the file are:	%d\n", countFileLines(file_name));
-	
+
 	// Obtain general data from file
 	while (fgets(str, 100, fp) != NULL) {
 		position = findCharacterPosition(str, ':');
@@ -631,50 +631,70 @@ int main()
 	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 
 	curandState* d_states;
-	cudaMalloc((void**)&d_states, sizeof(curandState)* POPULATION_SIZE);
+	cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE);
 	random_kernel << <grid, threads >> > (d_states, time(0));
 	cudaDeviceSynchronize();
 
-	population* gpu_initial_population_d;
-	cudaMalloc((void**)&gpu_initial_population_d, sizeof(population));
-	cudaMalloc((void**)&(gpu_initial_population_d[0].tours), sizeof(tour) * POPULATION_SIZE);
+	// 1. cudaMalloc a pointer to device memory that hold population
+	population* d_initial_population_;
+	cudaMalloc((void**)&d_initial_population_, sizeof(population));
+	// 2. Create a separate tour pointer on the host.
+	tour* d_tour_ptr;
+	cudaMalloc((void**)&d_tour_ptr, sizeof(tour) * POPULATION_SIZE);
+	// 3. Create a separate node pointer on the host.
+	node* d_node_ptr;
+	// 4. cudaMalloc node storage on the device for node pointer
+	// 5. cudaMemcpy the pointer value of node pointer from host to the device node pointer
 	for (int i = 0; i < POPULATION_SIZE; ++i)
 	{
-		cudaMalloc((void**)&(gpu_initial_population_d[0].tours[i].nodes), sizeof(node) * node_rows);
-		cudaMalloc((void**)&(gpu_initial_population_d[0].tours[i].items), sizeof(item) * item_rows);
+		cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_rows); //4
+		cudaMemcpy(&(d_tour_ptr[i].nodes), &(d_node_ptr[i]), sizeof(node*), cudaMemcpyHostToDevice); //5
+		// Optional: Copy an instantiated object on the host to the device pointer
+		cudaMemcpy(d_tour_ptr[i].nodes, initial_tour.nodes, sizeof(node) * node_rows, cudaMemcpyHostToDevice);
 	}
+	// 6. cudaMemcpy the pointer value of tour pointer from host to the device node pointer
+	cudaMemcpy(&(d_initial_population_->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice);
 
-	tour* d_initial_tour;
-	cudaMalloc((void**)&d_initial_tour, sizeof(tour));
-	cudaMemcpy(d_initial_tour, &initial_tour, sizeof(tour), cudaMemcpyHostToDevice);
-	cudaMalloc((void**)&(d_initial_tour[0].nodes), sizeof(node) * node_rows);
-	cudaMemcpy(&(d_initial_tour->nodes), &initial_tour.nodes, sizeof(node*), cudaMemcpyHostToDevice);
-	cudaMalloc((void**)&(d_initial_tour[0].items), sizeof(item) * item_rows);
-	cudaMemcpy(&(d_initial_tour->items), &initial_tour.items, sizeof(item*), cudaMemcpyHostToDevice);
+	// 1. cudaMalloc a pointer to device memory that hold population
+	tour* d_initial_tour_ptr;
+	cudaMalloc((void**)&d_initial_tour_ptr, sizeof(tour));
+	// 2. Copy an instantiated object on the host to the device pointer
+	cudaMemcpy(d_initial_tour_ptr, &initial_tour, sizeof(tour), cudaMemcpyHostToDevice);
+	// 3. Create a separate node pointer on the host.
+	node* d_node_temp_ptr;
+	// 4. cudaMalloc node storage on the device for node pointer
+	cudaMalloc(&d_node_temp_ptr, sizeof(node) * node_rows);
+	// Copy an instantiated object on the host to the device pointer
+	cudaMemcpy(d_node_temp_ptr, &initial_tour.nodes, sizeof(node) * node_rows, cudaMemcpyHostToDevice);
+	// 5. cudaMemcpy the pointer value of the pointer from the host to the device pointer	
+	cudaMemcpy(&(d_initial_tour_ptr->nodes), &initial_tour.nodes, sizeof(node*), cudaMemcpyHostToDevice);
 	
-	initializePopulationGPU << <grid, threads >> > (gpu_initial_population_d, d_initial_tour, d, node_rows, item_rows, d_states);
-
-	population gpu_initial_population;
-	gpu_initial_population.tours = (tour*)malloc(POPULATION_SIZE * sizeof(tour));
-	if (gpu_initial_population.tours == NULL) {
-		printf("Unable to allocate memory for nodes");
-		return;
-	}
-
-	for (int i = 0; i < POPULATION_SIZE; ++i)
-	{
-		//Allocate memory for the nodes on tours
-		gpu_initial_population.tours[i].nodes = (node*)malloc(node_quantity * sizeof(node));
-		if (initial_population.tours[i].nodes == NULL) {
-			printf("Unable to allocate memory for nodes");
-			return;
-		}
-	}
-	cudaMemcpy(&gpu_initial_population, &gpu_initial_population_d, sizeof(population), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&(gpu_initial_population.tours), &(gpu_initial_population_d->tours), sizeof(tour*), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&(gpu_initial_population.tours->nodes), &(gpu_initial_population_d->tours->nodes), sizeof(tour*), cudaMemcpyDeviceToHost);
+	initializePopulationGPU << <grid, threads >> > (d_initial_population_, d_initial_tour_ptr, d, node_rows, item_rows, d_states);
 	cudaDeviceSynchronize();
-	printPopulation(gpu_initial_population, POPULATION_SIZE, node_rows);
+
+	//Copy results from device to host
+	population* h_initial_population = (population*)malloc(sizeof(population));
+	cudaMemcpy(h_initial_population, d_initial_population_, sizeof(population), cudaMemcpyDeviceToHost);
+
+
+	//population gpu_initial_population;
+	//gpu_initial_population.tours = (tour*)malloc(POPULATION_SIZE * sizeof(tour));
+	//if (gpu_initial_population.tours == NULL) {
+	//	printf("Unable to allocate memory for nodes");
+	//	return;
+	//}
+
+	//for (int i = 0; i < POPULATION_SIZE; ++i)
+	//{
+	//	//Allocate memory for the nodes on tours
+	//	gpu_initial_population.tours[i].nodes = (node*)malloc(node_quantity * sizeof(node));
+	//	if (initial_population.tours[i].nodes == NULL) {
+	//		printf("Unable to allocate memory for nodes");
+	//		return;
+	//	}
+	//}
+	
+	printPopulation(h_initial_population[0], POPULATION_SIZE, node_rows);
 
 	/****************************************************************************************************
 	****************************************************************************************************/	

@@ -61,12 +61,13 @@ __global__ void initializePopulationGPU(population* initial_population, tour* in
 	// Set the tours
 	if (thread_global_index_x < POPULATION_SIZE)
 	{
-		for (int r = 0; r < node_quantity; ++r)
+		// TODO: Validate usability of this
+		/*for (int r = 0; r < node_quantity; ++r)
 		{
 			initial_population->tours[thread_global_index_x].nodes[r].id = initial_tour->nodes[r].id;
 			initial_population->tours[thread_global_index_x].nodes[r].x = initial_tour->nodes[r].x;
 			initial_population->tours[thread_global_index_x].nodes[r].y = initial_tour->nodes[r].y;
-		}
+		}*/
 
 		for (int j = 1; j < node_quantity; ++j)
 		{
