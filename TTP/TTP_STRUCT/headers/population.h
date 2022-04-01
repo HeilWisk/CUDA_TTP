@@ -44,64 +44,64 @@ void initializePopulationCPU(population& initial_population, tour& initial_tour,
 	}
 }
 
-__global__ void initializePopulationGPU(population* initial_population, tour* initial_tour, distance* distances, const int node_quantity, const int item_quantity, curandState* state)
+__global__ void initializePopulationGPU(population* initial_population, distance* distances, const int node_quantity, const int item_quantity, curandState* state)
 {
 	node temp;
-	
-	// Global index of each block on the grid
-	int block_global_index = blockIdx.x + blockIdx.y * blockPerGrid;
-	// Global index of each thread on the grid in the x dimension
-	//int thread_global_index_x = threadIdx.x + block_global_index * POPULATION_SIZE;
 
 	unsigned int rowIdx = blockIdx.y * blockDim.y + threadIdx.y;
 	unsigned int colIdx = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int thread_global_index_x = colIdx + POPULATION_SIZE * rowIdx;
 
-	curandState local_state = state[block_global_index];
+	curandState local_state = state[thread_global_index_x];
 
 	// Set the tours
 	if (thread_global_index_x < POPULATION_SIZE)
 	{
-		// TODO: Validate usability of this
-		/*for (int r = 0; r < node_quantity; ++r)
-		{
-			initial_population->tours[thread_global_index_x].nodes[r].id = initial_tour->nodes[r].id;
-			initial_population->tours[thread_global_index_x].nodes[r].x = initial_tour->nodes[r].x;
-			initial_population->tours[thread_global_index_x].nodes[r].y = initial_tour->nodes[r].y;
-		}*/
-
 		for (int j = 1; j < node_quantity; ++j)
 		{
 			int random_position = 1 + (curand(&local_state) % (node_quantity - 1));
-			//printf(">random: %d\n", random_position);
 			temp = initial_population->tours[thread_global_index_x].nodes[j];
 			initial_population->tours[thread_global_index_x].nodes[j] = initial_population->tours[thread_global_index_x].nodes[random_position];
 			initial_population->tours[thread_global_index_x].nodes[random_position] = temp;
-			__syncthreads();
-		}
+			//__syncthreads();
+		}		
 		
 		initial_population->tours[thread_global_index_x].total_distance = 0;
-		initial_population->tours[thread_global_index_x].fitness = 0;
-		/*for (int i = 0; i < node_quantity; ++i)
+		for (int i = 0; i < node_quantity; ++i)
 		{
-			if (i < node_quantity - 1)
+			for (int k = 0; k < node_quantity * node_quantity; ++k)
 			{
-				initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[i + 1]).id].value;
+				if (i < node_quantity - 1)
+				{
+					if ((distances[k].source == initial_population->tours[thread_global_index_x].nodes[i].id) && (distances[k].destiny == initial_population->tours[thread_global_index_x].nodes[i + 1].id))
+					{
+						initial_population->tours[thread_global_index_x].total_distance += distances[k].value;
+					}
+				}
+				else
+				{
+					if ((distances[k].source == initial_population->tours[thread_global_index_x].nodes[i].id) && (distances[k].destiny == initial_population->tours[thread_global_index_x].nodes[0].id))
+					{
+						initial_population->tours[thread_global_index_x].total_distance += distances[k].value;
+					}
+				}
 			}
-			else
-			{
-				initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[0]).id].value;
-			}
+			//if (i < node_quantity - 1)
+			//{
+				//initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id-1) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[i + 1]).id-1].value;
+			//}
+			//else
+			//{
+				//initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id-1) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[0]).id-1].value;
+			//}
 
+			// Calculate the fitness
 			if (initial_population->tours[thread_global_index_x].total_distance != 0)
 				initial_population->tours[thread_global_index_x].fitness = 1 / initial_population->tours[thread_global_index_x].total_distance;
 			else
 				initial_population->tours[thread_global_index_x].fitness = 0;
-		}*/
-
-
-		initial_population->id = initial_population->tours[thread_global_index_x].nodes[3].id;
-		printf(">Individual %d > Fitness: %f > node: %d, %d, %d, %d, %d > id: %d\n", thread_global_index_x, initial_population->tours[thread_global_index_x].fitness, initial_population->tours[thread_global_index_x].nodes[0].id, initial_population->tours[thread_global_index_x].nodes[1].id, initial_population->tours[thread_global_index_x].nodes[2].id, initial_population->tours[thread_global_index_x].nodes[3].id, initial_population->tours[thread_global_index_x].nodes[4].id, initial_population->id);
+			__syncthreads();
+		}
 	}
 }
 
