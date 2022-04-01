@@ -683,26 +683,17 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
-	
-	//population* h_initial_population = (population*)malloc(sizeof(population));
-	//HANDLE_ERROR(cudaMemcpy(h_initial_population, d_initial_population, sizeof(population), cudaMemcpyDeviceToHost));
-
 	population h_initial_population;
 	HANDLE_ERROR(cudaMemcpy(&h_initial_population, d_initial_population, sizeof(population), cudaMemcpyDeviceToHost));
 	tour* h_tour_ptr = (tour*)malloc(sizeof(tour) * POPULATION_SIZE);
 	HANDLE_ERROR(cudaMemcpy(h_tour_ptr, d_tour_ptr, sizeof(tour), cudaMemcpyDeviceToHost));
 	h_initial_population.tours = h_tour_ptr;
-	//TODO: FIX
-	node* h_node_ptr[POPULATION_SIZE];
-	//HANDLE_ERROR(cudaMemcpy(h_node_ptr, d_node_ptr, sizeof(node), cudaMemcpyDeviceToHost));
+	node* h_node_ptr = (node*)malloc(sizeof(node) * node_rows);	
 	for (int p = 0; p < POPULATION_SIZE; ++p)
 	{
-		printf("this is %d\n", p);
-		HANDLE_ERROR(cudaMemcpy(h_node_ptr[p], d_node_ptr[p], sizeof(node) * node_rows, cudaMemcpyDeviceToHost));
-		//h_initial_population.tours[p].nodes = h_node_ptr[p];
-	}
-	
-	
+		HANDLE_ERROR(cudaMemcpy(h_node_ptr, d_node_ptr[p], sizeof(node) * node_rows, cudaMemcpyDeviceToHost));
+		h_initial_population.tours[p].nodes = h_node_ptr;
+	}	
 	
 	printPopulation(h_initial_population, POPULATION_SIZE, node_rows);
 

@@ -73,7 +73,7 @@ __global__ void initializePopulationGPU(population* initial_population, tour* in
 		for (int j = 1; j < node_quantity; ++j)
 		{
 			int random_position = 1 + (curand(&local_state) % (node_quantity - 1));
-			printf(">random: %d\n", random_position);
+			//printf(">random: %d\n", random_position);
 			temp = initial_population->tours[thread_global_index_x].nodes[j];
 			initial_population->tours[thread_global_index_x].nodes[j] = initial_population->tours[thread_global_index_x].nodes[random_position];
 			initial_population->tours[thread_global_index_x].nodes[random_position] = temp;
@@ -101,7 +101,7 @@ __global__ void initializePopulationGPU(population* initial_population, tour* in
 
 
 		initial_population->id = initial_population->tours[thread_global_index_x].nodes[3].id;
-		printf(">Individual %d > Fitness: %f > node 3: %d > id: %d\n", thread_global_index_x, initial_population->tours[thread_global_index_x].fitness, initial_population->tours[thread_global_index_x].nodes[3].id, initial_population->id);
+		printf(">Individual %d > Fitness: %f > node: %d, %d, %d, %d, %d > id: %d\n", thread_global_index_x, initial_population->tours[thread_global_index_x].fitness, initial_population->tours[thread_global_index_x].nodes[0].id, initial_population->tours[thread_global_index_x].nodes[1].id, initial_population->tours[thread_global_index_x].nodes[2].id, initial_population->tours[thread_global_index_x].nodes[3].id, initial_population->tours[thread_global_index_x].nodes[4].id, initial_population->id);
 	}
 }
 
