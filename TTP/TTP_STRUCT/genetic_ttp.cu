@@ -30,6 +30,16 @@ const int blockPerGrid = 8;
 #define NODE_COORD_SECTION "NODE_COORD_SECTION	(INDEX, X, Y):"
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
 
+static void HandleError(cudaError_t err,
+	const char* file, int line) {
+	if (err != cudaSuccess) {
+		printf("%s in %s at line %d\n", cudaGetErrorString(err), file, line);
+		getchar();
+		exit(EXIT_FAILURE);
+	}
+}
+#define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
+
 #pragma region CUDA Kernels
 
 /// <summary>
@@ -445,7 +455,7 @@ int main()
 	printf("****************************************************************************************\n");
 	for (int i = 0; i < count; i++)
 	{
-		cudaGetDeviceProperties(&properties, i);
+		HANDLE_ERROR(cudaGetDeviceProperties(&properties, i));
 		printf("GPU:					%s\n", properties.name);
 		printf("Warp Size:				%d\n", properties.warpSize);
 		printf("Total Global Memory:			%zd\n", properties.totalGlobalMem);
@@ -631,70 +641,70 @@ int main()
 	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 
 	curandState* d_states;
-	cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE);
+	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE));
 	random_kernel << <grid, threads >> > (d_states, time(0));
-	cudaDeviceSynchronize();
+	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// 1. cudaMalloc a pointer to device memory that hold population
-	population* d_initial_population_;
-	cudaMalloc((void**)&d_initial_population_, sizeof(population));
+	population* d_initial_population;
+	HANDLE_ERROR(cudaMalloc((void**)&d_initial_population, sizeof(population)));
 	// 2. Create a separate tour pointer on the host.
 	tour* d_tour_ptr;
-	cudaMalloc((void**)&d_tour_ptr, sizeof(tour) * POPULATION_SIZE);
+	HANDLE_ERROR(cudaMalloc((void**)&d_tour_ptr, sizeof(tour) * POPULATION_SIZE));
 	// 3. Create a separate node pointer on the host.
-	node* d_node_ptr;
+	node* d_node_ptr[POPULATION_SIZE];
 	// 4. cudaMalloc node storage on the device for node pointer
 	// 5. cudaMemcpy the pointer value of node pointer from host to the device node pointer
 	for (int i = 0; i < POPULATION_SIZE; ++i)
 	{
-		cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_rows); //4
-		cudaMemcpy(&(d_tour_ptr[i].nodes), &(d_node_ptr[i]), sizeof(node*), cudaMemcpyHostToDevice); //5
+		HANDLE_ERROR(cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_rows)); //4
+		HANDLE_ERROR(cudaMemcpy(&(d_tour_ptr[i].nodes), &(d_node_ptr[i]), sizeof(node*), cudaMemcpyHostToDevice)); //5
 		// Optional: Copy an instantiated object on the host to the device pointer
-		cudaMemcpy(d_tour_ptr[i].nodes, initial_tour.nodes, sizeof(node) * node_rows, cudaMemcpyHostToDevice);
+		HANDLE_ERROR(cudaMemcpy(d_node_ptr[i], initial_tour.nodes, sizeof(node) * node_rows, cudaMemcpyHostToDevice));
 	}
 	// 6. cudaMemcpy the pointer value of tour pointer from host to the device node pointer
-	cudaMemcpy(&(d_initial_population_->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice);
+	HANDLE_ERROR(cudaMemcpy(&(d_initial_population->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice));
 
 	// 1. cudaMalloc a pointer to device memory that hold population
 	tour* d_initial_tour_ptr;
-	cudaMalloc((void**)&d_initial_tour_ptr, sizeof(tour));
+	HANDLE_ERROR(cudaMalloc((void**)&d_initial_tour_ptr, sizeof(tour)));
 	// 2. Copy an instantiated object on the host to the device pointer
-	cudaMemcpy(d_initial_tour_ptr, &initial_tour, sizeof(tour), cudaMemcpyHostToDevice);
+	HANDLE_ERROR(cudaMemcpy(d_initial_tour_ptr, &initial_tour, sizeof(tour), cudaMemcpyHostToDevice));
 	// 3. Create a separate node pointer on the host.
 	node* d_node_temp_ptr;
 	// 4. cudaMalloc node storage on the device for node pointer
-	cudaMalloc(&d_node_temp_ptr, sizeof(node) * node_rows);
+	HANDLE_ERROR(cudaMalloc(&d_node_temp_ptr, sizeof(node) * node_rows));
 	// Copy an instantiated object on the host to the device pointer
-	cudaMemcpy(d_node_temp_ptr, &initial_tour.nodes, sizeof(node) * node_rows, cudaMemcpyHostToDevice);
+	HANDLE_ERROR(cudaMemcpy(d_node_temp_ptr, &initial_tour.nodes, sizeof(node) * node_rows, cudaMemcpyHostToDevice));
 	// 5. cudaMemcpy the pointer value of the pointer from the host to the device pointer	
-	cudaMemcpy(&(d_initial_tour_ptr->nodes), &initial_tour.nodes, sizeof(node*), cudaMemcpyHostToDevice);
+	HANDLE_ERROR(cudaMemcpy(&(d_initial_tour_ptr->nodes), &initial_tour.nodes, sizeof(node*), cudaMemcpyHostToDevice));
 	
-	initializePopulationGPU << <grid, threads >> > (d_initial_population_, d_initial_tour_ptr, d, node_rows, item_rows, d_states);
-	cudaDeviceSynchronize();
+	initializePopulationGPU << <grid, threads >> > (d_initial_population, d_initial_tour_ptr, d, node_rows, item_rows, d_states);
+	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
-	population* h_initial_population = (population*)malloc(sizeof(population));
-	cudaMemcpy(h_initial_population, d_initial_population_, sizeof(population), cudaMemcpyDeviceToHost);
-
-
-	//population gpu_initial_population;
-	//gpu_initial_population.tours = (tour*)malloc(POPULATION_SIZE * sizeof(tour));
-	//if (gpu_initial_population.tours == NULL) {
-	//	printf("Unable to allocate memory for nodes");
-	//	return;
-	//}
-
-	//for (int i = 0; i < POPULATION_SIZE; ++i)
-	//{
-	//	//Allocate memory for the nodes on tours
-	//	gpu_initial_population.tours[i].nodes = (node*)malloc(node_quantity * sizeof(node));
-	//	if (initial_population.tours[i].nodes == NULL) {
-	//		printf("Unable to allocate memory for nodes");
-	//		return;
-	//	}
-	//}
 	
-	printPopulation(h_initial_population[0], POPULATION_SIZE, node_rows);
+	//population* h_initial_population = (population*)malloc(sizeof(population));
+	//HANDLE_ERROR(cudaMemcpy(h_initial_population, d_initial_population, sizeof(population), cudaMemcpyDeviceToHost));
+
+	population h_initial_population;
+	HANDLE_ERROR(cudaMemcpy(&h_initial_population, d_initial_population, sizeof(population), cudaMemcpyDeviceToHost));
+	tour* h_tour_ptr = (tour*)malloc(sizeof(tour) * POPULATION_SIZE);
+	HANDLE_ERROR(cudaMemcpy(h_tour_ptr, d_tour_ptr, sizeof(tour), cudaMemcpyDeviceToHost));
+	h_initial_population.tours = h_tour_ptr;
+	//TODO: FIX
+	node* h_node_ptr[POPULATION_SIZE];
+	//HANDLE_ERROR(cudaMemcpy(h_node_ptr, d_node_ptr, sizeof(node), cudaMemcpyDeviceToHost));
+	for (int p = 0; p < POPULATION_SIZE; ++p)
+	{
+		printf("this is %d\n", p);
+		HANDLE_ERROR(cudaMemcpy(h_node_ptr[p], d_node_ptr[p], sizeof(node) * node_rows, cudaMemcpyDeviceToHost));
+		//h_initial_population.tours[p].nodes = h_node_ptr[p];
+	}
+	
+	
+	
+	printPopulation(h_initial_population, POPULATION_SIZE, node_rows);
 
 	/****************************************************************************************************
 	****************************************************************************************************/	
@@ -708,18 +718,18 @@ int main()
 	int node_size = node_rows;
 
 	// Allocate memory on device
-	cudaMalloc(&d_node_matrix, node_size * sizeof(node));
-	cudaMalloc(&d_node_t_matrix, node_size * sizeof(node));
-	cudaMemcpy(d_node_matrix, n, node_size * sizeof(node), cudaMemcpyHostToDevice);
+	HANDLE_ERROR(cudaMalloc(&d_node_matrix, node_size * sizeof(node)));
+	HANDLE_ERROR(cudaMalloc(&d_node_t_matrix, node_size * sizeof(node)));
+	HANDLE_ERROR(cudaMemcpy(d_node_matrix, n, node_size * sizeof(node), cudaMemcpyHostToDevice));
 		
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
 	transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_rows, 1);
-	cudaDeviceSynchronize();
+	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Copy results from device to host
 	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_size);
-	cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node)* node_size, cudaMemcpyDeviceToHost);
+	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node)* node_size, cudaMemcpyDeviceToHost));
 
 	// Show information on screen
 	displayNodes(h_node_t_matrix, node_size);
@@ -727,30 +737,30 @@ int main()
 	// Calculate size of distance array
 	distance* d_distance;
 	int distance_size = node_rows * node_rows;
-	cudaMalloc(&d_distance, sizeof(distance)* distance_size);
+	HANDLE_ERROR(cudaMalloc(&d_distance, sizeof(distance)* distance_size));
 	printf("Calculando la matriz de distancias en GPU\n");
 	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_rows, node_rows);
-	cudaDeviceSynchronize();
+	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
 	distance* h_distance = (distance*)malloc(sizeof(distance) * distance_size);
-	cudaMemcpy(h_distance, d_distance, sizeof(distance)* distance_size, cudaMemcpyDeviceToHost);
+	HANDLE_ERROR(cudaMemcpy(h_distance, d_distance, sizeof(distance)* distance_size, cudaMemcpyDeviceToHost));
 
 	// Show Data
 	displayDistance(h_distance, distance_size);	
 
 	// Free Memory
-	cudaFree(d_node_matrix);
-	cudaFree(d_node_t_matrix);
+	HANDLE_ERROR(cudaFree(d_node_matrix));
+	HANDLE_ERROR(cudaFree(d_node_t_matrix));
 	free(h_node_t_matrix);
-	cudaFree(d_distance);
+	HANDLE_ERROR(cudaFree(d_distance));
 	free(h_distance);
 	free(matrix);
 	free(i);
 	free(n);
 	free(d);
 
-	cudaDeviceReset();
+	HANDLE_ERROR(cudaDeviceReset());
 	// End Execution
 	return 0;	
 }

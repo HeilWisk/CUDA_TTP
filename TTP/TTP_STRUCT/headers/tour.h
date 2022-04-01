@@ -60,7 +60,7 @@ struct tour
 	}
 };
 
-__host__ __device__ void evaluateTour(tour& tour, const distance* cost_table, const int node_quantity)
+void evaluateTour(tour& tour, const distance* cost_table, const int node_quantity)
 {
 	tour.total_distance = 0;
 	for (int i = 0; i < node_quantity; ++i)

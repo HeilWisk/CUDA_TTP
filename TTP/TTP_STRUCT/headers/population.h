@@ -1,6 +1,7 @@
 // DEFINES: Population as an array of tours
 struct population
 {
+	int id;
 	tour *tours;
 };
 
@@ -72,16 +73,39 @@ __global__ void initializePopulationGPU(population* initial_population, tour* in
 		for (int j = 1; j < node_quantity; ++j)
 		{
 			int random_position = 1 + (curand(&local_state) % (node_quantity - 1));
+			printf(">random: %d\n", random_position);
 			temp = initial_population->tours[thread_global_index_x].nodes[j];
 			initial_population->tours[thread_global_index_x].nodes[j] = initial_population->tours[thread_global_index_x].nodes[random_position];
 			initial_population->tours[thread_global_index_x].nodes[random_position] = temp;
 			__syncthreads();
 		}
-		evaluateTour(initial_population->tours[thread_global_index_x], distances, node_quantity);
+		
+		initial_population->tours[thread_global_index_x].total_distance = 0;
+		initial_population->tours[thread_global_index_x].fitness = 0;
+		/*for (int i = 0; i < node_quantity; ++i)
+		{
+			if (i < node_quantity - 1)
+			{
+				initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[i + 1]).id].value;
+			}
+			else
+			{
+				initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[0]).id].value;
+			}
+
+			if (initial_population->tours[thread_global_index_x].total_distance != 0)
+				initial_population->tours[thread_global_index_x].fitness = 1 / initial_population->tours[thread_global_index_x].total_distance;
+			else
+				initial_population->tours[thread_global_index_x].fitness = 0;
+		}*/
+
+
+		initial_population->id = initial_population->tours[thread_global_index_x].nodes[3].id;
+		printf(">Individual %d > Fitness: %f > node 3: %d > id: %d\n", thread_global_index_x, initial_population->tours[thread_global_index_x].fitness, initial_population->tours[thread_global_index_x].nodes[3].id, initial_population->id);
 	}
 }
 
-void printPopulation(population& population, const int population_size, const int node_quantity)
+void printPopulation(population population, const int population_size, const int node_quantity)
 {
 	for (int i = 0; i < population_size; ++i)
 	{
