@@ -631,6 +631,7 @@ int main()
 	printPopulation(initial_population, POPULATION_SIZE, node_rows);
 #pragma endregion
 
+#pragma region POPULATION INITIALIZATION GPU
 	/*************************************************************************************************
 	* POPULATION INITIALIZATION ON DEVICE (GPU)
 	*************************************************************************************************/
@@ -665,8 +666,9 @@ int main()
 	// 6. cudaMemcpy the pointer value of tour pointer from host to the device node pointer
 	HANDLE_ERROR(cudaMemcpy(&(d_initial_population->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice));
 	
-	/********************************************************************************************************************/
-	// Calculate Distance Matrix in CUDA
+	/********************************************************************************************************************
+	* Calculate Distance Matrix in CUDA
+	********************************************************************************************************************/
 	// First calculate the matrix transpose
 	// Define device pointers
 	node* d_node_matrix;
@@ -704,8 +706,8 @@ int main()
 
 	// Show Data
 	displayDistance(h_distance, distance_size);
-	/***********************************************************************************************************************/
-
+	
+	// Invoke Kernel to generate the initial population on the GPU
 	initializePopulationGPU << <grid, threads >> > (d_initial_population, d_distance, node_rows, item_rows, d_states);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
@@ -724,11 +726,39 @@ int main()
 		h_initial_population.tours[p].nodes = h_node_ptr[p];
 	}
 
+	// Print Result
 	printPopulation(h_initial_population, POPULATION_SIZE, node_rows);
+#pragma endregion
 
+#pragma region GPU MEMORY ALLOCATION
 	/****************************************************************************************************
-	****************************************************************************************************/	
-	
+	* GPU MEMORY ALLOCATION
+	****************************************************************************************************/
+	//TODO: Evaluar toda la seccion para determinar que se puede quitar y que no, por ahora solo voy a hacer copy-paste
+	population* device_population;
+	HANDLE_ERROR(cudaMalloc((void**)&device_population, sizeof(population)));
+
+	// Array to store parents selected from tournament selection
+	tour* device_parents;
+	HANDLE_ERROR(cudaMalloc((void**)&device_parents, sizeof(tour) * POPULATION_SIZE * 2));
+
+	// Cost table for crossover function (SCX Crossover)
+	// TODO: Revisar esta memoria dado que la tabla de costos que se tiene elaborada es con base a estructuras y ya esta generada en GPU
+	float* device_cost_table;
+	HANDLE_ERROR(cudaMalloc((void**)&device_cost_table, sizeof(float) * node_quantity * node_quantity));
+
+	// Array for random numbers
+	curandState* device_state;
+	HANDLE_ERROR(cudaMalloc((void**)&device_state, POPULATION_SIZE * sizeof(curandState)));
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	// Copies data to device for evolution
+	HANDLE_ERROR(cudaMemcpy(device_population, &h_initial_population, sizeof(population), cudaMemcpyHostToDevice));
+	// TODO: Revisar con lupa esta linea dado que h_distance esta expresado en otros terminos, especificamente es un arreglo de estructura tipo distancia no flotantes
+	HANDLE_ERROR(cudaMemcpy(device_cost_table, &h_distance, sizeof(float) * node_quantity * node_quantity, cudaMemcpyHostToDevice));
+	HANDLE_ERROR(cudaDeviceSynchronize());
+#pragma endregion
+
 	// Free Memory
 	HANDLE_ERROR(cudaFree(d_node_matrix));
 	HANDLE_ERROR(cudaFree(d_node_t_matrix));

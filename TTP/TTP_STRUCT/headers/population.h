@@ -86,14 +86,6 @@ __global__ void initializePopulationGPU(population* initial_population, distance
 					}
 				}
 			}
-			//if (i < node_quantity - 1)
-			//{
-				//initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id-1) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[i + 1]).id-1].value;
-			//}
-			//else
-			//{
-				//initial_population->tours[thread_global_index_x].total_distance += distances[(initial_population->tours[thread_global_index_x].nodes[i].id-1) * node_quantity + (initial_population->tours[thread_global_index_x].nodes[0]).id-1].value;
-			//}
 
 			// Calculate the fitness
 			if (initial_population->tours[thread_global_index_x].total_distance != 0)
@@ -112,11 +104,11 @@ void printPopulation(population population, const int population_size, const int
 		printf("Individual %d\n", i);
 		printf("> Fitness: %f\n", population.tours[i].fitness);
 		printf("> Total Distance: %f\n", population.tours[i].total_distance);
-		printf("> Nodes:\n");
+		printf("> Nodes: ");
 		for (int j = 0; j < node_quantity; ++j)
 		{
-			printf("%d\n", population.tours[i].nodes[j].id);
+			printf("%d, ", population.tours[i].nodes[j].id);
 		}
-		printf("\n");
+		printf("\n\n");
 	}
 }
