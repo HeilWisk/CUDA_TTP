@@ -11,6 +11,7 @@
 #define MAX_COORD 250
 #define POPULATION_SIZE 10//blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
 #define BLOCK_SIZE 16
+#define NUM_EVOLUTIONS 100
 
 const int blockPerGrid = 8;
 
@@ -759,7 +760,78 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 #pragma endregion
 
-	// Free Memory
+#pragma region TIMED GPU ALGORITHMS
+	/****************************************************************************************************
+	* TIMED EXECUTION OF EVOLVE POPULATION ON GPU
+	****************************************************************************************************/
+	float milliseconds;
+	cudaEvent_t start, stop;
+	HANDLE_ERROR(cudaEventCreate(&start));
+	HANDLE_ERROR(cudaEventCreate(&stop));
+	HANDLE_ERROR(cudaEventRecord(start));
+
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	/****************************************************************************************************
+	* MAIN LOOP OF TSP
+	****************************************************************************************************/
+	// Initialize random numbers array for tournament selection	
+	// TODO: Implementar el kernel initCuRand y descomentar estas lineas
+	//initCuRand<<<BLOCKS, NUM_THREADS>>>(device_state);
+	HANDLE_ERROR(cudaDeviceSynchronize());
+	// TODO: Revisar que hace la funcion checkForError y en caso tal implementarla o borrar
+	//checkForError();
+
+	// Figure out distance and fitness for each individual in population
+	// TODO: Implementar el kernel evaluatePopulation y descomentar estas lineas
+	//evaluatePopulation << <BLOCKS, NUM_THREADS >> > (device_population, device_cost_table);
+	
+	for(int e = 0; e < NUM_EVOLUTIONS; ++e)
+	{
+		// TODO: Implementar el kernel selection y descomentar estas lineas
+		//selection << <BLOCKS, NUM_THREADS >> > (device_population, device_state, device_parents);
+
+		// Breed the population with tournament selection and SCX crossover
+		// Perform computation parallelized, build children iteratively
+		for (int j = 1; j < node_quantity; ++j)
+		{
+			// TODO: Implementar el kernel crossover y descomentar estas lineas
+			//crossover << <BLOCKS, NUM_THREADS >> > (device_population, device_parents, device_state, device_cost_table, j);
+			
+			// TODO: Implementar el kernel mutate y descomentar estas lineas
+			//mutate << <BLOCKS, NUM_THREADS >> > (device_population, device_state);
+			
+			// TODO: Implementar el kernel evaluatePopulation y descomentar estas lineas
+			//evaluatePopulation << <BLOCKS, NUM_THREADS >> > (device_population, device_cost_table);
+		}
+	}
+
+	HANDLE_ERROR(cudaEventRecord(stop));
+	HANDLE_ERROR(cudaEventSynchronize(stop));
+	HANDLE_ERROR(cudaEventElapsedTime(&milliseconds, start, stop));
+
+	// Copy memory back to host
+	// TODO: Revisar si es necesaria
+	HANDLE_ERROR(cudaMemcpy(&initial_population, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+	HANDLE_ERROR(cudaDeviceSynchronize());
+	// TODO: Revisar si es necesaria
+	//checkForError();
+#pragma endregion
+
+#pragma region OUTPUT
+	/****************************************************************************************************
+	* OUTPUT
+	****************************************************************************************************/
+	//TODO: Implementar la funcion getFittestTour y descomentar la linea
+	//tour fittest = getFittestTour(initial_population.tours, POPULATION_SIZE);
+	// TODO: Descomentar cuando se implemente getFittestTour
+	//printf("%f %f\n", milliseconds / 1000, fittest.distance);
+#pragma endregion
+
+
+	/****************************************************************************************************
+	* FREE MEMORY
+	****************************************************************************************************/
 	HANDLE_ERROR(cudaFree(d_node_matrix));
 	HANDLE_ERROR(cudaFree(d_node_t_matrix));
 	free(h_node_t_matrix);
