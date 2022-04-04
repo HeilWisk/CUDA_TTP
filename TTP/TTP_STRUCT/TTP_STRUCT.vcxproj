@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\distance.h" />
+    <ClInclude Include="headers\gpu_util.h" />
     <ClInclude Include="headers\item.h" />
     <ClInclude Include="headers\node.h" />
     <ClInclude Include="headers\population.h" />

@@ -8,10 +8,17 @@
 #include <vector>
 #include <sstream>
 
+// POPULATION CONTROL
 #define MAX_COORD 250
-#define POPULATION_SIZE 10//blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
+#define POPULATION_SIZE 10 //blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
 #define BLOCK_SIZE 16
 #define NUM_EVOLUTIONS 100
+#define MUTATION_RATE 0.05
+#define ELITISM true
+#define TOURNAMENT_SIZE 128
+//BLOCKS
+//NUM_THREADS
+
 
 const int blockPerGrid = 8;
 
@@ -20,6 +27,7 @@ const int blockPerGrid = 8;
 #include "headers/distance.h"
 #include "headers/tour.h"
 #include "headers/population.h"
+#include "headers/gpu_util.h"
 
 #define DIMENSION "DIMENSION:"
 #define ITEM_QTY "NUMBER OF ITEMS:"
@@ -31,8 +39,8 @@ const int blockPerGrid = 8;
 #define NODE_COORD_SECTION "NODE_COORD_SECTION	(INDEX, X, Y):"
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
 
-static void HandleError(cudaError_t err,
-	const char* file, int line) {
+static void HandleError(cudaError_t err, const char* file, int line) 
+{
 	if (err != cudaSuccess) {
 		printf("%s in %s at line %d\n", cudaGetErrorString(err), file, line);
 		getchar();
@@ -145,14 +153,65 @@ __global__ void matrixDistances(node* m_src_dev, node* m_dst_dev, distance* m_di
 /// <param name="state"></param>
 /// <param name="seed"></param>
 /// <returns></returns>
-__global__ void random_kernel(curandState* state, time_t seed)
+__global__ void initCuRand(curandState* state, time_t seed)
 {
+	// Calculate global index of the threads for the 2D GRID
 	// Global index of every block on the grid
-	int block_global_index = blockIdx.x + blockIdx.y * blockPerGrid;
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
 	// Global index of every thread on the grid
-	int thread_global_index = threadIdx.x + threadIdx.y * blockDim.x + block_global_index * blockDim.x * blockDim.y;
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index >= POPULATION_SIZE)
+		return;
 
 	curand_init(seed, thread_global_index, 0, &state[thread_global_index]);
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="population"></param>
+/// <param name="distance_table"></param>
+/// <param name="node_quantity"></param>
+/// <returns></returns>
+__global__ void evaluatePopulation(population* population, distance* distance_table, const int node_quantity)
+{
+	// Get thread ID
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index < POPULATION_SIZE)
+		evaluateTour(population->tours[thread_global_index], distance_table, node_quantity);
+}
+
+
+__global__ void selection(population* population, curandState* randState, tour* parents, const int node_quantity, const int item_quantity)
+{
+	// Get thread global id
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index < POPULATION_SIZE)
+	{
+		parents[thread_global_index * 2] = tournamentSelection(*population, randState, thread_global_index, node_quantity, item_quantity);
+		parents[thread_global_index * 2+1] = tournamentSelection(*population, randState, thread_global_index, node_quantity, item_quantity);
+	}
 }
 
 #pragma endregion
@@ -644,7 +703,7 @@ int main()
 
 	curandState* d_states;
 	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE * node_rows));
-	random_kernel << <grid, threads >> > (d_states, time(NULL));
+	initCuRand << <grid, threads >> > (d_states, time(NULL));
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// 1. cudaMalloc a pointer to device memory that hold population
@@ -776,15 +835,11 @@ int main()
 	* MAIN LOOP OF TSP
 	****************************************************************************************************/
 	// Initialize random numbers array for tournament selection	
-	// TODO: Implementar el kernel initCuRand y descomentar estas lineas
-	//initCuRand<<<BLOCKS, NUM_THREADS>>>(device_state);
+	initCuRand << <grid, threads >> > (d_states, time(NULL));
 	HANDLE_ERROR(cudaDeviceSynchronize());
-	// TODO: Revisar que hace la funcion checkForError y en caso tal implementarla o borrar
-	//checkForError();
 
 	// Figure out distance and fitness for each individual in population
-	// TODO: Implementar el kernel evaluatePopulation y descomentar estas lineas
-	//evaluatePopulation << <BLOCKS, NUM_THREADS >> > (device_population, device_cost_table);
+	//evaluatePopulation << <grid, threads >> > (device_population, device_cost_table, node_quantity);
 	
 	for(int e = 0; e < NUM_EVOLUTIONS; ++e)
 	{

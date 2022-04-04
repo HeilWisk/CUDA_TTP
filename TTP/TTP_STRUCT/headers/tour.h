@@ -60,20 +60,36 @@ struct tour
 	}
 };
 
-void evaluateTour(tour& tour, const distance* cost_table, const int node_quantity)
+/// <summary>
+/// 
+/// </summary>
+/// <param name="tour"></param>
+/// <param name="distance_table"></param>
+/// <param name="node_quantity"></param>
+__host__ __device__ void evaluateTour(tour& tour, const distance* distance_table, const int node_quantity)
 {
 	tour.total_distance = 0;
 	for (int i = 0; i < node_quantity; ++i)
 	{
-		if (i < node_quantity - 1)
+		for (int k = 0; k < node_quantity * node_quantity; ++k)
 		{
-			tour.total_distance += cost_table[(tour.nodes[i].id) * node_quantity + (tour.nodes[i + 1]).id].value;
-		}
-		else
-		{
-			tour.total_distance += cost_table[(tour.nodes[i].id) * node_quantity + (tour.nodes[0]).id].value;
+			if (i < node_quantity - 1)
+			{
+				if ((distance_table[k].source == tour.nodes[i].id) && (distance_table[k].destiny == tour.nodes[i + 1].id))
+				{
+					tour.total_distance += distance_table[k].value;
+				}
+			}
+			else
+			{
+				if ((distance_table[k].source == tour.nodes[i].id) && (distance_table[k].destiny == tour.nodes[0].id))
+				{
+					tour.total_distance += distance_table[k].value;
+				}
+			}
 		}
 
+		// Calculate the fitness
 		if (tour.total_distance != 0)
 			tour.fitness = 1 / tour.total_distance;
 		else
