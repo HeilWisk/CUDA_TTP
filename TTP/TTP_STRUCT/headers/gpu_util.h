@@ -27,30 +27,6 @@ __host__ __device__ tour getFittestTour(tour* tours, const int& population_size)
 	return fittest;
 }
 
-__device__ node getValidNextNode(tour& parent, tour& child, node& current_node, const int& child_size, const int &node_quantity)
-{
-	node valid_node;
-	//int index_of_current_node = getIndexOfNode(current_node, parent, node_quantity);
-	return valid_node;
-}
-
-/// <summary>
-/// Obtain the position of a node in a tour
-/// </summary>
-/// <param name="node">- Node to look for</param>
-/// <param name="tour">- Tour where to look</param>
-/// <param name="tour_size">- Tour Size</param>
-/// <returns></returns>
-__device__ int getIndexOfNode(node& node, tour& tour, const int& tour_size)
-{
-	for (int i = 0; i < tour_size; ++i)
-	{
-		//if (node == tour.nodes[i])
-			//return i;
-	}
-	return -1;
-}
-
 #pragma endregion
 
 #pragma region DEVICE ONLY UTILITIES
@@ -85,6 +61,86 @@ __device__ tour tournamentSelection(population& population, curandState* d_state
 
 	// Return the best tour on the population
 	return fittest_on_tournament;
+}
+
+/// <summary>
+/// Obtain the position of a node in a tour
+/// </summary>
+/// <param name="node">- Node to look for</param>
+/// <param name="tour">- Tour where to look</param>
+/// <param name="tour_size">- Tour Size</param>
+/// <returns></returns>
+__device__ int getIndexOfNode(node& node, tour& tour, const int &tour_size)
+{
+	for (int i = 0; i < tour_size; ++i)
+	{
+		if (node == tour.nodes[i])
+			return i;
+	}
+	return -1;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="n"></param>
+/// <param name="tour"></param>
+/// <returns></returns>
+__device__ node getNode(int& n, tour& tour)
+{
+	for (int i = 0; i < tour.node_qty; ++i)
+	{
+		if (tour.nodes[i].id == n)
+			return tour.nodes[i];
+	}
+
+	printf("%d, %d", blockIdx.x, threadIdx.x);
+	printf("Could not find node %d in this tour: ", n);
+	printTour(tour);
+	return node();
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="parent"></param>
+/// <param name="child"></param>
+/// <param name="current_node"></param>
+/// <param name="child_size"></param>
+/// <returns></returns>
+__device__ node getValidNextNode(tour& parent, tour& child, node& current_node, const int& child_size)
+{
+	node valid_node;
+	int index_of_current_node = getIndexOfNode(current_node, parent, parent.node_qty);
+
+	// Search for first valid node (not already a child) occurring after current_node location in parent tour
+	for (int i = index_of_current_node + 1; i < parent.node_qty; ++i)
+	{
+		// If not in chlid already, select it
+		if (getIndexOfNode(parent.nodes[i], child, child_size) == -1)
+			return parent.nodes[i];
+	}
+
+	// Loop through node ids [1...Amount of Nodes] and find first valid node to choose as a next point in construction of child tour
+	for (int i = 1; i < parent.node_qty; ++i)
+	{
+		bool in_tour_already = false;
+		for (int j = 1; j < child_size; ++j)
+		{
+			if (child.nodes[j].id == i)
+			{
+				in_tour_already = true;
+				break;
+			}
+		}
+
+		if (!in_tour_already)
+			return getNode(i, parent);
+	}
+
+	// if there is an error
+	printf("No valid city was found\n\n");
+	return node();
 }
 
 #pragma endregion

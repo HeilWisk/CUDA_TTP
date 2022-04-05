@@ -6,6 +6,7 @@ struct item {
 	float weight;
 	float value;
 	int node;
+	int taken;
 
 	__host__ __device__ item()
 	{
@@ -13,14 +14,16 @@ struct item {
 		weight = -1;
 		value = -1;
 		node = -1;
+		taken = 0;
 	}
 
-	__host__ __device__ item(int id_item, float w, float v, int node_id)
+	__host__ __device__ item(int id_item, float w, float v, int node_id, int t)
 	{
 		id = id_item;
 		weight = w;
 		value = v;
 		node = node_id;
+		taken = t;
 	}
 };
 
@@ -36,6 +39,7 @@ void extractItems(int** matrix, int rows, item* i) {
 		i[s].value = (float)matrix[s][1];
 		i[s].weight = (float)matrix[s][2];
 		i[s].node = matrix[s][3];
+		i[s].taken = 0;
 	}
 }
 

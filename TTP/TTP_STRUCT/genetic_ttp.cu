@@ -245,8 +245,46 @@ __global__ void crossover(population* population, tour* parents, curandState* ra
 	if (thread_global_index < POPULATION_SIZE)
 	{
 		population->tours[thread_global_index].nodes[0] = parents[2 * thread_global_index].nodes[0];
-		//node node_1 = getValidNextNode(parents[thread_global_index * 2], population->tours[thread_global_index], population->tours[thread_global_index].nodes[index - 1], index);
+		node node_1 = getValidNextNode(parents[thread_global_index * 2], population->tours[thread_global_index], population->tours[thread_global_index].nodes[index - 1], index);
 
+	}
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="population"></param>
+/// <param name="d_state"></param>
+/// <returns></returns>
+__global__ void mutate(population* population, curandState* d_state, const int number_nodes)
+{
+	// Get thread global id
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index < POPULATION_SIZE)
+	{
+		// Pick random number between 0 and 1
+		curandState local_state = d_state[thread_global_index];
+
+		// If random number is less than mutation rate, perform mutation (swap to nodes in tour)
+		if (curand_uniform(&local_state) < MUTATION_RATE)
+		{
+			int random_number_one = 1 + curand_uniform(&local_state) * (number_nodes - 1.0000001);
+			int random_number_two = 1 + curand_uniform(&local_state) * (number_nodes - 1.0000001);
+
+			node temp = population->tours[thread_global_index].nodes[random_number_one];
+			population->tours[thread_global_index].nodes[random_number_one] = population->tours[thread_global_index].nodes[random_number_two];
+			population->tours[thread_global_index].nodes[random_number_two] = temp;
+
+			d_state[thread_global_index] = local_state;
+		}
 	}
 }
 
@@ -690,6 +728,7 @@ int main()
 	displayNodes(n, node_rows);
 	// Assign nodes to tour
 	extractNodes(matrix, node_rows, initial_tour);
+
 	// Obtain items
 	// Calculate amount of rows
 	int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
@@ -724,7 +763,7 @@ int main()
 	// Initialize population by generating POPULATION_SIZE number of
 	// permutations of the initial tour, all starting at the same city
 	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_rows);
-	printPopulation(initial_population, POPULATION_SIZE, node_rows);
+	printPopulation(initial_population, POPULATION_SIZE);
 #pragma endregion
 
 #pragma region POPULATION INITIALIZATION GPU
@@ -823,7 +862,7 @@ int main()
 	}
 
 	// Print Result
-	printPopulation(h_initial_population, POPULATION_SIZE, node_rows);
+	printPopulation(h_initial_population, POPULATION_SIZE);
 #pragma endregion
 
 #pragma region GPU MEMORY ALLOCATION
@@ -885,14 +924,11 @@ int main()
 		// Perform computation parallelized, build children iteratively
 		for (unsigned int j = 1; j < node_quantity; ++j)
 		{
-			// TODO: Implementar el kernel crossover y descomentar estas lineas
-			//crossover << <BLOCKS, NUM_THREADS >> > (device_population, device_parents, device_state, device_cost_table, j);
+			crossover << <grid, threads >> > (device_population, device_parents, device_state, device_cost_table, j);
 			
-			// TODO: Implementar el kernel mutate y descomentar estas lineas
-			//mutate << <BLOCKS, NUM_THREADS >> > (device_population, device_state);
+			mutate << <grid, threads >> > (device_population, device_state, node_quantity);
 			
-			// TODO: Implementar el kernel evaluatePopulation y descomentar estas lineas
-			//evaluatePopulation << <BLOCKS, NUM_THREADS >> > (device_population, device_cost_table);
+			evaluatePopulation << <grid, threads >> > (device_population, device_cost_table, node_quantity);
 		}
 	}
 

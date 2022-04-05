@@ -3,8 +3,8 @@ struct tour
 {
 	node *nodes;
 	double fitness;
-	//TODO: Evaluate how it works with float to try to change for the struct distance
 	double total_distance;
+	int node_qty;
 	item *items;
 
 	/// <summary>
@@ -57,6 +57,7 @@ struct tour
 
 		fitness = 0;
 		total_distance = 0;
+		node_qty = node_quantity;
 	}
 
 	/// <summary>
@@ -64,9 +65,9 @@ struct tour
 	/// </summary>
 	/// <param name="t"></param>
 	/// <returns></returns>
-	/*__host__ __device__ bool operator==(tour& t)
+	__host__ __device__ bool operator==(tour& t)
 	{
-		for (int i = 0; i < node_quantity; ++i)
+		for (int i = 0; i < t.node_qty; ++i)
 		{
 			if (nodes[i].x != t.nodes[i].x || nodes[i].y != t.nodes[i].y)
 			{
@@ -74,7 +75,19 @@ struct tour
 			}
 		}
 		return true;
-	}*/
+	}
+
+	__host__ __device__ tour& operator=(const tour& t)
+	{
+		for (int i = 0; i < t.node_qty; ++i)
+		{
+			nodes[i] = t.nodes[i];
+		}
+		fitness = t.fitness;
+		total_distance = t.total_distance;
+		node_qty = t.node_qty;
+		return *this;
+	}
 };
 
 /// <summary>
@@ -114,12 +127,62 @@ __host__ __device__ void evaluateTour(tour& tour, const distance* distance_table
 	}
 }
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="tour"></param>
+/// <param name="distance_table"></param>
+/// <returns></returns>
+__host__ __device__ void evaluateTour(tour& tour, const distance* distance_table)
+{
+	tour.total_distance = 0;
+	for (int i = 0; i < tour.node_qty; ++i)
+	{
+		for (int k = 0; k < tour.node_qty * tour.node_qty; ++k)
+		{
+			if (i < tour.node_qty - 1)
+			{
+				if ((distance_table[k].source == tour.nodes[i].id) && (distance_table[k].destiny == tour.nodes[i + 1].id))
+				{
+					tour.total_distance += distance_table[k].value;
+				}
+			}
+			else
+			{
+				if ((distance_table[k].source == tour.nodes[i].id) && (distance_table[k].destiny == tour.nodes[0].id))
+				{
+					tour.total_distance += distance_table[k].value;
+				}
+			}
+		}
+
+		// Calculate the fitness
+		if (tour.total_distance != 0)
+			tour.fitness = 1 / tour.total_distance;
+		else
+			tour.fitness = 0;
+	}
+}
+
 void initializeRandomTour(tour &tour, const int node_quantity)
 {
 	// Only randomizes the tail of the tour
 	// this is because every tour stars in the same node
 	tour.nodes[0] = node(0, 0, 0);
 	for (int i = 1; i < node_quantity; ++i)
+	{
+		double random_x = rand() % MAX_COORD;
+		double random_y = rand() % MAX_COORD;
+		tour.nodes[i] = node(i, random_x, random_y);
+	}
+}
+
+void initializeRandomTour(tour& tour)
+{
+	// Only randomizes the tail of the tour
+	// this is because every tour stars in the same node
+	tour.nodes[0] = node(0, 0, 0);
+	for (int i = 1; i < tour.node_qty; ++i)
 	{
 		double random_x = rand() % MAX_COORD;
 		double random_y = rand() % MAX_COORD;
@@ -137,6 +200,20 @@ __host__ __device__ void printTour(const tour& tour, const int node_quantity)
 		printf("NODE[%d]	ID: %d\n", i, tour.nodes[i].id);
 	}
 	
+	printf("TOTAL DISTANCE: %f\n", tour.total_distance);
+	printf("\n");
+}
+
+__host__ __device__ void printTour(const tour& tour)
+{
+	printf("TOUR INFORMATION\n");
+	printf("FITNESS: %f\n", tour.fitness);
+	printf("NODES:\n");
+	for (int i = 0; i < tour.node_qty; ++i)
+	{
+		printf("NODE[%d]	ID: %d\n", i, tour.nodes[i].id);
+	}
+
 	printf("TOTAL DISTANCE: %f\n", tour.total_distance);
 	printf("\n");
 }
