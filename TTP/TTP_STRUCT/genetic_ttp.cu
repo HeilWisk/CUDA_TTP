@@ -19,7 +19,6 @@
 //BLOCKS
 //NUM_THREADS
 
-
 const int blockPerGrid = 8;
 
 #include "headers/node.h"
@@ -194,7 +193,15 @@ __global__ void evaluatePopulation(population* population, distance* distance_ta
 		evaluateTour(population->tours[thread_global_index], distance_table, node_quantity);
 }
 
-
+/// <summary>
+/// 
+/// </summary>
+/// <param name="population"></param>
+/// <param name="randState"></param>
+/// <param name="parents"></param>
+/// <param name="node_quantity"></param>
+/// <param name="item_quantity"></param>
+/// <returns></returns>
 __global__ void selection(population* population, curandState* randState, tour* parents, const int node_quantity, const int item_quantity)
 {
 	// Get thread global id
@@ -211,6 +218,35 @@ __global__ void selection(population* population, curandState* randState, tour* 
 	{
 		parents[thread_global_index * 2] = tournamentSelection(*population, randState, thread_global_index, node_quantity, item_quantity);
 		parents[thread_global_index * 2+1] = tournamentSelection(*population, randState, thread_global_index, node_quantity, item_quantity);
+	}
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="population"></param>
+/// <param name="parents"></param>
+/// <param name="random_state"></param>
+/// <param name="distance_table"></param>
+/// <param name="index"></param>
+/// <returns></returns>
+__global__ void crossover(population* population, tour* parents, curandState* random_state, distance* distance_table, int index)
+{
+	// Get thread global id
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index < POPULATION_SIZE)
+	{
+		population->tours[thread_global_index].nodes[0] = parents[2 * thread_global_index].nodes[0];
+		//node node_1 = getValidNextNode(parents[thread_global_index * 2], population->tours[thread_global_index], population->tours[thread_global_index].nodes[index - 1], index);
+
 	}
 }
 
@@ -509,7 +545,7 @@ int main()
 	****************************************************************************************************/
 	int count;
 	cudaDeviceProp properties;
-	cudaGetDeviceCount(&count);
+	HANDLE_ERROR(cudaGetDeviceCount(&count));
 	printf("****************************************************************************************\n");
 	printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
 	printf("****************************************************************************************\n");
@@ -608,7 +644,7 @@ int main()
 		}
 	}
 
-	// Close file and free memory
+	// Close file
 	fclose(fp);
 	printf("****************************************************************************************\n");
 	printf("\n");
@@ -804,8 +840,8 @@ int main()
 
 	// Cost table for crossover function (SCX Crossover)
 	// TODO: Revisar esta memoria dado que la tabla de costos que se tiene elaborada es con base a estructuras y ya esta generada en GPU
-	float* device_cost_table;
-	HANDLE_ERROR(cudaMalloc((void**)&device_cost_table, sizeof(float) * node_quantity * node_quantity));
+	distance* device_cost_table;
+	HANDLE_ERROR(cudaMalloc((void**)&device_cost_table, sizeof(distance) * node_quantity * node_quantity));
 
 	// Array for random numbers
 	curandState* device_state;
@@ -839,16 +875,15 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Figure out distance and fitness for each individual in population
-	//evaluatePopulation << <grid, threads >> > (device_population, device_cost_table, node_quantity);
+	evaluatePopulation << <grid, threads >> > (device_population, device_cost_table, node_quantity);
 	
 	for(int e = 0; e < NUM_EVOLUTIONS; ++e)
 	{
-		// TODO: Implementar el kernel selection y descomentar estas lineas
-		//selection << <BLOCKS, NUM_THREADS >> > (device_population, device_state, device_parents);
+		selection << <grid, threads >> > (device_population, device_state, device_parents, node_quantity, item_quantity);
 
 		// Breed the population with tournament selection and SCX crossover
 		// Perform computation parallelized, build children iteratively
-		for (int j = 1; j < node_quantity; ++j)
+		for (unsigned int j = 1; j < node_quantity; ++j)
 		{
 			// TODO: Implementar el kernel crossover y descomentar estas lineas
 			//crossover << <BLOCKS, NUM_THREADS >> > (device_population, device_parents, device_state, device_cost_table, j);
@@ -869,18 +904,16 @@ int main()
 	// TODO: Revisar si es necesaria
 	HANDLE_ERROR(cudaMemcpy(&initial_population, device_population, sizeof(population), cudaMemcpyDeviceToHost));
 	HANDLE_ERROR(cudaDeviceSynchronize());
-	// TODO: Revisar si es necesaria
-	//checkForError();
 #pragma endregion
 
 #pragma region OUTPUT
+
 	/****************************************************************************************************
 	* OUTPUT
 	****************************************************************************************************/
-	//TODO: Implementar la funcion getFittestTour y descomentar la linea
-	//tour fittest = getFittestTour(initial_population.tours, POPULATION_SIZE);
-	// TODO: Descomentar cuando se implemente getFittestTour
-	//printf("%f %f\n", milliseconds / 1000, fittest.distance);
+	tour fittest = getFittestTour(initial_population.tours, POPULATION_SIZE);	
+	printf("%f %f\n", milliseconds / 1000, fittest.total_distance);
+
 #pragma endregion
 
 

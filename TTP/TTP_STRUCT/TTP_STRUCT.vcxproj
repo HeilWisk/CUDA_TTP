@@ -87,6 +87,7 @@
     <ClInclude Include="headers\node.h" />
     <ClInclude Include="headers\population.h" />
     <ClInclude Include="headers\tour.h" />
+    <ClInclude Include="headers\util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\w5_n4_bounded-strongly-corr.ttp" />

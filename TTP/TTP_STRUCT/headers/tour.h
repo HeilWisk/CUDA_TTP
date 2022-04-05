@@ -58,6 +58,23 @@ struct tour
 		fitness = 0;
 		total_distance = 0;
 	}
+
+	/// <summary>
+	/// Overload of the == operator
+	/// </summary>
+	/// <param name="t"></param>
+	/// <returns></returns>
+	/*__host__ __device__ bool operator==(tour& t)
+	{
+		for (int i = 0; i < node_quantity; ++i)
+		{
+			if (nodes[i].x != t.nodes[i].x || nodes[i].y != t.nodes[i].y)
+			{
+				return false;
+			}
+		}
+		return true;
+	}*/
 };
 
 /// <summary>

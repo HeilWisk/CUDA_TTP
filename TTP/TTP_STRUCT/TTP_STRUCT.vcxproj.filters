@@ -30,6 +30,9 @@
     <ClInclude Include="headers\gpu_util.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="headers\util.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\w5_n4_bounded-strongly-corr.ttp">
