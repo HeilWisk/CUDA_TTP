@@ -21,8 +21,8 @@
 
 const int blockPerGrid = 8;
 
-#include "headers/node.h"
 #include "headers/item.h"
+#include "headers/node.h"
 #include "headers/distance.h"
 #include "headers/tour.h"
 #include "headers/population.h"
@@ -707,62 +707,75 @@ int main()
 	tour initial_tour(node_quantity, item_quantity, false);
 	population initial_population;
 
-	// Obtain nodes
-	// Calculate amount of nodes
-	int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
-	// Calculate amount of columns
-	int node_columns = 3;
-	// Calculate node matrix size
-	int node_matrix_size = node_columns * node_rows;
-	// Allocate memory for the array of structs
-	node* n = (node*)malloc(node_rows * sizeof(node));
-	if (n == NULL) {
-		fprintf(stderr, "Out of Memory");
-		exit(0);
-	}
-	// Get matrix
-	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_rows, node_columns);
-	// Convert to array of struct
-	extractNodes(matrix, node_rows, n);
-	// Visualize values for node matrix	
-	displayNodes(n, node_rows);
-	// Assign nodes to tour
-	extractNodes(matrix, node_rows, initial_tour);
-
-	// Obtain items
+	// Obtain the items
 	// Calculate amount of rows
-	int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
+	unsigned int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
+	// Validate file consistency
+	if (item_rows != item_quantity)
+	{
+		perror("The file information is not consistent. Number of items Inconsistency.\n");
+		exit(EXIT_FAILURE);
+	}
 	// Calculate amount of columns
-	int item_columns = 4;
+	unsigned int item_columns = 4;
 	// Get matrix
-	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_rows, item_columns);
+	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_quantity, item_columns);
 	// Allocate memory for the array of structs
-	item* i = (item*)malloc(item_rows * sizeof(item));
+	item* i = (item*)malloc(item_quantity * sizeof(item));
 	if (i == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 	// Convert to array of struct
-	extractItems(matrix, item_rows, i);
+	extractItems(matrix, item_quantity, i);
 	// Visualize values for item matrix	
-	displayItems(i, item_rows);
-	// Assign items to tour
-	extractItems(matrix, item_rows, initial_tour);
+	displayItems(i, item_quantity);
+	
+	// Obtain nodes
+	// Calculate amount of nodes
+	unsigned int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
+	// Validate file consistency
+	if (node_rows != node_quantity)
+	{
+		perror("The file information is not consistent. Number of node Inconsistency.\n");
+		exit(EXIT_FAILURE);
+	}
+	// Calculate amount of columns
+	unsigned int node_columns = 3;
+	// Get matrix
+	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_quantity, node_columns);
+	// Allocate memory for the array of structs
+	node* n = (node*)malloc(node_quantity * sizeof(node));
+	if (n == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+	// Convert to array of struct
+	extractNodes(matrix, node_quantity, n);
+
+	// Assign items to node
+	assignItems(i, item_quantity, n, node_quantity);
+
+	// Print node information
+	displayNodes(n, node_quantity);
+
+	// Assign nodes to tour
+	extractNodes(matrix, node_quantity, initial_tour);
 
 	// Calculate distance matrix in CPU
-	int distance_matrix_size = node_rows * node_rows;
+	int distance_matrix_size = node_quantity * node_quantity;
 	distance* d = (distance*)malloc(distance_matrix_size * sizeof(distance));
 	if (d == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 
-	euclideanDistanceCPU(n, n, d, node_rows, distance_matrix_size);
+	euclideanDistanceCPU(n, n, d, node_quantity, distance_matrix_size);
 	displayDistance(d, distance_matrix_size);
 
 	// Initialize population by generating POPULATION_SIZE number of
 	// permutations of the initial tour, all starting at the same city
-	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_rows);
+	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_quantity);
 	printPopulation(initial_population, POPULATION_SIZE);
 #pragma endregion
 
@@ -776,27 +789,34 @@ int main()
 	dim3 grid(blockPerGrid, blockPerGrid, 1);
 	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 
+	// Initialize random values
 	curandState* d_states;
-	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE * node_rows));
+	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE * node_quantity));
 	initCuRand << <grid, threads >> > (d_states, time(NULL));
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// 1. cudaMalloc a pointer to device memory that hold population
 	population* d_initial_population;
 	HANDLE_ERROR(cudaMalloc((void**)&d_initial_population, sizeof(population)));
+
 	// 2. Create a separate tour pointer on the host.
 	tour* d_tour_ptr;
 	HANDLE_ERROR(cudaMalloc((void**)&d_tour_ptr, sizeof(tour) * POPULATION_SIZE));
+
 	// 3. Create a separate node pointer on the host.
 	node* d_node_ptr[POPULATION_SIZE];
+
+	// 4. Create a separate item pointer on the host
+	item* d_item_ptr;
+
 	// 4. cudaMalloc node storage on the device for node pointer
 	// 5. cudaMemcpy the pointer value of node pointer from host to the device node pointer
 	for (int i = 0; i < POPULATION_SIZE; ++i)
 	{
-		HANDLE_ERROR(cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_rows)); //4
+		HANDLE_ERROR(cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_quantity)); //4
 		HANDLE_ERROR(cudaMemcpy(&(d_tour_ptr[i].nodes), &(d_node_ptr[i]), sizeof(node*), cudaMemcpyHostToDevice)); //5
 		// Optional: Copy an instantiated object on the host to the device pointer
-		HANDLE_ERROR(cudaMemcpy(d_node_ptr[i], initial_tour.nodes, sizeof(node) * node_rows, cudaMemcpyHostToDevice));
+		HANDLE_ERROR(cudaMemcpy(d_node_ptr[i], initial_tour.nodes, sizeof(node) * node_quantity, cudaMemcpyHostToDevice));
 	}
 	// 6. cudaMemcpy the pointer value of tour pointer from host to the device node pointer
 	HANDLE_ERROR(cudaMemcpy(&(d_initial_population->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice));
@@ -808,12 +828,11 @@ int main()
 	// Define device pointers
 	node* d_node_matrix;
 	node* d_node_t_matrix;
-	int node_size = node_rows;
 
 	// Allocate memory on device
-	HANDLE_ERROR(cudaMalloc(&d_node_matrix, node_size * sizeof(node)));
-	HANDLE_ERROR(cudaMalloc(&d_node_t_matrix, node_size * sizeof(node)));
-	HANDLE_ERROR(cudaMemcpy(d_node_matrix, n, node_size * sizeof(node), cudaMemcpyHostToDevice));
+	HANDLE_ERROR(cudaMalloc(&d_node_matrix, node_quantity * sizeof(node)));
+	HANDLE_ERROR(cudaMalloc(&d_node_t_matrix, node_quantity * sizeof(node)));
+	HANDLE_ERROR(cudaMemcpy(d_node_matrix, n, node_quantity * sizeof(node), cudaMemcpyHostToDevice));
 
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
@@ -821,18 +840,18 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Copy results from device to host
-	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_size);
-	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node) * node_size, cudaMemcpyDeviceToHost));
+	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_quantity);
+	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node) * node_quantity, cudaMemcpyDeviceToHost));
 
 	// Show information on screen
-	displayNodes(h_node_t_matrix, node_size);
+	displayNodes(h_node_t_matrix, node_quantity);
 
 	// Calculate size of distance array
 	distance* d_distance;
-	int distance_size = node_rows * node_rows;
+	int distance_size = node_quantity * node_quantity;
 	HANDLE_ERROR(cudaMalloc(&d_distance, sizeof(distance) * distance_size));
 	printf("Calculando la matriz de distancias en GPU\n");
-	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_rows, node_rows);
+	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_quantity, node_quantity);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
@@ -843,7 +862,7 @@ int main()
 	displayDistance(h_distance, distance_size);
 	
 	// Invoke Kernel to generate the initial population on the GPU
-	initializePopulationGPU << <grid, threads >> > (d_initial_population, d_distance, node_rows, item_rows, d_states);
+	initializePopulationGPU << <grid, threads >> > (d_initial_population, d_distance, node_quantity, item_rows, d_states);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
@@ -856,8 +875,8 @@ int main()
 	
 	for (int p = 0; p < POPULATION_SIZE; ++p)
 	{
-		h_node_ptr[p] = (node*)malloc(sizeof(node) * node_rows);
-		HANDLE_ERROR(cudaMemcpy(h_node_ptr[p], d_node_ptr[p], sizeof(node) * node_rows, cudaMemcpyDeviceToHost));
+		h_node_ptr[p] = (node*)malloc(sizeof(node) * node_quantity);
+		HANDLE_ERROR(cudaMemcpy(h_node_ptr[p], d_node_ptr[p], sizeof(node) * node_quantity, cudaMemcpyDeviceToHost));
 		h_initial_population.tours[p].nodes = h_node_ptr[p];
 	}
 

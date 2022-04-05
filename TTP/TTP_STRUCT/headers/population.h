@@ -122,7 +122,7 @@ void printPopulation(population population, const int population_size)
 		printf("> Nodes: ");
 		for (int j = 0; j < population.tours[i].node_qty; ++j)
 		{
-			printf("%d, ", population.tours[i].nodes[j].id);
+			printf("> %d ", population.tours[i].nodes[j].id);
 		}
 		printf("\n\n");
 	}

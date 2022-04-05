@@ -168,12 +168,12 @@ void initializeRandomTour(tour &tour, const int node_quantity)
 {
 	// Only randomizes the tail of the tour
 	// this is because every tour stars in the same node
-	tour.nodes[0] = node(0, 0, 0);
+	tour.nodes[0] = node(0, 0, 0, 0);
 	for (int i = 1; i < node_quantity; ++i)
 	{
 		double random_x = rand() % MAX_COORD;
 		double random_y = rand() % MAX_COORD;
-		tour.nodes[i] = node(i, random_x, random_y);
+		tour.nodes[i] = node(i, random_x, random_y, 0);
 	}
 }
 
@@ -181,12 +181,12 @@ void initializeRandomTour(tour& tour)
 {
 	// Only randomizes the tail of the tour
 	// this is because every tour stars in the same node
-	tour.nodes[0] = node(0, 0, 0);
+	tour.nodes[0] = node(0, 0, 0, 0);
 	for (int i = 1; i < tour.node_qty; ++i)
 	{
 		double random_x = rand() % MAX_COORD;
 		double random_y = rand() % MAX_COORD;
-		tour.nodes[i] = node(i, random_x, random_y);
+		tour.nodes[i] = node(i, random_x, random_y, 0);
 	}
 }
 
