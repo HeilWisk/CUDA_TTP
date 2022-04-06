@@ -10,76 +10,82 @@ void initializePopulationCPU(population& initial_population, tour& initial_tour,
 	node temp_node;
 	item temp_item;
 
-	//Allocate memory for the TOURS
-	initial_population.tours = (tour*)malloc(population_size * sizeof(tour));
-	if (initial_population.tours == NULL) {
-		printf("Unable to allocate memory for nodes");
-		return;
-	}	
-
-	// Set the tours
-	for (int i = 0; i < population_size; ++i)
+	if(population_size > 0)
 	{
-		//Allocate memory for the nodes on tours
-		initial_population.tours[i].nodes = (node*)malloc(node_quantity * sizeof(node));
-		if (initial_population.tours[i].nodes == NULL) {
+		//Allocate memory for the TOURS
+		initial_population.tours = (tour*)malloc(population_size * sizeof(tour));
+		if (initial_population.tours == NULL) {
 			printf("Unable to allocate memory for nodes");
 			return;
 		}
 
-		initial_population.tours[i].node_qty = node_quantity;
-
-		for(int r = 0; r<node_quantity; ++r)
+		// Set the tours
+		for (int i = 0; i < population_size; ++i)
 		{
-			initial_population.tours[i].nodes[r].id = initial_tour.nodes[r].id;
-			initial_population.tours[i].nodes[r].x = initial_tour.nodes[r].x;
-			initial_population.tours[i].nodes[r].y = initial_tour.nodes[r].y;
-			initial_population.tours[i].nodes[r].item_qty = initial_tour.nodes[r].item_qty;
-			for (int w = 0; w < initial_population.tours[i].nodes[r].item_qty; ++w)
+			if (node_quantity > 0)
 			{
-				//Allocate memory for the items on nodes
-				initial_population.tours[i].nodes[r].items = (item*)malloc(initial_population.tours[i].nodes[r].item_qty * sizeof(item));
-				if (initial_population.tours[i].nodes[r].items == NULL) {
+				//Allocate memory for the nodes on tours
+				initial_population.tours[i].nodes = (node*)malloc(node_quantity * sizeof(node));
+				if (initial_population.tours[i].nodes == NULL) {
 					printf("Unable to allocate memory for nodes");
 					return;
 				}
 
-				initial_population.tours[i].nodes[r].items[w].id = initial_tour.nodes[r].items[w].id;
-				initial_population.tours[i].nodes[r].items[w].node = initial_tour.nodes[r].items[w].node;
-				initial_population.tours[i].nodes[r].items[w].taken = initial_tour.nodes[r].items[w].taken;
-				initial_population.tours[i].nodes[r].items[w].value = initial_tour.nodes[r].items[w].value;
-				initial_population.tours[i].nodes[r].items[w].weight = initial_tour.nodes[r].items[w].weight;
+				initial_population.tours[i].node_qty = node_quantity;
+
+				for (int r = 0; r < node_quantity; ++r)
+				{
+					initial_population.tours[i].nodes[r].id = initial_tour.nodes[r].id;
+					initial_population.tours[i].nodes[r].x = initial_tour.nodes[r].x;
+					initial_population.tours[i].nodes[r].y = initial_tour.nodes[r].y;
+					initial_population.tours[i].nodes[r].item_qty = initial_tour.nodes[r].item_qty;
+					for (int w = 0; w < initial_population.tours[i].nodes[r].item_qty; ++w)
+					{
+						//Allocate memory for the items on nodes
+						initial_population.tours[i].nodes[r].items = (item*)malloc(initial_population.tours[i].nodes[r].item_qty * sizeof(item));
+						if (initial_population.tours[i].nodes[r].items == NULL) {
+							printf("Unable to allocate memory for nodes");
+							return;
+						}
+
+						initial_population.tours[i].nodes[r].items[w].id = initial_tour.nodes[r].items[w].id;
+						initial_population.tours[i].nodes[r].items[w].node = initial_tour.nodes[r].items[w].node;
+						initial_population.tours[i].nodes[r].items[w].taken = initial_tour.nodes[r].items[w].taken;
+						initial_population.tours[i].nodes[r].items[w].value = initial_tour.nodes[r].items[w].value;
+						initial_population.tours[i].nodes[r].items[w].weight = initial_tour.nodes[r].items[w].weight;
+					}
+				}
+
+				for (int j = 1; j < node_quantity; ++j)
+				{
+					int random_position = 1 + (rand() % (node_quantity - 1));
+					temp_node.items = (item*)malloc(initial_population.tours[i].nodes[j].item_qty * sizeof(item));
+					if (initial_population.tours[i].nodes == NULL) {
+						printf("Unable to allocate memory for nodes");
+						return;
+					}
+					temp_node = initial_population.tours[i].nodes[j];
+					temp_node.items = initial_population.tours[i].nodes[j].items;
+
+					initial_population.tours[i].nodes[j] = initial_population.tours[i].nodes[random_position];
+					if (initial_population.tours[i].nodes[j].item_qty > 0)
+					{
+						initial_population.tours[i].nodes[j].items = initial_population.tours[i].nodes[random_position].items;
+					}
+					initial_population.tours[i].nodes[random_position] = temp_node;
+					if (initial_population.tours[i].nodes[random_position].item_qty > 0)
+					{
+						initial_population.tours[i].nodes[random_position].items = temp_node.items;
+					}
+
+					for (int s = 0; s < initial_population.tours[i].nodes[j].item_qty; ++s)
+					{
+						initial_population.tours[i].nodes[j].items[s].taken = round((rand() % 2));
+					}
+				}
+				evaluateTour(initial_population.tours[i], distances, node_quantity);
 			}
 		}
-
-		for (int j = 1; j < node_quantity; ++j)
-		{
-			int random_position = 1 + (rand() % (node_quantity - 1));
-			temp_node.items = (item*)malloc(initial_population.tours[i].nodes[j].item_qty * sizeof(item));
-			if (initial_population.tours[i].nodes == NULL) {
-				printf("Unable to allocate memory for nodes");
-				return;
-			}
-			temp_node = initial_population.tours[i].nodes[j];			
-			temp_node.items = initial_population.tours[i].nodes[j].items;
-
-			initial_population.tours[i].nodes[j] = initial_population.tours[i].nodes[random_position];
-			if (initial_population.tours[i].nodes[j].item_qty > 0)
-			{
-				initial_population.tours[i].nodes[j].items = initial_population.tours[i].nodes[random_position].items;
-			}
-			initial_population.tours[i].nodes[random_position] = temp_node;
-			if (initial_population.tours[i].nodes[random_position].item_qty > 0)
-			{
-				initial_population.tours[i].nodes[random_position].items = temp_node.items;
-			}
-
-			for (int s = 0; s < initial_population.tours[i].nodes[j].item_qty; ++s)
-			{
-				initial_population.tours[i].nodes[j].items[s].taken = round((rand() % 2));
-			}
-		}
-		evaluateTour(initial_population.tours[i], distances, node_quantity);
 	}
 }
 

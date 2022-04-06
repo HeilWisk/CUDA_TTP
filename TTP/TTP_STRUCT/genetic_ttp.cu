@@ -27,6 +27,7 @@ const int blockPerGrid = 8;
 #include "headers/tour.h"
 #include "headers/population.h"
 #include "headers/gpu_util.h"
+#include "headers/util.h"
 
 #define DIMENSION "DIMENSION:"
 #define ITEM_QTY "NUMBER OF ITEMS:"
@@ -586,7 +587,7 @@ int main()
 	/****************************************************************************************************
 	* PRINT START OF THE PROGRAM
 	****************************************************************************************************/
-	int count;
+	/*int count;
 	cudaDeviceProp properties;
 	HANDLE_ERROR(cudaGetDeviceCount(&count));
 	printf("****************************************************************************************\n");
@@ -605,7 +606,7 @@ int main()
 		printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
 		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
 	}
-	printf("****************************************************************************************\n");
+	printf("****************************************************************************************\n");*/
 #pragma endregion
 
 #pragma region CAPTURE FILE PATH
@@ -781,6 +782,7 @@ int main()
 	// Initialize population by generating POPULATION_SIZE number of
 	// permutations of the initial tour, all starting at the same city
 	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_quantity);
+	testMemoryAllocationCPU(initial_population, 1);
 	printPopulation(initial_population, POPULATION_SIZE);
 #pragma endregion
 
@@ -823,6 +825,8 @@ int main()
 	}
 	// 6. cudaMemcpy the pointer value of tour pointer from host to the device population pointer
 	HANDLE_ERROR(cudaMemcpy(&(d_initial_population->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice));
+
+	testMemoryAllocation << <grid, threads >> > (d_initial_population, 1);
 
 	/********************************************************************************************************************
 	* Calculate Distance Matrix in CUDA
