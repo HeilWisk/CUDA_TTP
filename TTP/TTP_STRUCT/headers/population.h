@@ -54,8 +54,13 @@ void initializePopulationCPU(population& initial_population, tour& initial_tour,
 
 		for (int j = 1; j < node_quantity; ++j)
 		{
-			int random_position = 1 + (rand() % (node_quantity - 1));			
-			temp_node = initial_population.tours[i].nodes[j];
+			int random_position = 1 + (rand() % (node_quantity - 1));
+			temp_node.items = (item*)malloc(initial_population.tours[i].nodes[j].item_qty * sizeof(item));
+			if (initial_population.tours[i].nodes == NULL) {
+				printf("Unable to allocate memory for nodes");
+				return;
+			}
+			temp_node = initial_population.tours[i].nodes[j];			
 			temp_node.items = initial_population.tours[i].nodes[j].items;
 
 			initial_population.tours[i].nodes[j] = initial_population.tours[i].nodes[random_position];
@@ -106,6 +111,7 @@ __global__ void initializePopulationGPU(population* initial_population, distance
 		for (int j = 1; j < node_quantity; ++j)
 		{
 			int random_position = 1 + (curand(&local_state) % (node_quantity - 1));
+			//cudaMalloc(&temp.items, sizeof(item) * initial_population->tours[thread_global_index].nodes[j].item_qty);
 			temp = initial_population->tours[thread_global_index].nodes[j];
 			temp.items = initial_population->tours[thread_global_index].nodes[j].items;
 			initial_population->tours[thread_global_index].nodes[j] = initial_population->tours[thread_global_index].nodes[random_position];
@@ -121,7 +127,11 @@ __global__ void initializePopulationGPU(population* initial_population, distance
 
 			for (int s = 0; s < initial_population->tours[thread_global_index].nodes[j].item_qty; ++s)
 			{
-				printf("%d", initial_population->tours[thread_global_index].nodes[j].items[s].node);//(int)((curand(&local_state)) + 0.5f);
+				//printf("tour[%d]>nodes[%d]>items[%d]>id %d\n", thread_global_index, j, s, initial_population->tours[thread_global_index].nodes[j].items[s].id);//(int)((curand(&local_state)) + 0.5f);
+				//printf("tour[%d]>nodes[%d]>items[%d]>node %d\n", thread_global_index, j, s, initial_population->tours[thread_global_index].nodes[j].items[s].node);//(int)((curand(&local_state)) + 0.5f);
+				//printf("tour[%d]>nodes[%d]>items[%d]>value %f\n", thread_global_index, j, s, initial_population->tours[thread_global_index].nodes[j].items[s].value);//(int)((curand(&local_state)) + 0.5f);
+				//printf("tour[%d]>nodes[%d]>items[%d]>weight %f\n", thread_global_index, j, s, initial_population->tours[thread_global_index].nodes[j].items[s].weight);//(int)((curand(&local_state)) + 0.5f);
+				//printf("tour[%d]>nodes[%d]>items[%d]>taken %d\n", thread_global_index, j, s, initial_population->tours[thread_global_index].nodes[j].items[s].taken);//(int)((curand(&local_state)) + 0.5f);
 			}
 			//__syncthreads();
 		}		

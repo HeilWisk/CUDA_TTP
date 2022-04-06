@@ -25,6 +25,16 @@ struct item {
 		node = node_id;
 		taken = t;
 	}
+
+	__host__ __device__ item& operator=(const item& var)
+	{		
+		id = var.id;
+		weight = var.weight;
+		value = var.value;
+		node = var.node;
+		taken = var.taken;
+		return *this;
+	}
 };
 
 /// <summary>

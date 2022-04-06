@@ -25,10 +25,15 @@ struct node {
 
 	__host__ __device__ node& operator=(const node& var)
 	{
+		/*for (int i = 0; i < var.item_qty; ++i)
+		{
+			items[i] = var.items[i];
+		}*/
 		id = var.id;
 		x = var.x;
 		y = var.y;
 		item_qty = var.item_qty;
+		items = var.items;
 		return *this;
 	}
 
