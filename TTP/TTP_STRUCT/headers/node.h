@@ -16,12 +16,11 @@ struct node {
 		item_qty = 0;
 	}
 
-	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate, int item_quantity)
+	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate)
 	{ 
 		id = id_node;
 		x = x_coordinate;
 		y = y_coordinate;
-		item_qty = item_quantity;
 	}
 
 	__host__ __device__ node& operator=(const node& var)
@@ -85,6 +84,21 @@ void extractNodes(int** matrix, int rows, node* c) {
 		c[i].id = matrix[i][0];
 		c[i].x = (float)matrix[i][1];
 		c[i].y = (float)matrix[i][2];
+	}
+}
+
+/// <summary>
+/// Function to convert the extracted matrix into an array of item structs
+/// </summary>
+/// <param name="matrix">- Matrix to extract</param>
+/// <param name="rows">- Amount of rows to extract</param>
+/// <param name="tour">- Tour to assign the extracted item</param>
+void extractItems(int** matrix, int rows, node& node) {
+	for (int s = 0; s < rows; s++) {
+		node.items[s].id = matrix[s][0];
+		node.items[s].value = (float)matrix[s][1];
+		node.items[s].weight = (float)matrix[s][2];
+		node.items[s].node = matrix[s][3];
 	}
 }
 

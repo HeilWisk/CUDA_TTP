@@ -7,7 +7,8 @@ struct population
 
 void initializePopulationCPU(population& initial_population, tour& initial_tour, distance* distances, const int population_size, const int node_quantity)
 {
-	node temp;
+	node temp_node;
+	item temp_item;
 
 	//Allocate memory for the TOURS
 	initial_population.tours = (tour*)malloc(population_size * sizeof(tour));
@@ -33,14 +34,45 @@ void initializePopulationCPU(population& initial_population, tour& initial_tour,
 			initial_population.tours[i].nodes[r].id = initial_tour.nodes[r].id;
 			initial_population.tours[i].nodes[r].x = initial_tour.nodes[r].x;
 			initial_population.tours[i].nodes[r].y = initial_tour.nodes[r].y;
+			initial_population.tours[i].nodes[r].item_qty = initial_tour.nodes[r].item_qty;
+			for (int w = 0; w < initial_population.tours[i].nodes[r].item_qty; ++w)
+			{
+				//Allocate memory for the items on nodes
+				initial_population.tours[i].nodes[r].items = (item*)malloc(initial_population.tours[i].nodes[r].item_qty * sizeof(item));
+				if (initial_population.tours[i].nodes[r].items == NULL) {
+					printf("Unable to allocate memory for nodes");
+					return;
+				}
+
+				initial_population.tours[i].nodes[r].items[w].id = initial_tour.nodes[r].items[w].id;
+				initial_population.tours[i].nodes[r].items[w].node = initial_tour.nodes[r].items[w].node;
+				initial_population.tours[i].nodes[r].items[w].taken = initial_tour.nodes[r].items[w].taken;
+				initial_population.tours[i].nodes[r].items[w].value = initial_tour.nodes[r].items[w].value;
+				initial_population.tours[i].nodes[r].items[w].weight = initial_tour.nodes[r].items[w].weight;
+			}
 		}
 
 		for (int j = 1; j < node_quantity; ++j)
 		{
 			int random_position = 1 + (rand() % (node_quantity - 1));			
-			temp = initial_population.tours[i].nodes[j];
+			temp_node = initial_population.tours[i].nodes[j];
+			temp_node.items = initial_population.tours[i].nodes[j].items;
+
 			initial_population.tours[i].nodes[j] = initial_population.tours[i].nodes[random_position];
-			initial_population.tours[i].nodes[random_position] = temp;			
+			if (initial_population.tours[i].nodes[j].item_qty > 0)
+			{
+				initial_population.tours[i].nodes[j].items = initial_population.tours[i].nodes[random_position].items;
+			}
+			initial_population.tours[i].nodes[random_position] = temp_node;
+			if (initial_population.tours[i].nodes[random_position].item_qty > 0)
+			{
+				initial_population.tours[i].nodes[random_position].items = temp_node.items;
+			}
+
+			for (int s = 0; s < initial_population.tours[i].nodes[j].item_qty; ++s)
+			{
+				initial_population.tours[i].nodes[j].items[s].taken = round((rand() % 2));
+			}
 		}
 		evaluateTour(initial_population.tours[i], distances, node_quantity);
 	}
@@ -75,8 +107,22 @@ __global__ void initializePopulationGPU(population* initial_population, distance
 		{
 			int random_position = 1 + (curand(&local_state) % (node_quantity - 1));
 			temp = initial_population->tours[thread_global_index].nodes[j];
+			temp.items = initial_population->tours[thread_global_index].nodes[j].items;
 			initial_population->tours[thread_global_index].nodes[j] = initial_population->tours[thread_global_index].nodes[random_position];
+			if (initial_population->tours[thread_global_index].nodes[j].item_qty > 0)
+			{
+				initial_population->tours[thread_global_index].nodes[j].items = initial_population->tours[thread_global_index].nodes[random_position].items;
+			}
 			initial_population->tours[thread_global_index].nodes[random_position] = temp;
+			if (initial_population->tours[thread_global_index].nodes[random_position].item_qty > 0)
+			{
+				initial_population->tours[thread_global_index].nodes[random_position].items = temp.items;
+			}
+
+			for (int s = 0; s < initial_population->tours[thread_global_index].nodes[j].item_qty; ++s)
+			{
+				printf("%d", initial_population->tours[thread_global_index].nodes[j].items[s].node);//(int)((curand(&local_state)) + 0.5f);
+			}
 			//__syncthreads();
 		}		
 		
@@ -119,10 +165,20 @@ void printPopulation(population population, const int population_size)
 		printf("> Fitness: %f\n", population.tours[i].fitness);
 		printf("> Total Distance: %f\n", population.tours[i].total_distance);
 		printf("> Node Quantity: %d\n", population.tours[i].node_qty);
-		printf("> Nodes: ");
+		printf("> Nodes		>Item ID[Taken]\n");
 		for (int j = 0; j < population.tours[i].node_qty; ++j)
 		{
-			printf("> %d ", population.tours[i].nodes[j].id);
+			printf("> %d", population.tours[i].nodes[j].id);
+			if (population.tours[i].nodes[j].item_qty > 0)
+			{
+				for (int h = 0; h < population.tours[i].nodes[j].item_qty; h++)
+				{
+					printf("		> %d[%d]", population.tours[i].nodes[j].items[h].id, population.tours[i].nodes[j].items[h].taken);
+				}
+				printf("\n");
+			}
+			else
+				printf("\n");
 		}
 		printf("\n\n");
 	}

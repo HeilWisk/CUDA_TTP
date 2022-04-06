@@ -5,7 +5,6 @@ struct tour
 	double fitness;
 	double total_distance;
 	int node_qty;
-	item *items;
 
 	/// <summary>
 	/// 
@@ -36,7 +35,7 @@ struct tour
 		}		
 
 		//Allocate memory for the items
-		if (gpu)
+		/*if (gpu)
 		{
 			cudaMalloc(&items, sizeof(item) * item_quantity);
 		}
@@ -53,7 +52,7 @@ struct tour
 			{
 				items[i] = item();
 			}
-		}	
+		}*/
 
 		fitness = 0;
 		total_distance = 0;
@@ -168,12 +167,12 @@ void initializeRandomTour(tour &tour, const int node_quantity)
 {
 	// Only randomizes the tail of the tour
 	// this is because every tour stars in the same node
-	tour.nodes[0] = node(0, 0, 0, 0);
+	tour.nodes[0] = node(0, 0, 0);
 	for (int i = 1; i < node_quantity; ++i)
 	{
 		double random_x = rand() % MAX_COORD;
 		double random_y = rand() % MAX_COORD;
-		tour.nodes[i] = node(i, random_x, random_y, 0);
+		tour.nodes[i] = node(i, random_x, random_y);
 	}
 }
 
@@ -181,12 +180,12 @@ void initializeRandomTour(tour& tour)
 {
 	// Only randomizes the tail of the tour
 	// this is because every tour stars in the same node
-	tour.nodes[0] = node(0, 0, 0, 0);
+	tour.nodes[0] = node(0, 0, 0);
 	for (int i = 1; i < tour.node_qty; ++i)
 	{
 		double random_x = rand() % MAX_COORD;
 		double random_y = rand() % MAX_COORD;
-		tour.nodes[i] = node(i, random_x, random_y, 0);
+		tour.nodes[i] = node(i, random_x, random_y);
 	}
 }
 
@@ -224,7 +223,8 @@ __host__ __device__ void printTour(const tour& tour)
 /// <param name="matrix">- Matrix to extract</param>
 /// <param name="rows">- Amount of rows to extract</param>
 /// <param name="tour">- Tour to assign the extracted nodes</param>
-void extractNodes(int** matrix, int rows, tour& tour) {
+void extractNodes(int** matrix, int rows, tour& tour) 
+{
 	for (int i = 0; i < rows; i++) {
 		tour.nodes[i].id = matrix[i][0];
 		tour.nodes[i].x = matrix[i][1];
@@ -232,17 +232,46 @@ void extractNodes(int** matrix, int rows, tour& tour) {
 	}
 }
 
-/// <summary>
-/// Function to convert the extracted matrix into an array of item structs
-/// </summary>
-/// <param name="matrix">- Matrix to extract</param>
-/// <param name="rows">- Amount of rows to extract</param>
-/// <param name="tour">- Tour to assign the extracted item</param>
-void extractItems(int** matrix, int rows, tour& tour) {
-	for (int s = 0; s < rows; s++) {
-		tour.items[s].id = matrix[s][0];
-		tour.items[s].value = (float)matrix[s][1];
-		tour.items[s].weight = (float)matrix[s][2];
-		tour.items[s].node = matrix[s][3];
+void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
+{
+	//Allocate memory for the nodes (cities)
+	initial_tour.nodes = (node*)malloc(node_quantity * sizeof(node));
+	if (initial_tour.nodes == NULL) {
+		printf("Unable to allocate memory for nodes");
+		return;
 	}
+
+	// Define the amount of nodes
+	initial_tour.node_qty = node_quantity;
+
+	//Load data on nodes
+	for (int n = 0; n < initial_tour.node_qty; n++)
+	{
+		initial_tour.nodes[n] = node();
+		initial_tour.nodes[n].id = nodes[n].id;
+		initial_tour.nodes[n].x = nodes[n].x;
+		initial_tour.nodes[n].y = nodes[n].y;
+		initial_tour.nodes[n].item_qty = nodes[n].item_qty;
+
+		//Allocate memory for the items
+		initial_tour.nodes[n].items = (item*)malloc(initial_tour.nodes[n].item_qty * sizeof(item));
+		if (initial_tour.nodes[n].items == NULL) {
+			printf("Unable to allocate memory for items");
+			return;
+		}
+
+		//Load data on items
+		for (int i = 0; i < initial_tour.nodes[n].item_qty; i++)
+		{
+			initial_tour.nodes[n].items[i] = item();
+			initial_tour.nodes[n].items[i].id = nodes[n].items[i].id;
+			initial_tour.nodes[n].items[i].value = nodes[n].items[i].value;
+			initial_tour.nodes[n].items[i].weight = nodes[n].items[i].weight;
+			initial_tour.nodes[n].items[i].node = nodes[n].items[i].node;
+			initial_tour.nodes[n].items[i].taken = nodes[n].items[i].taken;
+		}
+	}
+
+	initial_tour.fitness = 0;
+	initial_tour.total_distance = 0;
 }

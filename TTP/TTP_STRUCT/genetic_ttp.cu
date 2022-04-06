@@ -70,6 +70,11 @@ __global__ void transpose(node* m_dev, node* t_m_dev, int width, int height) {
 		unsigned int index_in = colIdx + width * rowIdx;
 		unsigned int index_out = rowIdx + height * colIdx;
 		t_m_dev[index_out] = m_dev[index_in];
+		if (t_m_dev[index_out].item_qty > 0)
+		{
+			t_m_dev[index_out].items = m_dev[index_in].items;
+		}
+		
 	}
 }
 
@@ -760,7 +765,7 @@ int main()
 	displayNodes(n, node_quantity);
 
 	// Assign nodes to tour
-	extractNodes(matrix, node_quantity, initial_tour);
+	defineInitialTour(initial_tour, node_quantity, n);	
 
 	// Calculate distance matrix in CPU
 	int distance_matrix_size = node_quantity * node_quantity;
@@ -806,21 +811,19 @@ int main()
 	// 3. Create a separate node pointer on the host.
 	node* d_node_ptr[POPULATION_SIZE];
 
-	// 4. Create a separate item pointer on the host
-	item* d_item_ptr;
-
-	// 4. cudaMalloc node storage on the device for node pointer
-	// 5. cudaMemcpy the pointer value of node pointer from host to the device node pointer
+	// Allocate memory on device according to population size
 	for (int i = 0; i < POPULATION_SIZE; ++i)
 	{
-		HANDLE_ERROR(cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_quantity)); //4
-		HANDLE_ERROR(cudaMemcpy(&(d_tour_ptr[i].nodes), &(d_node_ptr[i]), sizeof(node*), cudaMemcpyHostToDevice)); //5
+		// 4. cudaMalloc node storage on the device for node pointer
+		HANDLE_ERROR(cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_quantity));
+		// 5. cudaMemcpy the pointer value of node pointer from host to the device node pointer
+		HANDLE_ERROR(cudaMemcpy(&(d_tour_ptr[i].nodes), &(d_node_ptr[i]), sizeof(node*), cudaMemcpyHostToDevice));
 		// Optional: Copy an instantiated object on the host to the device pointer
 		HANDLE_ERROR(cudaMemcpy(d_node_ptr[i], initial_tour.nodes, sizeof(node) * node_quantity, cudaMemcpyHostToDevice));
 	}
-	// 6. cudaMemcpy the pointer value of tour pointer from host to the device node pointer
+	// 6. cudaMemcpy the pointer value of tour pointer from host to the device population pointer
 	HANDLE_ERROR(cudaMemcpy(&(d_initial_population->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice));
-	
+
 	/********************************************************************************************************************
 	* Calculate Distance Matrix in CUDA
 	********************************************************************************************************************/
@@ -832,7 +835,7 @@ int main()
 	// Allocate memory on device
 	HANDLE_ERROR(cudaMalloc(&d_node_matrix, node_quantity * sizeof(node)));
 	HANDLE_ERROR(cudaMalloc(&d_node_t_matrix, node_quantity * sizeof(node)));
-	HANDLE_ERROR(cudaMemcpy(d_node_matrix, n, node_quantity * sizeof(node), cudaMemcpyHostToDevice));
+	HANDLE_ERROR(cudaMemcpy(d_node_matrix, n, node_quantity * sizeof(node), cudaMemcpyHostToDevice));	
 
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
