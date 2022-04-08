@@ -736,7 +736,7 @@ int main()
 	extractItems(matrix, item_quantity, i);
 	// Visualize values for item matrix	
 	displayItems(i, item_quantity);
-	
+
 	// Obtain nodes
 	// Calculate amount of nodes
 	unsigned int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
@@ -766,7 +766,7 @@ int main()
 	displayNodes(n, node_quantity);
 
 	// Assign nodes to tour
-	defineInitialTour(initial_tour, node_quantity, n);	
+	defineInitialTour(initial_tour, node_quantity, n);
 
 	// Calculate distance matrix in CPU
 	int distance_matrix_size = node_quantity * node_quantity;
@@ -801,6 +801,49 @@ int main()
 	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE * node_quantity));
 	initCuRand << <grid, threads >> > (d_states, time(NULL));
 	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	/*************************************************************************************************
+	* ALLOCATE MEMORY FOR STRUCTS ON DEVICE
+	*************************************************************************************************/
+	// We are going to start the process of allocation bottom-up, it's say from the inner structure 
+	// to the top structure
+	// The inner structures are "item" and "node" in which node contains item, then following the 
+	// information given by Robert Crovella on 
+	// stackoverflow.com/questions/30082991/memory-allocation-on-gpu-for-dynamic-array-of-structs
+
+	// Define a pointer for struct "node"
+	node* dev_node;	
+
+	// 1. cudaMalloc a pointer to device memory that will hold the struct "node", in this case is
+	// called "dev_node"
+	HANDLE_ERROR(cudaMalloc((void**)&dev_node, node_quantity * sizeof(node)));
+
+	// 2. (optionally) copy an instantiated object of struct "node" on the host to the device pointer
+	// "dev_node" from step 1 using cudaMemcpy
+	HANDLE_ERROR(cudaMemcpy(dev_node, n, node_quantity * sizeof(node), cudaMemcpyHostToDevice));
+
+	// 3. Create a separate "item" pointer on the host, in this case it's called "dev_item"
+	item* dev_item;
+
+	// 4. cudaMalloc "item" storage on the device for "dev_item"
+	HANDLE_ERROR(cudaMalloc((void**)&dev_item, node_quantity));
+	for (int i = 0; i < node_quantity; i++)
+	{
+		HANDLE_ERROR(cudaMalloc((void**)&(dev_item[i]), sizeof(item)* dev_node[i].item_qty));
+	}
+
+	// 5. cudaMemcpy the pointer value of "dev_item" from the host to the device pointer
+	// &(dev_node->i)
+	for (int i = 0; i < node_quantity; i++)
+	{
+		HANDLE_ERROR(cudaMemcpy(&(dev_node[i].items), &(dev_item[i]), sizeof(item*), cudaMemcpyHostToDevice));
+	}
+
+	// 6. Copy the embedded data
+	for (int i = 0; i < node_quantity; i++)
+	{
+		HANDLE_ERROR(cudaMemcpy(&dev_item[i], n[i].items, sizeof(item) * dev_node[i].item_qty, cudaMemcpyHostToDevice));
+	}
 
 	// 1. cudaMalloc a pointer to device memory that hold population
 	population* d_initial_population;
