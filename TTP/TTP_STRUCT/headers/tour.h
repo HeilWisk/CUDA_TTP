@@ -207,10 +207,16 @@ __host__ __device__ void printTour(const tour& tour)
 {
 	printf("TOUR INFORMATION\n");
 	printf("FITNESS: %f\n", tour.fitness);
-	printf("NODES:\n");
-	for (int i = 0; i < tour.node_qty; ++i)
+	printf("NODES: %d\n", tour.node_qty);
+	for (int n = 0; n < tour.node_qty; ++n)
 	{
-		printf("NODE[%d]	ID: %d\n", i, tour.nodes[i].id);
+		printf("NODE[%d]	ID: %d	X: %f	Y: %f	ITEMS: %d\n", n, tour.nodes[n].id, tour.nodes[n].x, tour.nodes[n].y, tour.nodes[n].item_qty);
+
+		for (int i = 0; i < tour.nodes[n].item_qty; ++i)
+		{
+			printf("> NODE[%d].ITEM[%d]	ID: %d	WEIGHT: %f	VALUE: %f	NODE: %d	TAKEN: %d\n\n", n, i, tour.nodes[n].items[i].id, tour.nodes[n].items[i].weight, tour.nodes[n].items[i].value, tour.nodes[n].items[i].node, tour.nodes[n].items[i].taken);
+		}
+
 	}
 
 	printf("TOTAL DISTANCE: %f\n", tour.total_distance);

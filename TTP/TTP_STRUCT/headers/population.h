@@ -2,6 +2,7 @@
 struct population
 {
 	int id;
+	int tour_qty;
 	tour *tours;
 };
 

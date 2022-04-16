@@ -294,6 +294,60 @@ __global__ void mutate(population* population, curandState* d_state, const int n
 	}
 }
 
+__global__ void nodeTest(node* dev_node, int node_quantity) {
+	for (int i = 0; i < node_quantity; i++) 
+	{
+		printf("dev_node[%d].id: %d ", i, dev_node[i].id);
+		printf("x: %lf, ", dev_node[i].x);
+		printf("y: %lf\n", dev_node[i].y);
+		printf("dev_node[%d].item_qty: %d\n", i, dev_node[i].item_qty);
+		if(dev_node[i].item_qty > 0)
+		{
+			for (int j = 0; dev_node[i].item_qty < node_quantity; j++)
+			{
+				printf("dev_node[%d].items[%d].id: %d\n", i, j, dev_node[i].items[j].id);
+				printf("dev_node[%d].items[%d].node: %d\n", i, j, dev_node[i].items[j].node);
+				printf("dev_node[%d].items[%d].value: %d\n", i, j, dev_node[i].items[j].value);
+				printf("dev_node[%d].items[%d].weight: %d\n", i, j, dev_node[i].items[j].weight);
+				printf("dev_node[%d].items[%d].taken: %d\n", i, j, dev_node[i].items[j].taken);
+			}
+		}
+	}
+	printf("\n\n");
+}
+
+__global__ void tourTest(tour* tour, int tour_size)
+{
+	for (int t = 0; t < tour_size; ++t)
+	{
+		printf(" > tour[%d].fitness: %d\n", t, tour[t].fitness);
+		printf(" > tour[%d].total_distance: %d\n", t, tour[t].total_distance);
+		printf(" > tour[%d].node_qty: %d\n", t, tour[t].node_qty);
+		if (tour[t].node_qty > 0)
+		{
+			for (int n = 0; n < tour[t].node_qty; ++n)
+			{
+				printf(" > tour[%d].nodes[%d].id: %d\n", t, n, tour[t].nodes[n].id);
+				printf(" > tour[%d].nodes[%d].x: %lf\n", t, n, tour[t].nodes[n].x);
+				printf(" > tour[%d].nodes[%d].y: %lf\n", t, n, tour[t].nodes[n].y);
+				printf(" > tour[%d].nodes[%d].item_qty: %d\n", t, n, tour[t].nodes[n].item_qty);
+				if (tour[t].nodes[n].item_qty > 0)
+				{
+					for (int i = 0; i < tour[t].nodes[n].item_qty; ++i)
+					{
+						printf(" > tour[%d].nodes[%d].items[%d].id: %d\n", t, n, i, tour[t].nodes[n].items[i].id);
+						printf(" > tour[%d].nodes[%d].items[%d].node: %d\n", t, n, i, tour[t].nodes[n].items[i].node);
+						printf(" > tour[%d].nodes[%d].items[%d].taken: %d\n", t, n, i, tour[t].nodes[n].items[i].taken);
+						printf(" > tour[%d].nodes[%d].items[%d].value: %f\n", t, n, i, tour[t].nodes[n].items[i].value);
+						printf(" > tour[%d].nodes[%d].items[%d].weight: %f\n", t, n, i, tour[t].nodes[n].items[i].weight);
+					}
+				}
+			}
+		}
+	}
+	printf("\n\n");
+}
+
 #pragma endregion
 
 #pragma region CUDA Functions
@@ -579,15 +633,19 @@ int main()
 	double minimal_speed;
 	double maximun_speed;
 	double renting_ratio;
-	unsigned int node_quantity;
-	unsigned int item_quantity;
 	char edge_weight_type[1000];
 
+	unsigned int node_size;
+	unsigned int item_size;
+	unsigned int population_size = 1;
+	unsigned int tour_size = POPULATION_SIZE;
+
 #pragma region PRINT GPU PROPERTIES
+
 	/****************************************************************************************************
 	* PRINT START OF THE PROGRAM
 	****************************************************************************************************/
-	/*int count;
+	int count;
 	cudaDeviceProp properties;
 	HANDLE_ERROR(cudaGetDeviceCount(&count));
 	printf("****************************************************************************************\n");
@@ -606,7 +664,7 @@ int main()
 		printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
 		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
 	}
-	printf("****************************************************************************************\n");*/
+	printf("****************************************************************************************\n");
 #pragma endregion
 
 #pragma region CAPTURE FILE PATH
@@ -641,15 +699,15 @@ int main()
 		if (strncmp(str, DIMENSION, strlen(DIMENSION)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			node_quantity = atoi(sub);
-			printf("Nodes (Cities):				%d\n", node_quantity);
+			node_size = atoi(sub);
+			printf("Nodes (Cities):				%d\n", node_size);
 		}
 		// Extract the amount of items
 		else if (strncmp(str, ITEM_QTY, strlen(ITEM_QTY)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			item_quantity = atoi(sub);
-			printf("Item:					%d\n", item_quantity);
+			item_size = atoi(sub);
+			printf("Item:					%d\n", item_size);
 		}
 		// Extract the knapsack capacity
 		else if (strncmp(str, KNAPSACK_CAPACITY, strlen(KNAPSACK_CAPACITY)) == 0)
@@ -692,6 +750,7 @@ int main()
 	fclose(fp);
 	printf("****************************************************************************************\n");
 	printf("\n");
+
 #pragma endregion
 
 	/****************************************************************************************************
@@ -707,83 +766,98 @@ int main()
 	printf("****************************************************************************************\n");
 
 #pragma region POPULATION INITIALIZATION CPU
+
 	/*************************************************************************************************
 	* POPULATION INITIALIZATION ON HOST (CPU)
 	*************************************************************************************************/
-	tour initial_tour(node_quantity, item_quantity, false);
+	
+	tour initial_tour(node_size, item_size, false);
 	population initial_population;
 
 	// Obtain the items
 	// Calculate amount of rows
 	unsigned int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
+
 	// Validate file consistency
-	if (item_rows != item_quantity)
+	if (item_rows != item_size)
 	{
 		perror("The file information is not consistent. Number of items Inconsistency.\n");
 		exit(EXIT_FAILURE);
 	}
+
 	// Calculate amount of columns
 	unsigned int item_columns = 4;
+
 	// Get matrix
-	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_quantity, item_columns);
+	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_size, item_columns);
+
 	// Allocate memory for the array of structs
-	item* i = (item*)malloc(item_quantity * sizeof(item));
-	if (i == NULL) {
+	item* cpu_item = (item*)malloc(item_size * sizeof(item));
+	if (cpu_item == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
+
 	// Convert to array of struct
-	extractItems(matrix, item_quantity, i);
+	extractItems(matrix, item_size, cpu_item);
+
 	// Visualize values for item matrix	
-	displayItems(i, item_quantity);
+	displayItems(cpu_item, item_size);
 
 	// Obtain nodes
 	// Calculate amount of nodes
 	unsigned int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
+
 	// Validate file consistency
-	if (node_rows != node_quantity)
+	if (node_rows != node_size)
 	{
 		perror("The file information is not consistent. Number of node Inconsistency.\n");
 		exit(EXIT_FAILURE);
 	}
+
 	// Calculate amount of columns
 	unsigned int node_columns = 3;
+
 	// Get matrix
-	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_quantity, node_columns);
+	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_size, node_columns);
+
 	// Allocate memory for the array of structs
-	node* n = (node*)malloc(node_quantity * sizeof(node));
-	if (n == NULL) {
+	node* cpu_node = (node*)malloc(node_size * sizeof(node));
+	if (cpu_node == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 	// Convert to array of struct
-	extractNodes(matrix, node_quantity, n);
+	extractNodes(matrix, node_size, cpu_node);
 
 	// Assign items to node
-	assignItems(i, item_quantity, n, node_quantity);
+	assignItems(cpu_item, item_size, cpu_node, node_size);
 
 	// Print node information
-	displayNodes(n, node_quantity);
+	displayNodes(cpu_node, node_size);
 
 	// Assign nodes to tour
-	defineInitialTour(initial_tour, node_quantity, n);
+	defineInitialTour(initial_tour, node_size, cpu_node);
 
 	// Calculate distance matrix in CPU
-	int distance_matrix_size = node_quantity * node_quantity;
+	int distance_matrix_size = node_size * node_size;
+
+	// Allocate memory for the distance matrix
 	distance* d = (distance*)malloc(distance_matrix_size * sizeof(distance));
 	if (d == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 
-	euclideanDistanceCPU(n, n, d, node_quantity, distance_matrix_size);
+	euclideanDistanceCPU(cpu_node, cpu_node, d, node_size, distance_matrix_size);
 	displayDistance(d, distance_matrix_size);
 
 	// Initialize population by generating POPULATION_SIZE number of
 	// permutations of the initial tour, all starting at the same city
-	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_quantity);
-	testMemoryAllocationCPU(initial_population, 1);
+	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_size);
+	//testMemoryAllocationCPU(initial_population, 1);
 	printPopulation(initial_population, POPULATION_SIZE);
+
 #pragma endregion
 
 #pragma region POPULATION INITIALIZATION GPU
@@ -798,7 +872,7 @@ int main()
 
 	// Initialize random values
 	curandState* d_states;
-	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE * node_quantity));
+	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * POPULATION_SIZE * node_size));
 	initCuRand << <grid, threads >> > (d_states, time(NULL));
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
@@ -807,45 +881,150 @@ int main()
 	*************************************************************************************************/
 	// We are going to start the process of allocation bottom-up, it's say from the inner structure 
 	// to the top structure
-	// The inner structures are "item" and "node" in which node contains item, then following the 
-	// information given by Robert Crovella on 
-	// stackoverflow.com/questions/30082991/memory-allocation-on-gpu-for-dynamic-array-of-structs
+	// The inner structures are "item" and "node" in which node contains item.
 
-	// Define a pointer for struct "node"
-	node* dev_node;	
+	// Define pointers for device structs
+	item* device_item;
+	node* device_node;
+	tour* device_tour;
+	population* device_population;
 
-	// 1. cudaMalloc a pointer to device memory that will hold the struct "node", in this case is
-	// called "dev_node"
-	HANDLE_ERROR(cudaMalloc((void**)&dev_node, node_quantity * sizeof(node)));
+	// Define pointers for host structs
+	item* host_item;
+	node* host_node;
+	tour* host_tour;
+	population* host_population;
 
-	// 2. (optionally) copy an instantiated object of struct "node" on the host to the device pointer
-	// "dev_node" from step 1 using cudaMemcpy
-	HANDLE_ERROR(cudaMemcpy(dev_node, n, node_quantity * sizeof(node), cudaMemcpyHostToDevice));
-
-	// 3. Create a separate "item" pointer on the host, in this case it's called "dev_item"
-	item* dev_item;
-
-	// 4. cudaMalloc "item" storage on the device for "dev_item"
-	HANDLE_ERROR(cudaMalloc((void**)&dev_item, node_quantity));
-	for (int i = 0; i < node_quantity; i++)
+	// Allocate host and device memory for population
+	HANDLE_ERROR(cudaMalloc((void**)&device_population, sizeof(population) * size_t(population_size)));
+	host_population = (population*)malloc(sizeof(population) * size_t(population_size));
+	for (int p = 0; p < population_size; ++p)
 	{
-		HANDLE_ERROR(cudaMalloc((void**)&(dev_item[i]), sizeof(item)* dev_node[i].item_qty));
+		host_population[p].tours = (tour*)malloc(sizeof(tour) * size_t(tour_size));
 	}
 
-	// 5. cudaMemcpy the pointer value of "dev_item" from the host to the device pointer
-	// &(dev_node->i)
-	for (int i = 0; i < node_quantity; i++)
+	// Allocate host and device memory for tour
+	HANDLE_ERROR(cudaMalloc((void**)&device_tour, sizeof(tour) * size_t(tour_size)));
+	host_tour = (tour*)malloc(sizeof(tour) * size_t(tour_size));
+	for (int t = 0; t < tour_size; ++t)
 	{
-		HANDLE_ERROR(cudaMemcpy(&(dev_node[i].items), &(dev_item[i]), sizeof(item*), cudaMemcpyHostToDevice));
+		host_tour[t].nodes = (node*)malloc(sizeof(node) * size_t(node_size));
 	}
 
-	// 6. Copy the embedded data
-	for (int i = 0; i < node_quantity; i++)
+	// Allocate host and device memory for node
+	HANDLE_ERROR(cudaMalloc((void**)&device_node, sizeof(node) * size_t(node_size)));
+	host_node = (node*)malloc(sizeof(node) * size_t(node_size));
+	for (int n = 0; n < node_size; ++n)
 	{
-		HANDLE_ERROR(cudaMemcpy(&dev_item[i], n[i].items, sizeof(item) * dev_node[i].item_qty, cudaMemcpyHostToDevice));
+		host_node[n].items = (item*)malloc(sizeof(item) * size_t(item_size));
 	}
 
-	// 1. cudaMalloc a pointer to device memory that hold population
+	// Allocate host and device memory for item
+	HANDLE_ERROR(cudaMalloc((void**)&device_item, sizeof(item) * size_t(item_size)));
+	host_item = (item*)malloc(sizeof(item) * size_t(item_size));
+
+	// Offset pointers
+	for (int n = 0; n < node_size; ++n)
+	{
+		for (int i = 0; i < item_size; ++i)
+		{
+			if (host_node[n].id == host_item[i].node)
+			{
+				host_node[n].items = device_item + i;
+			}
+		}
+	}
+
+	for (int t = 0; t < tour_size; ++t)
+	{
+		host_tour[t].nodes = device_node;
+	}
+
+	// Copy host struct with device pointers to device
+	//HANDLE_ERROR(cudaMemcpy(device_tour, host_tour, sizeof(tour) * size_t(tour_size), cudaMemcpyHostToDevice));
+
+	for (int p = 0; p < population_size; ++p)
+	{
+		host_population[p].tours = device_tour;
+	}	
+
+	nodeTest << <1, 1 >> > (device_node, node_size);
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	/*************************************************************************************************
+	* GENERATE INITIAL TOUR ON DEVICE
+	*************************************************************************************************/
+	
+	// Define pointers to device
+	tour* device_initial_tour;
+	node* device_initial_node;
+	item* device_initial_item;
+
+	// Define pointers to host
+	tour* host_initial_tour;
+	node* host_initial_node;
+	item* host_initial_item;
+
+	// Allocate memory on device and host for tour
+	HANDLE_ERROR(cudaMalloc((void**)&device_initial_tour, sizeof(tour)));
+	host_initial_tour = (tour*)malloc(sizeof(tour));
+	host_initial_tour->nodes = (node*)malloc(sizeof(node) * size_t(node_size));
+
+	// Copy tour data into host initial tour
+	memcpy(host_initial_tour, &initial_tour, sizeof(tour));
+
+	// Allocate memory on device and host for node
+	HANDLE_ERROR(cudaMalloc((void**)&device_initial_node, sizeof(node) * size_t(node_size)));
+	host_initial_node = (node*)malloc(sizeof(node) * size_t(node_size));
+	for (int n = 0; n < node_size; ++n)
+	{
+		host_initial_node[n].items = (item*)malloc(sizeof(item) * size_t(item_size));
+	}
+
+	// Copy node data into host initial node
+	memcpy(host_initial_node, cpu_node, sizeof(node) * size_t(node_size));
+
+	// Allocate memory on device and host for item
+	HANDLE_ERROR(cudaMalloc((void**)&device_initial_item, sizeof(item) * size_t(item_size)));
+	host_initial_item = (item*)malloc(sizeof(item) * size_t(item_size));
+
+	// Copy item data into host initial item
+	memcpy(host_initial_item, cpu_item, sizeof(item) * size_t(item_size));
+
+	// Copy data to device pointer
+	HANDLE_ERROR(cudaMemcpy(device_initial_item, host_initial_item, sizeof(item) * size_t(item_size), cudaMemcpyHostToDevice));
+
+	// Offset Pointers
+	for (int n = 0; n < node_size; ++n)
+	{
+		for (int i = 0; i < item_size; i++)
+		{
+			if (host_initial_node[n].id == host_initial_item[i].node)
+			{
+				host_initial_node[n].items = device_initial_item + i;
+			}
+		}
+	}
+
+	// Copy node data to device pointer
+	HANDLE_ERROR(cudaMemcpy(device_initial_node, host_initial_node, sizeof(node) * size_t(node_size), cudaMemcpyHostToDevice));
+
+	for (int t = 0; t < tour_size; t++)
+	{
+		host_initial_tour[t].nodes = device_initial_node;
+	}
+
+	// Copy host initial tour to device initial tour
+	HANDLE_ERROR(cudaMemcpy(device_initial_tour, host_initial_tour, sizeof(tour), cudaMemcpyHostToDevice));
+
+	printTour(initial_tour);
+
+	// Test initial tour
+	tourTest << <1, 1 >> > (device_initial_tour, 1);
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	/*END INITIAL TOUR*/
+
 	population* d_initial_population;
 	HANDLE_ERROR(cudaMalloc((void**)&d_initial_population, sizeof(population)));
 
@@ -860,16 +1039,16 @@ int main()
 	for (int i = 0; i < POPULATION_SIZE; ++i)
 	{
 		// 4. cudaMalloc node storage on the device for node pointer
-		HANDLE_ERROR(cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_quantity));
+		HANDLE_ERROR(cudaMalloc((void**)&(d_node_ptr[i]), sizeof(node) * node_size));
 		// 5. cudaMemcpy the pointer value of node pointer from host to the device node pointer
 		HANDLE_ERROR(cudaMemcpy(&(d_tour_ptr[i].nodes), &(d_node_ptr[i]), sizeof(node*), cudaMemcpyHostToDevice));
 		// Optional: Copy an instantiated object on the host to the device pointer
-		HANDLE_ERROR(cudaMemcpy(d_node_ptr[i], initial_tour.nodes, sizeof(node) * node_quantity, cudaMemcpyHostToDevice));
+		HANDLE_ERROR(cudaMemcpy(d_node_ptr[i], initial_tour.nodes, sizeof(node) * node_size, cudaMemcpyHostToDevice));
 	}
 	// 6. cudaMemcpy the pointer value of tour pointer from host to the device population pointer
 	HANDLE_ERROR(cudaMemcpy(&(d_initial_population->tours), &d_tour_ptr, sizeof(tour*), cudaMemcpyHostToDevice));
 
-	testMemoryAllocation << <grid, threads >> > (d_initial_population, 1);
+	//testMemoryAllocation << <grid, threads >> > (d_initial_population, 1);
 
 	/********************************************************************************************************************
 	* Calculate Distance Matrix in CUDA
@@ -880,9 +1059,9 @@ int main()
 	node* d_node_t_matrix;
 
 	// Allocate memory on device
-	HANDLE_ERROR(cudaMalloc(&d_node_matrix, node_quantity * sizeof(node)));
-	HANDLE_ERROR(cudaMalloc(&d_node_t_matrix, node_quantity * sizeof(node)));
-	HANDLE_ERROR(cudaMemcpy(d_node_matrix, n, node_quantity * sizeof(node), cudaMemcpyHostToDevice));	
+	HANDLE_ERROR(cudaMalloc(&d_node_matrix, node_size * sizeof(node)));
+	HANDLE_ERROR(cudaMalloc(&d_node_t_matrix, node_size * sizeof(node)));
+	HANDLE_ERROR(cudaMemcpy(d_node_matrix, cpu_node, node_size * sizeof(node), cudaMemcpyHostToDevice));	
 
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
@@ -890,18 +1069,18 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Copy results from device to host
-	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_quantity);
-	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node) * node_quantity, cudaMemcpyDeviceToHost));
+	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_size);
+	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node) * node_size, cudaMemcpyDeviceToHost));
 
 	// Show information on screen
-	displayNodes(h_node_t_matrix, node_quantity);
+	displayNodes(h_node_t_matrix, node_size);
 
 	// Calculate size of distance array
 	distance* d_distance;
-	int distance_size = node_quantity * node_quantity;
+	int distance_size = node_size * node_size;
 	HANDLE_ERROR(cudaMalloc(&d_distance, sizeof(distance) * distance_size));
 	printf("Calculando la matriz de distancias en GPU\n");
-	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_quantity, node_quantity);
+	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_size, node_size);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
@@ -912,7 +1091,7 @@ int main()
 	displayDistance(h_distance, distance_size);
 	
 	// Invoke Kernel to generate the initial population on the GPU
-	initializePopulationGPU << <grid, threads >> > (d_initial_population, d_distance, node_quantity, item_rows, d_states);
+	initializePopulationGPU << <grid, threads >> > (d_initial_population, d_distance, node_size, item_rows, d_states);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
@@ -925,8 +1104,8 @@ int main()
 	
 	for (int p = 0; p < POPULATION_SIZE; ++p)
 	{
-		h_node_ptr[p] = (node*)malloc(sizeof(node) * node_quantity);
-		HANDLE_ERROR(cudaMemcpy(h_node_ptr[p], d_node_ptr[p], sizeof(node) * node_quantity, cudaMemcpyDeviceToHost));
+		h_node_ptr[p] = (node*)malloc(sizeof(node) * node_size);
+		HANDLE_ERROR(cudaMemcpy(h_node_ptr[p], d_node_ptr[p], sizeof(node) * node_size, cudaMemcpyDeviceToHost));
 		h_initial_population.tours[p].nodes = h_node_ptr[p];
 	}
 
@@ -939,8 +1118,8 @@ int main()
 	* GPU MEMORY ALLOCATION
 	****************************************************************************************************/
 	//TODO: Evaluar toda la seccion para determinar que se puede quitar y que no, por ahora solo voy a hacer copy-paste
-	population* device_population;
-	HANDLE_ERROR(cudaMalloc((void**)&device_population, sizeof(population)));
+	population* dev_population;
+	HANDLE_ERROR(cudaMalloc((void**)&dev_population, sizeof(population)));
 
 	// Array to store parents selected from tournament selection
 	tour* device_parents;
@@ -949,7 +1128,7 @@ int main()
 	// Cost table for crossover function (SCX Crossover)
 	// TODO: Revisar esta memoria dado que la tabla de costos que se tiene elaborada es con base a estructuras y ya esta generada en GPU
 	distance* device_cost_table;
-	HANDLE_ERROR(cudaMalloc((void**)&device_cost_table, sizeof(distance) * node_quantity * node_quantity));
+	HANDLE_ERROR(cudaMalloc((void**)&device_cost_table, sizeof(distance) * node_size * node_size));
 
 	// Array for random numbers
 	curandState* device_state;
@@ -957,9 +1136,9 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Copies data to device for evolution
-	HANDLE_ERROR(cudaMemcpy(device_population, &h_initial_population, sizeof(population), cudaMemcpyHostToDevice));
+	HANDLE_ERROR(cudaMemcpy(dev_population, &h_initial_population, sizeof(population), cudaMemcpyHostToDevice));
 	// TODO: Revisar con lupa esta linea dado que h_distance esta expresado en otros terminos, especificamente es un arreglo de estructura tipo distancia no flotantes
-	HANDLE_ERROR(cudaMemcpy(device_cost_table, &h_distance, sizeof(float) * node_quantity * node_quantity, cudaMemcpyHostToDevice));
+	HANDLE_ERROR(cudaMemcpy(device_cost_table, &h_distance, sizeof(float) * node_size * node_size, cudaMemcpyHostToDevice));
 	HANDLE_ERROR(cudaDeviceSynchronize());
 #pragma endregion
 
@@ -983,21 +1162,21 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Figure out distance and fitness for each individual in population
-	evaluatePopulation << <grid, threads >> > (device_population, device_cost_table, node_quantity);
+	evaluatePopulation << <grid, threads >> > (dev_population, device_cost_table, node_size);
 	
 	for(int e = 0; e < NUM_EVOLUTIONS; ++e)
 	{
-		selection << <grid, threads >> > (device_population, device_state, device_parents, node_quantity, item_quantity);
+		selection << <grid, threads >> > (dev_population, device_state, device_parents, node_size, item_size);
 
 		// Breed the population with tournament selection and SCX crossover
 		// Perform computation parallelized, build children iteratively
-		for (unsigned int j = 1; j < node_quantity; ++j)
+		for (unsigned int j = 1; j < node_size; ++j)
 		{
-			crossover << <grid, threads >> > (device_population, device_parents, device_state, device_cost_table, j);
+			crossover << <grid, threads >> > (dev_population, device_parents, device_state, device_cost_table, j);
 			
-			mutate << <grid, threads >> > (device_population, device_state, node_quantity);
+			mutate << <grid, threads >> > (dev_population, device_state, node_size);
 			
-			evaluatePopulation << <grid, threads >> > (device_population, device_cost_table, node_quantity);
+			evaluatePopulation << <grid, threads >> > (dev_population, device_cost_table, node_size);
 		}
 	}
 
@@ -1007,7 +1186,7 @@ int main()
 
 	// Copy memory back to host
 	// TODO: Revisar si es necesaria
-	HANDLE_ERROR(cudaMemcpy(&initial_population, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+	HANDLE_ERROR(cudaMemcpy(&initial_population, dev_population, sizeof(population), cudaMemcpyDeviceToHost));
 	HANDLE_ERROR(cudaDeviceSynchronize());
 #pragma endregion
 
@@ -1031,8 +1210,8 @@ int main()
 	HANDLE_ERROR(cudaFree(d_distance));
 	free(h_distance);
 	free(matrix);
-	free(i);
-	free(n);
+	free(cpu_item);
+	free(cpu_node);
 	free(d);
 
 	HANDLE_ERROR(cudaDeviceReset());
