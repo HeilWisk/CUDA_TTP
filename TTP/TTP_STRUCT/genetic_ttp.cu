@@ -348,6 +348,145 @@ __global__ void tourTest(tour* tour, int tour_size)
 	printf("\n\n");
 }
 
+__global__ void populationTest(population* population, int population_size)
+{
+	for (int p = 0; p < population_size; ++p)
+	{
+		printf(" > population[%d].id: %d\n", p, population[p].id);
+		printf(" > population[%d].tour_qty: %d\n", p, population[p].tour_qty);
+		if (population[p].tour_qty > 0)
+		{
+			for (int t = 0; t < population[p].tour_qty; ++t)
+			{
+				printf(" > population[%d].tours[%d].fitness: %d\n", p, t, population[p].tours[t].fitness);
+				printf(" > population[%d].tours[%d].total_distance: %d\n", p, t, population[p].tours[t].total_distance);
+				printf(" > population[%d].tours[%d].node_qty: %d\n", p, t, population[p].tours[t].node_qty);
+				if (population[p].tours[t].node_qty > 0)
+				{
+					for (int n = 0; n < population[p].tours[t].node_qty; ++n)
+					{
+						printf(" > population[%d].tours[%d].nodes[%d].id: %d\n", p, t, n, population[p].tours[t].nodes[n].id);
+						printf(" > population[%d].tours[%d].nodes[%d].x: %lf\n", p,  t, n, population[p].tours[t].nodes[n].x);
+						printf(" > population[%d].tours[%d].nodes[%d].y: %lf\n", p, t, n, population[p].tours[t].nodes[n].y);
+						printf(" > population[%d].tours[%d].nodes[%d].item_qty: %d\n", p, t, n, population[p].tours[t].nodes[n].item_qty);
+						if (population[p].tours[t].nodes[n].item_qty > 0)
+						{
+							for (int i = 0; i < population[p].tours[t].nodes[n].item_qty; ++i)
+							{
+								printf(" > population[%d].tours[%d].nodes[%d].items[%d].id: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].id);
+								printf(" > population[%d].tours[%d].nodes[%d].items[%d].node: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].node);
+								printf(" > population[%d].tours[%d].nodes[%d].items[%d].taken: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].taken);
+								printf(" > population[%d].tours[%d].nodes[%d].items[%d].value: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].value);
+								printf(" > population[%d].tours[%d].nodes[%d].items[%d].weight: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].weight);
+							}
+						}
+					}
+				}
+			}
+		}
+	}	
+	printf("\n\n");
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="initial_population"></param>
+/// <param name="distances"></param>
+/// <param name="node_quantity"></param>
+/// <param name="item_quantity"></param>
+/// <param name="state"></param>
+/// <returns></returns>
+__global__ void initializePopulationGPU(population* initial_population, tour* initial_tour, const int population_size,/*distance* distances, const int node_size, const int item_size, */ curandState * state)
+{
+	node temp;
+
+	// Get thread ID
+	// Global index of every block on the grid
+	unsigned int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	unsigned int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	unsigned int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	unsigned int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	curandState local_state = state[thread_global_index];
+
+	// Set the tours
+	if (thread_global_index < initial_population->tour_qty)
+	{
+		initial_population->tours[thread_global_index].node_qty = initial_tour->node_qty;
+
+		for (int p = 0; p < population_size; ++p)
+		{
+			for (int n = 0; n < initial_tour->node_qty; ++n)
+			{
+				initial_population->tours[thread_global_index].nodes[n] = initial_tour[p].nodes[n];
+			}
+		}
+
+		for (int j = 1; j < initial_tour->node_qty; ++j)
+		{
+			int random_position = 1 + (curand(&local_state) % (initial_tour->node_qty - 1));
+			temp = initial_population->tours[thread_global_index].nodes[j];;
+			temp.items = initial_population->tours[thread_global_index].nodes[j].items;
+
+			printf(" > thread_global_index: %d > temp.id: %d\n", thread_global_index, temp.id);
+
+			/*initial_population->tours[thread_global_index].nodes[j] = initial_population->tours[thread_global_index].nodes[random_position];
+			if (initial_population->tours[thread_global_index].nodes[j].item_qty > 0)
+			{
+				initial_population->tours[thread_global_index].nodes[j].items = initial_population->tours[thread_global_index].nodes[random_position].items;
+			}
+
+			initial_population->tours[thread_global_index].nodes[random_position] = temp;
+			if (initial_population->tours[thread_global_index].nodes[random_position].item_qty > 0)
+			{
+				initial_population->tours[thread_global_index].nodes[random_position].items = temp.items;
+			}*/
+
+
+
+		//	for (int s = 0; s < initial_population->tours[thread_global_index].nodes[j].item_qty; ++s)
+		//	{
+		//		
+		//	}
+		}
+
+		
+
+		//initial_population->tours[thread_global_index].total_distance = 0;
+		//for (int i = 0; i < node_size; ++i)
+		//{
+		//	for (int k = 0; k < node_size * node_size; ++k)
+		//	{
+		//		if (i < node_size - 1)
+		//		{
+		//			if ((distances[k].source == initial_population->tours[thread_global_index].nodes[i].id) && (distances[k].destiny == initial_population->tours[thread_global_index].nodes[i + 1].id))
+		//			{
+		//				initial_population->tours[thread_global_index].total_distance += distances[k].value;
+		//			}
+		//		}
+		//		else
+		//		{
+		//			if ((distances[k].source == initial_population->tours[thread_global_index].nodes[i].id) && (distances[k].destiny == initial_population->tours[thread_global_index].nodes[0].id))
+		//			{
+		//				initial_population->tours[thread_global_index].total_distance += distances[k].value;
+		//			}
+		//		}
+		//	}
+
+		//	// Calculate the fitness
+		//	if (initial_population->tours[thread_global_index].total_distance != 0)
+		//		initial_population->tours[thread_global_index].fitness = 1 / initial_population->tours[thread_global_index].total_distance;
+		//	else
+		//		initial_population->tours[thread_global_index].fitness = 0;
+		//	__syncthreads();
+		//}
+	}
+}
+
 #pragma endregion
 
 #pragma region CUDA Functions
@@ -941,14 +1080,21 @@ int main()
 	}
 
 	// Copy host struct with device pointers to device
-	//HANDLE_ERROR(cudaMemcpy(device_tour, host_tour, sizeof(tour) * size_t(tour_size), cudaMemcpyHostToDevice));
+	HANDLE_ERROR(cudaMemcpy(device_tour, host_tour, sizeof(tour) * size_t(tour_size), cudaMemcpyHostToDevice));
 
 	for (int p = 0; p < population_size; ++p)
 	{
 		host_population[p].tours = device_tour;
-	}	
+	}
+
+	host_population->tour_qty = tour_size;
+
+	HANDLE_ERROR(cudaMemcpy(device_population, host_population, sizeof(population) * size_t(population_size), cudaMemcpyHostToDevice));
 
 	nodeTest << <1, 1 >> > (device_node, node_size);
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	populationTest << <1, 1 >> > (device_population, population_size);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	/*************************************************************************************************
@@ -1024,6 +1170,20 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	/*END INITIAL TOUR*/
+
+
+	/*************************************************************************************************
+	* INVOKE INITIALIZE POPULATION KERNEL
+	*************************************************************************************************/
+	initializePopulationGPU << < grid, threads >> > (device_population, device_initial_tour, population_size, d_states);
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	populationTest << <1, 1 >> > (device_population, population_size);
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	/*************************************************************************************************
+	* END
+	*************************************************************************************************/
 
 	population* d_initial_population;
 	HANDLE_ERROR(cudaMalloc((void**)&d_initial_population, sizeof(population)));
