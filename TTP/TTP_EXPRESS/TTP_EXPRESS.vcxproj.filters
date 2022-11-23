@@ -7,10 +7,30 @@
     <Filter Include="data">
       <UniqueIdentifier>{bf5e2a16-6b71-4096-a7ed-5c8035a9a5f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{acf05050-6f2a-40b0-afd5-a096f3023591}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\w5_n4_bounded-strongly-corr.ttp">
       <Filter>data</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\item.cuh">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\tour.cuh">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\node.cuh">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\distance.cuh">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\population.cuh">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

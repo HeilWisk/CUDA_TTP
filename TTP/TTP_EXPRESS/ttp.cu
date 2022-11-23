@@ -1,10 +1,13 @@
 ﻿
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include "curand_kernel.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <vector>
 
 // POPULATION CONTROL
 #define MAX_COORD 250
@@ -16,6 +19,12 @@
 #define TOURNAMENT_SIZE 128
 //BLOCKS
 //NUM_THREADS
+
+#include "headers/item.cuh"
+#include "headers/node.cuh"
+#include "headers/distance.cuh"
+#include "headers/tour.cuh"
+#include "headers/population.cuh"
 
 const int blockPerGrid = 8;
 
@@ -125,6 +134,121 @@ void subString(char originalString[], char subString[], size_t position, size_t 
 	strcpy(subString, tempSubString);
 }
 
+/// <summary>
+/// Count the rows for a matrix in a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name of the file to evaluate</param>
+/// <param name="sectionName">- Section name in the file where the matrix begins</param>
+/// <returns>Amount of rows in the matrix</returns>
+int countMatrixRows(const char fileName[], const char sectionName[])
+{
+	FILE* filePtr;
+	char str[255], sub[255];
+	int lineCount = 0, initialPosition = 0, rows = 0;
+	const char openMode[] = "r";
+
+	filePtr = fopen(fileName, openMode);
+
+	while (fgets(str, 100, filePtr) != NULL) {
+		if (strncmp(str, sectionName, strlen(sectionName)) == 0) {
+			initialPosition = lineCount;
+		}
+		subString(str, sub, 1, 1);
+		if (initialPosition != NULL && lineCount > initialPosition && isdigit(sub[0])) {
+			rows++;
+		}
+		else if (initialPosition != NULL && lineCount > initialPosition && isalpha(sub[0]))
+		{
+			break;
+		}
+		lineCount++;
+	}
+	fclose(filePtr);
+	return rows;
+}
+
+/// <summary>
+/// Extracts matrix from a file with a given structure
+/// </summary>
+/// <param name="fileName">- File path and name</param>
+/// <param name="sectionName">- Section name in the file</param>
+/// <param name="rows">- Amount of columns</param>
+/// <param name="cols">- Amount of rows</param>
+/// <returns>Double pointer matrix of ints</returns>
+int** extractMatrixFromFile(const char fileName[], const char sectionName[], int rows, int cols)
+{
+	FILE* filePtr;
+	char str[255], sub[255], * token;
+	int lineCount = 0, initialPosition = 0, matrixRow, matrixCol;
+	const char openMode[] = "r";
+
+	filePtr = fopen(fileName, openMode);
+
+	// Allocate memory for rows
+	int** matrixResult = (int**)malloc(rows * sizeof(int*));
+	if (matrixResult == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+
+	// Allocate memory for columns
+	for (int i = 0; i < rows; i++) {
+		matrixResult[i] = (int*)malloc(cols * sizeof(int));
+		if (matrixResult[i] == NULL) {
+			fprintf(stderr, "Out of Memory");
+			exit(0);
+		}
+	}
+
+	while (fgets(str, 100, filePtr) != NULL) {
+		if (strncmp(str, sectionName, strlen(sectionName)) == 0) {
+			initialPosition = lineCount;
+		}
+		subString(str, sub, 1, 1);
+		if (initialPosition != NULL && lineCount > initialPosition && isdigit(sub[0])) {
+			token = strtok(str, "	");
+			matrixCol = 0;
+			matrixRow = atoi(token) - 1;
+			while (token != NULL)
+			{
+				matrixResult[matrixRow][matrixCol] = atoi(token);
+				token = strtok(NULL, "	");
+				if (matrixCol < cols)
+					matrixCol++;
+			}
+		}
+		else if (initialPosition != NULL && lineCount > initialPosition && isalpha(sub[0]))
+		{
+			break;
+		}
+		lineCount++;
+	}
+
+	fclose(filePtr);
+
+	return matrixResult;
+}
+
+/// <summary>
+/// Calculates euclidean distance between a matrix of source points and a matrix of destination points
+/// </summary>
+/// <param name="srcPoint">- Matrix of source points</param>
+/// <param name="dstPoint">- Matrix of destination points</param>
+/// <param name="out">- Result matrix with distances</param>
+/// <param name="rCount">- Row count</param>
+/// <param name="size">- Total size of the result matrix</param>
+void euclideanDistanceCPU(node* srcPoint, node* dstPoint, distance* out, int rCount, int size) {
+	for (int s = 0; s < size; s++) {
+		for (int xSrc = 0; xSrc < rCount; xSrc++) {
+			for (int xDst = 0; xDst < rCount; xDst++) {
+				out[s].source = srcPoint[xSrc].id;
+				out[s].destiny = dstPoint[xDst].id;
+				out[s].value = (float)sqrt(pow(dstPoint[xDst].x - srcPoint[xSrc].x, 2) + pow(dstPoint[xDst].y - srcPoint[xSrc].y, 2) * 1.0);
+				s++;
+			}
+		}
+	}
+}
 
 int main()
 {
@@ -158,11 +282,11 @@ int main()
 	****************************************************************************************************/
 	int count;
 	cudaDeviceProp properties;
-	HANDLE_ERROR(cudaGetDeviceCount(&count));
+	//HANDLE_ERROR(cudaGetDeviceCount(&count));
 	printf("****************************************************************************************\n");
 	printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
 	printf("****************************************************************************************\n");
-	for (int i = 0; i < count; i++)
+	/*for (int i = 0; i < count; i++)
 	{
 		HANDLE_ERROR(cudaGetDeviceProperties(&properties, i));
 		printf("GPU:					%s\n", properties.name);
@@ -174,7 +298,7 @@ int main()
 		printf("Max Threads Per Multiprocessor:		%d\n", properties.maxThreadsPerMultiProcessor);
 		printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
 		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
-	}
+	}*/
 	printf("****************************************************************************************\n");
 #pragma endregion
 
@@ -262,7 +386,114 @@ int main()
 	printf("****************************************************************************************\n");
 	printf("\n");
 
-#pragma endregion    
+#pragma endregion
+
+	/****************************************************************************************************
+	* PRINT CUDA AND GENETIC VALUES
+	****************************************************************************************************/
+	printf("****************************************************************************************\n");
+	printf("PROPERTIES FOR THE PROBLEM\n");
+	printf("****************************************************************************************\n");
+	printf("THREADS:				PD\n");
+	printf("BLOCKS:					PD\n");
+	printf("TOURNAMENT SIZE:			PD\n");
+	printf("AMOUNT OF EVOLUTIONS:			PD\n");
+	printf("****************************************************************************************\n");
+
+#pragma region POPULATION INITIALIZATION CPU
+
+	/*************************************************************************************************
+	* POPULATION INITIALIZATION ON HOST (CPU)
+	*************************************************************************************************/
+
+	tour initial_tour(node_size, item_size, false);
+	population initial_population;
+
+	// Obtain the items
+	// Calculate amount of rows
+	unsigned int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
+
+	// Validate file consistency
+	if (item_rows != item_size)
+	{
+		perror("The file information is not consistent. Number of items Inconsistency.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Calculate amount of columns
+	unsigned int item_columns = 4;
+
+	// Get matrix
+	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_size, item_columns);
+
+	// Allocate memory for the array of structs
+	item* cpu_item = (item*)malloc(item_size * sizeof(item));
+	if (cpu_item == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+
+	// Convert to array of struct
+	extractItems(matrix, item_size, cpu_item);
+
+	// Visualize values for item matrix	
+	displayItems(cpu_item, item_size);
+
+	// Obtain nodes
+	// Calculate amount of nodes
+	unsigned int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
+
+	// Validate file consistency
+	if (node_rows != node_size)
+	{
+		perror("The file information is not consistent. Number of node Inconsistency.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Calculate amount of columns
+	unsigned int node_columns = 3;
+
+	// Get matrix
+	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_size, node_columns);
+
+	// Allocate memory for the array of structs
+	node* cpu_node = (node*)malloc(node_size * sizeof(node));
+	if (cpu_node == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+	// Convert to array of struct
+	extractNodes(matrix, node_size, cpu_node);
+
+	// Assign items to node
+	assignItems(cpu_item, item_size, cpu_node, node_size);
+
+	// Print node information
+	displayNodes(cpu_node, node_size);
+
+	// Assign nodes to tour
+	defineInitialTour(initial_tour, node_size, cpu_node);
+
+	// Calculate distance matrix in CPU
+	int distance_matrix_size = node_size * node_size;
+
+	// Allocate memory for the distance matrix
+	distance* d = (distance*)malloc(distance_matrix_size * sizeof(distance));
+	if (d == NULL) {
+		fprintf(stderr, "Out of Memory");
+		exit(0);
+	}
+
+	euclideanDistanceCPU(cpu_node, cpu_node, d, node_size, distance_matrix_size);
+	displayDistance(d, distance_matrix_size);
+
+	// Initialize population by generating POPULATION_SIZE number of
+	// permutations of the initial tour, all starting at the same city
+	initializePopulationCPU(initial_population, initial_tour, d, POPULATION_SIZE, node_size);
+	//testMemoryAllocationCPU(initial_population, 1);
+	printPopulation(initial_population, POPULATION_SIZE);
+
+#pragma endregion
 
     return 0;
 }

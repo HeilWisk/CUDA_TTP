@@ -56,6 +56,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52</CodeGeneration>
+      <Emulation>false</Emulation>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -81,7 +82,16 @@
     <CudaCompile Include="ttp.cu" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="data\w5_n4_bounded-strongly-corr.ttp" />
+    <None Include="data\w5_n4_bounded-strongly-corr.ttp">
+      <FileType>Discomap</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\distance.cuh" />
+    <ClInclude Include="headers\item.cuh" />
+    <ClInclude Include="headers\node.cuh" />
+    <ClInclude Include="headers\population.cuh" />
+    <ClInclude Include="headers\tour.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
