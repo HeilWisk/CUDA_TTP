@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TTP", "TTP\TTP.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TTP_STRUCT", "TTP_STRUCT\TTP_STRUCT.vcxproj", "{9344E426-8605-4DD9-AD95-43A72E5AD2CC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TTP_EXPRESS", "TTP_EXPRESS\TTP_EXPRESS.vcxproj", "{3ED56241-45C3-4A97-A631-FBEA85CD6850}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{9344E426-8605-4DD9-AD95-43A72E5AD2CC}.Debug|x64.Build.0 = Debug|x64
 		{9344E426-8605-4DD9-AD95-43A72E5AD2CC}.Release|x64.ActiveCfg = Release|x64
 		{9344E426-8605-4DD9-AD95-43A72E5AD2CC}.Release|x64.Build.0 = Release|x64
+		{3ED56241-45C3-4A97-A631-FBEA85CD6850}.Debug|x64.ActiveCfg = Debug|x64
+		{3ED56241-45C3-4A97-A631-FBEA85CD6850}.Debug|x64.Build.0 = Debug|x64
+		{3ED56241-45C3-4A97-A631-FBEA85CD6850}.Release|x64.ActiveCfg = Release|x64
+		{3ED56241-45C3-4A97-A631-FBEA85CD6850}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

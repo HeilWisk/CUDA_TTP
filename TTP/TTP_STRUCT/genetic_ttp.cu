@@ -397,7 +397,7 @@ __global__ void populationTest(population* population, int population_size)
 /// <param name="item_quantity"></param>
 /// <param name="state"></param>
 /// <returns></returns>
-__global__ void initializePopulationGPU(population* initial_population, tour* initial_tour, const int population_size,/*distance* distances, const int node_size, const int item_size, */ curandState * state)
+__global__ void initPopulationGPU(population* initial_population, tour* initial_tour, const int population_size,/*distance* distances, const int node_size, const int item_size, */ curandState * state)
 {
 	node temp;
 
@@ -426,15 +426,19 @@ __global__ void initializePopulationGPU(population* initial_population, tour* in
 			}
 		}
 
+
 		for (int j = 1; j < initial_tour->node_qty; ++j)
 		{
 			int random_position = 1 + (curand(&local_state) % (initial_tour->node_qty - 1));
-			temp = initial_population->tours[thread_global_index].nodes[j];;
+
+			temp = initial_population->tours[thread_global_index].nodes[j];
 			temp.items = initial_population->tours[thread_global_index].nodes[j].items;
 
-			printf(" > thread_global_index: %d > temp.id: %d\n", thread_global_index, temp.id);
-
-			/*initial_population->tours[thread_global_index].nodes[j] = initial_population->tours[thread_global_index].nodes[random_position];
+			printf(" > thread_global_index: %d > %d cambia con %d\n", thread_global_index, j, random_position);
+			printf(" > thread_global_index: %d > El id de %d es: %d\n", thread_global_index, j, initial_population->tours[thread_global_index].nodes[j].id);
+			printf(" > thread_global_index: %d > El id de %d es: %d\n", thread_global_index, random_position, initial_population->tours[thread_global_index].nodes[random_position].id);
+			
+			initial_population->tours[thread_global_index].nodes[j] = initial_population->tours[thread_global_index].nodes[random_position];
 			if (initial_population->tours[thread_global_index].nodes[j].item_qty > 0)
 			{
 				initial_population->tours[thread_global_index].nodes[j].items = initial_population->tours[thread_global_index].nodes[random_position].items;
@@ -444,10 +448,10 @@ __global__ void initializePopulationGPU(population* initial_population, tour* in
 			if (initial_population->tours[thread_global_index].nodes[random_position].item_qty > 0)
 			{
 				initial_population->tours[thread_global_index].nodes[random_position].items = temp.items;
-			}*/
-
-
-
+			}
+			
+			printf(" > thread_global_index: %d > initial_population->tours[%d].nodes[%d]: %d\n", thread_global_index, thread_global_index, j, initial_population->tours[thread_global_index].nodes[j].id);
+			printf(" > thread_global_index: %d > initial_population->tours[%d].nodes[%d]: %d\n", thread_global_index, thread_global_index, random_position, initial_population->tours[thread_global_index].nodes[random_position].id);
 		//	for (int s = 0; s < initial_population->tours[thread_global_index].nodes[j].item_qty; ++s)
 		//	{
 		//		
@@ -1091,11 +1095,11 @@ int main()
 
 	HANDLE_ERROR(cudaMemcpy(device_population, host_population, sizeof(population) * size_t(population_size), cudaMemcpyHostToDevice));
 
-	nodeTest << <1, 1 >> > (device_node, node_size);
+	/*nodeTest << <1, 1 >> > (device_node, node_size);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	populationTest << <1, 1 >> > (device_population, population_size);
-	HANDLE_ERROR(cudaDeviceSynchronize());
+	HANDLE_ERROR(cudaDeviceSynchronize());*/
 
 	/*************************************************************************************************
 	* GENERATE INITIAL TOUR ON DEVICE
@@ -1163,7 +1167,7 @@ int main()
 	// Copy host initial tour to device initial tour
 	HANDLE_ERROR(cudaMemcpy(device_initial_tour, host_initial_tour, sizeof(tour), cudaMemcpyHostToDevice));
 
-	printTour(initial_tour);
+	//printTour(initial_tour);
 
 	// Test initial tour
 	tourTest << <1, 1 >> > (device_initial_tour, 1);
@@ -1175,7 +1179,7 @@ int main()
 	/*************************************************************************************************
 	* INVOKE INITIALIZE POPULATION KERNEL
 	*************************************************************************************************/
-	initializePopulationGPU << < grid, threads >> > (device_population, device_initial_tour, population_size, d_states);
+	initPopulationGPU << < 1, 2 >> > (device_population, device_initial_tour, population_size, d_states);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	populationTest << <1, 1 >> > (device_population, population_size);
