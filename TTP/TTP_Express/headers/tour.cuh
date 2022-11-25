@@ -34,26 +34,6 @@ struct tour
 			}
 		}
 
-		//Allocate memory for the items
-		/*if (gpu)
-		{
-			cudaMalloc(&items, sizeof(item) * item_quantity);
-		}
-		else
-		{
-			items = (item*)malloc(item_quantity * sizeof(item));
-			if (items == NULL) {
-				printf("Unable to allocate memory for items");
-				return;
-			}
-
-			//Load data on items
-			for (int i = 0; i < item_quantity; i++)
-			{
-				items[i] = item();
-			}
-		}*/
-
 		fitness = 0;
 		total_distance = 0;
 		node_qty = node_quantity;
