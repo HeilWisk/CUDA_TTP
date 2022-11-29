@@ -35,6 +35,12 @@ struct item {
 		taken = var.taken;
 		return *this;
 	}
+
+	__host__ __device__ bool operator==(const item& itm)
+		const
+	{
+		return(id == itm.id && weight == itm.weight && value == itm.value && node == itm.node && taken == itm.taken);
+	}
 };
 
 /// <summary>

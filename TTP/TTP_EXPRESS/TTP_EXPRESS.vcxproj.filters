@@ -32,5 +32,8 @@
     <ClInclude Include="headers\population.cuh">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="genetic.cuh">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

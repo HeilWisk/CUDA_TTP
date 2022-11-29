@@ -87,6 +87,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="genetic.cuh" />
     <ClInclude Include="headers\distance.cuh" />
     <ClInclude Include="headers\item.cuh" />
     <ClInclude Include="headers\node.cuh" />

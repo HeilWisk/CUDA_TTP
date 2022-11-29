@@ -5,43 +5,64 @@ struct node {
 	int id;
 	double x;
 	double y;
-	int item_qty;
-	item* items;
+	item items[ITEMS];
 
 	__host__ __device__ node()
 	{
 		id = -1;
 		x = -1;
 		y = -1;
-		item_qty = 0;
+		for (int i = 0; i < ITEMS; ++i)
+		{
+			items[i] = item(-1, -1, -1, -1, -1);
+		}
 	}
 
-	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate)
+	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate/*, item its*/)
 	{
 		id = id_node;
 		x = x_coordinate;
 		y = y_coordinate;
+		/*for (int i = 0; i < ITEMS; i++)
+		{
+			items[i] = its.items[i];
+		}*/
+		
 	}
 
+	/// <summary>
+	/// Override of the assign (=) operator
+	/// </summary>
+	/// <param name="var"></param>
+	/// <returns></returns>
 	__host__ __device__ node& operator=(const node& var)
 	{
-		/*for (int i = 0; i < var.item_qty; ++i)
-		{
-			items[i] = var.items[i];
-		}*/
 		id = var.id;
 		x = var.x;
 		y = var.y;
-		item_qty = var.item_qty;
-		items = var.items;
+		for (int i = 0; i < ITEMS; ++i)
+		{
+			items[i] = var.items[i];
+		}
 		return *this;
 	}
 
-	__host__ __device__ bool operator==(const node& var) const
+	/// <summary>
+	/// Override of the is equal (==) operator
+	/// </summary>
+	/// <param name="var"></param>
+	/// <returns></returns>
+	__host__ __device__ bool operator==(const node& var)
 	{
-		return(id == var.id && x == var.x && y == var.y);
-	}
+		bool result = id == var.id && x == var.x && y == var.y;
 
+		for (int i = 0; i < ITEMS; ++i)
+		{
+			if (items[i].id != var.items[i].id || items[i].value != var.items[i].value || items[i].weight != var.items[i].weight || items[i].taken != var.items[i].taken || items[i].node != var.items[i].node)
+				result = false;
+		}
+		return result;
+	}
 };
 
 __host__ __device__ double distanceBetweenNodes(const node& src_node, const node& dst_node)
@@ -61,18 +82,14 @@ void displayNodes(node* c, int size) {
 	printf("NODES (CITIES):		%d\n", size);
 	printf("****************************************************************************************\n");
 	printf("ID	X		Y		ITEMS\n");
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < size; ++i) {
 		printf("%d	%f	%f", c[i].id, c[i].x, c[i].y);
-		if (c[i].item_qty > 0)
+		for (int j = 0; j < ITEMS; ++j)
 		{
-			for (int j = 0; j < c[i].item_qty; j++)
-			{
+			if(c[i].items[j].id > 0)
 				printf("	> %d", c[i].items[j].id);
-			}
-			printf("\n");
 		}
-		else
-			printf("\n");
+		printf("\n");
 	}
 	printf("****************************************************************************************\n");
 	printf("\n");
@@ -85,7 +102,7 @@ void displayNodes(node* c, int size) {
 /// <param name="rows">- Amount of rows to extract</param>
 /// <param name="c">- Pointer to array of nodes structs</param>
 void extractNodes(int** matrix, int rows, node* c) {
-	for (int i = 0; i < rows; i++) {
+	for (int i = 0; i < rows; ++i) {
 		c[i].id = matrix[i][0];
 		c[i].x = (float)matrix[i][1];
 		c[i].y = (float)matrix[i][2];
@@ -99,7 +116,7 @@ void extractNodes(int** matrix, int rows, node* c) {
 /// <param name="rows">- Amount of rows to extract</param>
 /// <param name="tour">- Tour to assign the extracted item</param>
 void extractItems(int** matrix, int rows, node& node) {
-	for (int s = 0; s < rows; s++) {
+	for (int s = 0; s < rows; ++s) {
 		node.items[s].id = matrix[s][0];
 		node.items[s].value = (float)matrix[s][1];
 		node.items[s].weight = (float)matrix[s][2];
@@ -111,22 +128,17 @@ void extractItems(int** matrix, int rows, node& node) {
 /// Function to assign every item to his corresponding node
 /// </summary>
 /// <param name="items">- Array of items to asign</param>
-/// <param name="item_quantity">- Amount of items to asign</param>
 /// <param name="nodes">- Nodes to assign the extracted item</param>
-/// <param name="node_quantity">- Amount of nodes to be asigned</param>
-void assignItems(item* items, int item_quantity, node* nodes, int node_quantity)
+void assignItems(item* items, node* nodes)
 {
 	int node_index;
 	int amount_items_per_node;
 	// Loop through the node array
-	for (int n = 0; n < node_quantity; n++)
+	for (int n = 0; n < CITIES; n++)
 	{
-		// Initialize the amount of items per node with 0
-		nodes[n].item_qty = 0;
-
 		// Count the amount of items per node to calculate memory allocation
 		amount_items_per_node = 0;
-		for (int s = 0; s < item_quantity; s++)
+		for (int s = 0; s < ITEMS; ++s)
 		{
 			if (items[s].node == nodes[n].id)
 			{
@@ -137,15 +149,8 @@ void assignItems(item* items, int item_quantity, node* nodes, int node_quantity)
 		// Validate if the given node has asigned items
 		if (amount_items_per_node > 0)
 		{
-			// Allocate memory for the item array
-			nodes[n].items = (item*)malloc(amount_items_per_node * sizeof(item));
-			if (nodes[n].items == NULL) {
-				printf("Unable to allocate memory for nodes");
-				return;
-			}
-
 			node_index = 0;
-			for (int s = 0; s < item_quantity; s++)
+			for (int s = 0; s < ITEMS; ++s)
 			{
 				if (items[s].node == nodes[n].id)
 				{
@@ -154,7 +159,6 @@ void assignItems(item* items, int item_quantity, node* nodes, int node_quantity)
 					nodes[n].items[node_index].weight = items[s].weight;
 					nodes[n].items[node_index].node = items[s].node;
 					nodes[n].items[node_index].taken = items[s].taken;
-					nodes[n].item_qty++;
 					node_index++;
 				}
 			}
