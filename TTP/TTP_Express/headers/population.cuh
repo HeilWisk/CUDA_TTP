@@ -14,6 +14,12 @@ struct population
 	}
 };
 
+/// <summary>
+/// Initialize Random Population
+/// </summary>
+/// <param name="initialPopulation"></param>
+/// <param name="initialTour"></param>
+/// <param name="distances"></param>
 void initializePopulation(population& initialPopulation, tour& initialTour, distance* distances)
 {
 	initialPopulation.tours[0] = initialTour;
@@ -32,6 +38,10 @@ void initializePopulation(population& initialPopulation, tour& initialTour, dist
 	}
 }
 
+/// <summary>
+/// Function to print the randomly generated population
+/// </summary>
+/// <param name="population"></param>
 void printPopulation(population population)
 {
 	for (int i = 0; i < TOURS; ++i)

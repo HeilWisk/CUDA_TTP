@@ -9,22 +9,7 @@
 #include <ctype.h>
 #include <vector>
 
-// POPULATION CONTROL
-#define MAX_COORD 250
-#define POPULATION_SIZE 1 //blockPerGrid*blockPerGrid*BLOCK_SIZE*BLOCK_SIZE
-#define TOURS 10
-#define BLOCK_SIZE 16
-#define NUM_EVOLUTIONS 100
-#define MUTATION_RATE 0.05
-#define ELITISM true
-#define TOURNAMENT_SIZE 128
-//BLOCKS
-//NUM_THREADS
-
-// Parameters
-#define CITIES 5
-#define ITEMS 4
-
+#include "headers/config.h"
 #include "headers/item.cuh"
 #include "headers/node.cuh"
 #include "headers/distance.cuh"
@@ -525,6 +510,7 @@ __global__ void crossover(population* population, tour* parents, curandState* ra
 {
 	// Get thread (particle) ID
 	int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
 	if (tid >= TOURS)
 		return;
 
@@ -534,11 +520,42 @@ __global__ void crossover(population* population, tour* parents, curandState* ra
 	node nodeTwo = getValidNextNode(parents[tid * 2 + 1], population->tours[tid], population->tours[tid].nodes[index - 1], index);
 
 	// Compare the two nodes from parents to the last node that was chosen in the child
-	/*for (int i = 0; i < CITIES * CITIES; ++i)
-	{
+	if (distanceTable[nodeOne.id * CITIES + population->tours[tid].nodes[index - 1].id].value <= distanceTable[nodeTwo.id * CITIES + population->tours[tid].nodes[index - 1].id].value)
+		population->tours[tid].nodes[index] = nodeOne;
+	else
+		population->tours[tid].nodes[index] = nodeTwo;
+}
 
+/// <summary>
+/// Kernel to perform mutation (Swap to random nodes)
+/// </summary>
+/// <param name="population"></param>
+/// <param name="randomState"></param>
+/// <returns></returns>
+__global__ void mutation(population* population, curandState* randomState)
+{
+	// Get thread (particle) ID
+	int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+	if (tid >= TOURS)
+		return;
+
+	// Pick a radom number between zero (0) and one (1)
+	curandState localState = randomState[tid];
+
+	// Only mutate by random chance: If random number is less than the mutation rate the mutation is executed (swap to nodes)
+	if (curand_uniform(&localState) < MUTATION_RATE)
+	{
+		// Don´t mutate the first node in the route
+		int random_number_one = 1 + curand_uniform(&localState) * (CITIES - 1.000001);
+		int random_number_two = 1 + curand_uniform(&localState) * (CITIES - 1.000001);
+
+		node temp_node = population->tours[tid].nodes[random_number_one];
+		population->tours[tid].nodes[random_number_one] = population->tours[tid].nodes[random_number_two];
+		population->tours[tid].nodes[random_number_two] = temp_node;
+
+		randomState[tid] = localState;
 	}
-	if(distanceTable->source)*/
 }
 
 int main()
@@ -591,9 +608,11 @@ int main()
 		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
 	}
 	printf("****************************************************************************************\n");
+
 #pragma endregion
 
 #pragma region CAPTURE FILE PATH
+
 	/****************************************************************************************************
 	* CAPTURE FILE PATH AND LOAD HIS DATA
 	****************************************************************************************************/
@@ -780,132 +799,186 @@ int main()
 
 	// Initialize population by generating POPULATION_SIZE number of permutations of the initial tour, all starting at the same city
 	initializePopulation(initial_population, initial_tour, d);
-	
+
 	printPopulation(initial_population);
 
 #pragma endregion
 
 #pragma region POPULATION INITIALIZATION GPU
+
 	/*************************************************************************************************
 	* POPULATION INITIALIZATION ON DEVICE (GPU)
 	*************************************************************************************************/
 
-	// Setup execution parameters
-	dim3 grid(blockPerGrid, blockPerGrid, 1);
-	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
+	// Device Variables
+	population* device_population;
+	tour* device_parents;
+	node* device_node_matrix;
+	node* device_node_t_matrix;
+	distance* device_distance;
+	curandState* device_states;
 
-	// Initialize random values
-	curandState* d_states;
-	HANDLE_ERROR(cudaMalloc((void**)&d_states, sizeof(curandState) * TOURS * node_size));
-	initCuRand << <grid, threads >> > (d_states, time(NULL));
-	HANDLE_ERROR(cudaDeviceSynchronize());
+	float milliseconds;
+	cudaEvent_t start, stop;
+	HANDLE_ERROR(cudaEventCreate(&start));
+	HANDLE_ERROR(cudaEventCreate(&stop));
+	HANDLE_ERROR(cudaEventRecord(start));
 
 	/*************************************************************************************************
 	* ALLOCATE MEMORY FOR STRUCTS ON DEVICE
 	*************************************************************************************************/
-	
-	// Define pointers for device structs
-	tour* device_parents;
-	population* device_population;
 
-	// Allocate host and device memory for population
+	// Allocate device memory for population
 	HANDLE_ERROR(cudaMalloc((void**)&device_population, sizeof(population) * size_t(population_size)));
 
-	// Array to store parents selected from tournament selection
+	// Allocate device memory for parents selected from tournament selection
 	HANDLE_ERROR(cudaMalloc((void**)&device_parents, sizeof(tour) * size_t(tour_size) * 2));
-	HANDLE_ERROR(cudaDeviceSynchronize());
 
-	// Copies data from host to device
+	// Allocate device memory for node matrix, node matrix transpose and distance matrix
+	HANDLE_ERROR(cudaMalloc(&device_node_matrix, size_t(node_size) * sizeof(node)));
+	HANDLE_ERROR(cudaMalloc(&device_node_t_matrix, size_t(node_size) * sizeof(node)));
+	HANDLE_ERROR(cudaMalloc(&device_distance, sizeof(distance) * CITIES * CITIES));
+
+	// Allocate device memory for states
+	HANDLE_ERROR(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(node_size)));
+
+	/*************************************************************************************************
+	* COPY HOST MEMORY TO DEVICE
+	*************************************************************************************************/
+
+	// Copy population data
 	HANDLE_ERROR(cudaMemcpy(device_population, &initial_population, sizeof(population), cudaMemcpyHostToDevice));
+
+	// Copy node data
+	HANDLE_ERROR(cudaMemcpy(device_node_matrix, cpu_node, size_t(node_size) * sizeof(node), cudaMemcpyHostToDevice));
+
+	/*************************************************************************************************
+	* INITIALIZE RANDOM VALUES
+	*************************************************************************************************/
+	initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
+	/*************************************************************************************************
+	* TODO: REMOVE THIS SECTION IF EVERITHING GOES WELL
+	*************************************************************************************************/
 	populationTest << <1, 1 >> > (device_population);
 
-	///*************************************************************************************************
-	//* GENERATE INITIAL TOUR ON DEVICE
-	//*************************************************************************************************/
-
-	////printTour(initial_tour);
-
-	//// Test initial tour
-	//tourTest << <1, 1 >> > (device_initial_tour, 1);
-	//HANDLE_ERROR(cudaDeviceSynchronize());
-
-	///*END INITIAL TOUR*/
-
-
 	/*************************************************************************************************
-	* INVOKE INITIALIZE POPULATION KERNEL
+	* CALCULATE DISTANCE MATRIX IN CUDA
 	*************************************************************************************************/
-	//initPopulationGPU << < 1, 2 >> > (device_population, device_initial_tour, population_size, d_states);
-	//HANDLE_ERROR(cudaDeviceSynchronize());
-
-	//populationTest << <1, 1 >> > (device_population, population_size);
-	//HANDLE_ERROR(cudaDeviceSynchronize());
-
-	/*************************************************************************************************
-	* END
-	*************************************************************************************************/
-
-	/********************************************************************************************************************
-	* Calculate Distance Matrix in CUDA
-	********************************************************************************************************************/
-	
-	// First calculate the matrix transpose
-	// Define device pointers
-	node* d_node_matrix;
-	node* d_node_t_matrix;
-
-	// Allocate memory on device
-	HANDLE_ERROR(cudaMalloc(&d_node_matrix, node_size * sizeof(node)));
-	HANDLE_ERROR(cudaMalloc(&d_node_t_matrix, node_size * sizeof(node)));
-	HANDLE_ERROR(cudaMemcpy(d_node_matrix, cpu_node, node_size * sizeof(node), cudaMemcpyHostToDevice));
 
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
-	transpose << <grid, threads >> > (d_node_matrix, d_node_t_matrix, node_rows, 1);
+	transpose << <BLOCKS, THREADS >> > (device_node_matrix, device_node_t_matrix, node_rows, 1);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Copy results from device to host
 	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_size);
-	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, d_node_t_matrix, sizeof(node) * node_size, cudaMemcpyDeviceToHost));
+	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, device_node_t_matrix, sizeof(node) * node_size, cudaMemcpyDeviceToHost));
 
 	// Show information on screen
 	displayNodes(h_node_t_matrix, node_size);
+	
+	// TODO: FIX GRID AND THREADS AND MATRIXDISTANCES KERNEL
+	dim3 grid(8, 8, 1);
+	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 
-	// Calculate size of distance array
-	distance* d_distance;
-	int distance_size = node_size * node_size;
-	HANDLE_ERROR(cudaMalloc(&d_distance, sizeof(distance) * distance_size));
 	printf("Calculando la matriz de distancias en GPU\n");
-	matrixDistances << <grid, threads >> > (d_node_matrix, d_node_t_matrix, d_distance, node_size, node_size);
+	matrixDistances << <grid, threads >> > (device_node_matrix, device_node_t_matrix, device_distance, node_size, node_size);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
-	distance* h_distance = (distance*)malloc(sizeof(distance) * distance_size);
-	HANDLE_ERROR(cudaMemcpy(h_distance, d_distance, sizeof(distance) * distance_size, cudaMemcpyDeviceToHost));
+	distance* h_distance = (distance*)malloc(sizeof(distance) * CITIES * CITIES);
+	HANDLE_ERROR(cudaMemcpy(h_distance, device_distance, sizeof(distance) * CITIES * CITIES, cudaMemcpyDeviceToHost));
 
 	// Show Data
-	displayDistance(h_distance, distance_size);
+	displayDistance(h_distance, CITIES * CITIES);
 
-	/**********************************************************
-	* Evaluate Population
-	**********************************************************/
+	/*************************************************************************************************
+	* EVOLVE POPULATION ON GPU
+	*************************************************************************************************/
 
 	// Figure out fitness and distance for each individual in population
-	evaluatePopulation << <grid, threads >> > (device_population, d_distance);
+	evaluatePopulation << <BLOCKS, THREADS >> > (device_population, device_distance);
+	HANDLE_ERROR(cudaDeviceSynchronize());
+
+	cudaError_t err = cudaSuccess;
 
 	for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 	{
-		selection << <grid, threads >> > (device_population, d_states, device_parents);
+		selection << <BLOCKS, THREADS >> > (device_population, device_states, device_parents);
+		//HANDLE_ERROR(cudaDeviceSynchronize());
+		
+		err = cudaGetLastError();
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
+			exit(0);
+		}
 
 		// Breed the population with tournament selection and SCX crossover perform computation parallelized, build children iteratively
-		//for(int j = 1; j < CITIES; ++j)
-			//crossover
+		for (int j = 1; j < CITIES; ++j)
+		{
+			crossover << <BLOCKS, THREADS >> > (device_population, device_parents, device_states, device_distance, j);
+			//HANDLE_ERROR(cudaDeviceSynchronize());
+			err = cudaGetLastError();
+			if (err != cudaSuccess) {
+				fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
+				exit(0);
+			}
+		}
+
+		// Perform mutation
+		mutation << <BLOCKS, THREADS >> > (device_population, device_states);
+		//HANDLE_ERROR(cudaDeviceSynchronize());
+		err = cudaGetLastError();
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Mutation Kernel: %s\n", cudaGetErrorString(err));
+			exit(0);
+		}
+
+		// Evaluate the resulting population
+		evaluatePopulation << <BLOCKS, THREADS >> > (device_population, device_distance);
+		//HANDLE_ERROR(cudaDeviceSynchronize());
+		err = cudaGetLastError();
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Evaluate Population Kernel: %s\n", cudaGetErrorString(err));
+			exit(0);
+		}
 	}
 
-	// Print Result
-	//printPopulation(h_initial_population, POPULATION_SIZE);
+	HANDLE_ERROR(cudaEventRecord(stop));
+	cudaEventSynchronize(stop);
+	cudaEventElapsedTime(&milliseconds, start, stop);
+
+	/*************************************************************************************************
+	* COPY RESULTS TO HOST
+	*************************************************************************************************/
+	cudaMemcpy(&initial_population, device_population, sizeof(population), cudaMemcpyDeviceToHost);
+	cudaDeviceSynchronize();	
+
+	/*************************************************************************************************
+	* OUTPUT
+	*************************************************************************************************/
+	printPopulation(initial_population);
+	tour fittest = getFittestTour(initial_population.tours, TOURS);
+	printf("TIME: %f\n", milliseconds / 1000);
+	printf("FITNESS: %f\n", fittest.fitness);
+	printf("MIN. DISTANCE: %f\n", fittest.total_distance);
+	printf("ROUTE: %d", fittest.nodes[0].id);
+	for(int i = 1; i < CITIES; ++i)
+		printf(" > %d", fittest.nodes[i].id);
+	printf("\n");
+
+	/*************************************************************************************************
+	* RELEASE MEMORY
+	*************************************************************************************************/
+	cudaFree(device_population);
+	cudaFree(device_parents);
+	cudaFree(device_node_matrix);
+	cudaFree(device_node_t_matrix);
+	cudaFree(device_distance);
+	cudaFree(device_states);
+
 #pragma endregion
 
     return 0;

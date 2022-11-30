@@ -2,6 +2,7 @@
 #define BLOCKS 1
 #define THREADS 96
 #define ISLANDS BLOCKS * THREADS
+#define BLOCK_SIZE 16 // Validate
 
 // Genetic Algorithm Config
 #define MUTATION_RATE 0.05

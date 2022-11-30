@@ -56,7 +56,7 @@ struct tour
 };
 
 /// <summary>
-/// 
+/// Evaluate the fitness of a tour
 /// </summary>
 /// <param name="tour"></param>
 /// <param name="distance_table"></param>
@@ -139,6 +139,12 @@ void extractNodes(int** matrix, int rows, tour& tour)
 	}
 }
 
+/// <summary>
+/// Define the initial tour
+/// </summary>
+/// <param name="initial_tour"></param>
+/// <param name="node_quantity"></param>
+/// <param name="nodes"></param>
 void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
 {
 	//Load data on nodes
