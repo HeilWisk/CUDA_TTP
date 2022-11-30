@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <string>
 #include <vector>
 #include <sstream>
 
@@ -76,42 +77,6 @@ __global__ void transpose(node* m_dev, node* t_m_dev, int width, int height) {
 			t_m_dev[index_out].items = m_dev[index_in].items;
 		}
 		
-	}
-}
-
-/// <summary>
-/// Optimized Kernel to ensure all global reads and writes are coalesced and to avoid bank conflicts in
-/// shared memory. This Kernel is up to 11x faster than "matrix_transpose" kernel.
-/// </summary>
-/// <param name="m_dev">- Matrix to be transposed on device memory</param>
-/// <param name="t_m_dev">- Matrix Transpose result on device memory</param>
-/// <param name="width">- Width of the matrix</param>
-/// <param name="height">- Height of the matrix</param>
-/// <returns></returns>
-__global__ void matrixTransposeCoalesced(node* m_dev, node* t_m_dev, int width, int height) {
-
-	__shared__ node block[BLOCK_SIZE][BLOCK_SIZE + 1];
-
-	// Read matrix tile into shared memory
-	// Load one element per thread from device memory (m_dev) and store it in transposed order in block[][]
-	unsigned int colIdx = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-	unsigned int rowIdx = blockIdx.y * BLOCK_SIZE + threadIdx.y;
-	if ((colIdx < width) && (rowIdx < height))
-	{
-		unsigned int index_in = rowIdx * width + colIdx;
-		block[threadIdx.y][threadIdx.x] = m_dev[index_in];
-	}
-
-	// Synchronise to ensure allwrites to block[][] have completed
-	__syncthreads();
-
-	// Write the transposed matrix tile to global memory (t_m_dev) in linear order
-	colIdx = blockIdx.y * BLOCK_SIZE + threadIdx.x;
-	rowIdx = blockIdx.x * BLOCK_SIZE + threadIdx.y;
-	if ((colIdx < height) && (rowIdx < width))
-	{
-		unsigned int index_out = rowIdx * height + colIdx;
-		t_m_dev[index_out] = block[threadIdx.x][threadIdx.y];
 	}
 }
 
@@ -307,8 +272,8 @@ __global__ void nodeTest(node* dev_node, int node_quantity) {
 			{
 				printf("dev_node[%d].items[%d].id: %d\n", i, j, dev_node[i].items[j].id);
 				printf("dev_node[%d].items[%d].node: %d\n", i, j, dev_node[i].items[j].node);
-				printf("dev_node[%d].items[%d].value: %d\n", i, j, dev_node[i].items[j].value);
-				printf("dev_node[%d].items[%d].weight: %d\n", i, j, dev_node[i].items[j].weight);
+				printf("dev_node[%d].items[%d].value: %f\n", i, j, dev_node[i].items[j].value);
+				printf("dev_node[%d].items[%d].weight: %f\n", i, j, dev_node[i].items[j].weight);
 				printf("dev_node[%d].items[%d].taken: %d\n", i, j, dev_node[i].items[j].taken);
 			}
 		}
@@ -320,8 +285,8 @@ __global__ void tourTest(tour* tour, int tour_size)
 {
 	for (int t = 0; t < tour_size; ++t)
 	{
-		printf(" > tour[%d].fitness: %d\n", t, tour[t].fitness);
-		printf(" > tour[%d].total_distance: %d\n", t, tour[t].total_distance);
+		printf(" > tour[%d].fitness: %f\n", t, tour[t].fitness);
+		printf(" > tour[%d].total_distance: %f\n", t, tour[t].total_distance);
 		printf(" > tour[%d].node_qty: %d\n", t, tour[t].node_qty);
 		if (tour[t].node_qty > 0)
 		{
@@ -358,8 +323,8 @@ __global__ void populationTest(population* population, int population_size)
 		{
 			for (int t = 0; t < population[p].tour_qty; ++t)
 			{
-				printf(" > population[%d].tours[%d].fitness: %d\n", p, t, population[p].tours[t].fitness);
-				printf(" > population[%d].tours[%d].total_distance: %d\n", p, t, population[p].tours[t].total_distance);
+				printf(" > population[%d].tours[%d].fitness: %f\n", p, t, population[p].tours[t].fitness);
+				printf(" > population[%d].tours[%d].total_distance: %f\n", p, t, population[p].tours[t].total_distance);
 				printf(" > population[%d].tours[%d].node_qty: %d\n", p, t, population[p].tours[t].node_qty);
 				if (population[p].tours[t].node_qty > 0)
 				{
@@ -778,10 +743,10 @@ int main()
 	double renting_ratio;
 	char edge_weight_type[1000];
 
-	unsigned int node_size;
-	unsigned int item_size;
-	unsigned int population_size = 1;
-	unsigned int tour_size = POPULATION_SIZE;
+	int node_size;
+	int item_size;
+	int population_size = 1;
+	int tour_size = POPULATION_SIZE;
 
 #pragma region PRINT GPU PROPERTIES
 
@@ -1334,7 +1299,7 @@ int main()
 
 		// Breed the population with tournament selection and SCX crossover
 		// Perform computation parallelized, build children iteratively
-		for (unsigned int j = 1; j < node_size; ++j)
+		for (int j = 1; j < node_size; ++j)
 		{
 			crossover << <grid, threads >> > (dev_population, device_parents, device_state, device_cost_table, j);
 			

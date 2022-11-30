@@ -81,7 +81,7 @@ void initializePopulationCPU(population& initial_population, tour& initial_tour,
 
 					for (int s = 0; s < initial_population.tours[i].nodes[j].item_qty; ++s)
 					{
-						initial_population.tours[i].nodes[j].items[s].taken = round((rand() % 2));
+						initial_population.tours[i].nodes[j].items[s].taken = (int)round((rand() % 2));
 					}
 				}
 				evaluateTour(initial_population.tours[i], distances, node_quantity);

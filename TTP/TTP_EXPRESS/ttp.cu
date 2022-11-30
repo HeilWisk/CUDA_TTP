@@ -288,8 +288,8 @@ __global__ void tourTest(tour* tour, int tour_size)
 {
 	for (int t = 0; t < tour_size; ++t)
 	{
-		printf(" > tour[%d].fitness: %d\n", t, tour[t].fitness);
-		printf(" > tour[%d].total_distance: %d\n", t, tour[t].total_distance);
+		printf(" > tour[%d].fitness: %f\n", t, tour[t].fitness);
+		printf(" > tour[%d].total_distance: %f\n", t, tour[t].total_distance);
 		for (int n = 0; n < CITIES; ++n)
 		{
 			printf(" > tour[%d].nodes[%d].id: %d\n", t, n, tour[t].nodes[n].id);
@@ -320,8 +320,8 @@ __global__ void populationTest(population* population)
 		printf(" > population[%d].id: %d\n", p, population[p].id);
 		for (int t = 0; t < TOURS; ++t)
 		{
-			printf(" > population[%d].tours[%d].fitness: %d\n", p, t, population[p].tours[t].fitness);
-			printf(" > population[%d].tours[%d].total_distance: %d\n", p, t, population[p].tours[t].total_distance);
+			printf(" > population[%d].tours[%d].fitness: %f\n", p, t, population[p].tours[t].fitness);
+			printf(" > population[%d].tours[%d].total_distance: %f\n", p, t, population[p].tours[t].total_distance);
 			for (int n = 0; n < CITIES; ++n)
 			{
 				if (population[p].tours[t].nodes[n].id > 0)

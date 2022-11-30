@@ -32,7 +32,10 @@
     <ClInclude Include="headers\population.cuh">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="genetic.cuh">
+    <ClInclude Include="config.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\genetic.cuh">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
