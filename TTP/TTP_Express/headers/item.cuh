@@ -6,7 +6,7 @@ struct item {
 	float weight;
 	float value;
 	int node;
-	int taken;
+	float pw_ratio;
 
 	__host__ __device__ item()
 	{
@@ -14,16 +14,16 @@ struct item {
 		weight = -1;
 		value = -1;
 		node = -1;
-		taken = 0;
+		pw_ratio = value / weight;
 	}
 
-	__host__ __device__ item(int id_item, float w, float v, int node_id, int t)
+	__host__ __device__ item(int id_item, float w, float v, int node_id)
 	{
 		id = id_item;
 		weight = w;
 		value = v;
 		node = node_id;
-		taken = t;
+		pw_ratio = value / weight;
 	}
 
 	__host__ __device__ item& operator=(const item& var)
@@ -32,14 +32,14 @@ struct item {
 		weight = var.weight;
 		value = var.value;
 		node = var.node;
-		taken = var.taken;
+		pw_ratio = var.pw_ratio;
 		return *this;
 	}
 
 	__host__ __device__ bool operator==(const item& itm)
 		const
 	{
-		return(id == itm.id && weight == itm.weight && value == itm.value && node == itm.node && taken == itm.taken);
+		return(id == itm.id && weight == itm.weight && value == itm.value && node == itm.node && pw_ratio == itm.pw_ratio);
 	}
 };
 
@@ -55,7 +55,7 @@ void extractItems(int** matrix, int rows, item* i) {
 		i[s].value = (float)matrix[s][1];
 		i[s].weight = (float)matrix[s][2];
 		i[s].node = matrix[s][3];
-		i[s].taken = 0;
+		i[s].pw_ratio = (float)matrix[s][1] / (float)matrix[s][2];
 	}
 }
 

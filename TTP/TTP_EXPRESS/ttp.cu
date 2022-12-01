@@ -16,6 +16,7 @@
 #include "headers/tour.cuh"
 #include "headers/population.cuh"
 #include "headers/genetic.cuh"
+#include "headers/greedy.h"
 
 const int blockPerGrid = 8;
 
@@ -284,7 +285,7 @@ __global__ void tourTest(tour* tour, int tour_size)
 			{
 				printf(" > tour[%d].nodes[%d].items[%d].id: %d\n", t, n, i, tour[t].nodes[n].items[i].id);
 				printf(" > tour[%d].nodes[%d].items[%d].node: %d\n", t, n, i, tour[t].nodes[n].items[i].node);
-				printf(" > tour[%d].nodes[%d].items[%d].taken: %d\n", t, n, i, tour[t].nodes[n].items[i].taken);
+				printf(" > tour[%d].nodes[%d].items[%d].pw_ratio: %d\n", t, n, i, tour[t].nodes[n].items[i].pw_ratio);
 				printf(" > tour[%d].nodes[%d].items[%d].value: %f\n", t, n, i, tour[t].nodes[n].items[i].value);
 				printf(" > tour[%d].nodes[%d].items[%d].weight: %f\n", t, n, i, tour[t].nodes[n].items[i].weight);
 			}
@@ -320,7 +321,7 @@ __global__ void populationTest(population* population)
 						{
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].id: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].id);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].node: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].node);
-							printf(" > population[%d].tours[%d].nodes[%d].items[%d].taken: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].taken);
+							printf(" > population[%d].tours[%d].nodes[%d].items[%d].pw_ratio: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].pw_ratio);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].value: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].value);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].weight: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].weight);
 						}

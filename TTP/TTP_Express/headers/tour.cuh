@@ -3,7 +3,9 @@ struct tour
 {
 	double fitness;
 	double total_distance;
-	node nodes[CITIES];
+	double profit;
+	double time;
+	node nodes[CITIES+1];
 
 	/// <summary>
 	/// 
@@ -11,12 +13,14 @@ struct tour
 	/// <returns></returns>
 	__host__ __device__ tour()
 	{
-		for (int i = 0; i < CITIES; ++i)
+		for (int i = 0; i < CITIES + 1; ++i)
 		{
 			nodes[i] = node(-1, -1, -1);
 		}
 		fitness = 0;
-		total_distance = 0;		
+		total_distance = 0;
+		time = 0;
+		profit = 0;
 	}
 
 	/// <summary>
@@ -26,12 +30,14 @@ struct tour
 	/// <returns></returns>
 	__host__ __device__ tour& operator=(const tour& t)
 	{
-		for (int i = 0; i < CITIES; ++i)
+		for (int i = 0; i < CITIES + 1; ++i)
 		{
 			nodes[i] = t.nodes[i];
 		}
 		fitness = t.fitness;
 		total_distance = t.total_distance;
+		time = t.time;
+		profit = t.profit;
 		return *this;
 	}
 
@@ -42,7 +48,7 @@ struct tour
 	/// <returns></returns>
 	__host__ __device__ bool operator==(tour& t)
 	{
-		for (int i = 0; i < CITIES; ++i)
+		for (int i = 0; i < CITIES + 1; ++i)
 		{
 			if (nodes[i].x != t.nodes[i].x || nodes[i].y != t.nodes[i].y)
 			{
@@ -121,6 +127,8 @@ __host__ __device__ void printTour(const tour& tour, const int node_quantity)
 	}
 
 	printf("TOTAL DISTANCE: %f\n", tour.total_distance);
+	printf("TIME: %f\n", tour.time);
+	printf("PROFIT: %f\n", tour.profit);
 	printf("\n");
 }
 
@@ -147,7 +155,7 @@ void extractNodes(int** matrix, int rows, tour& tour)
 /// <param name="nodes"></param>
 void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
 {
-	//Load data on nodes
+	// Load data on nodes	
 	for (int n = 0; n < node_quantity; n++)
 	{
 		initial_tour.nodes[n] = node();
@@ -163,10 +171,15 @@ void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
 			initial_tour.nodes[n].items[i].value = nodes[n].items[i].value;
 			initial_tour.nodes[n].items[i].weight = nodes[n].items[i].weight;
 			initial_tour.nodes[n].items[i].node = nodes[n].items[i].node;
-			initial_tour.nodes[n].items[i].taken = nodes[n].items[i].taken;
+			initial_tour.nodes[n].items[i].pw_ratio = nodes[n].items[i].value / nodes[n].items[i].weight;
 		}
 	}
 
+	// Copy data from node 0 to the last node of the tour because in TTP the thief must return to the origin city (node)
+	initial_tour.nodes[CITIES] = initial_tour.nodes[0];
+
 	initial_tour.fitness = 0;
 	initial_tour.total_distance = 0;
+	initial_tour.profit = 0;
+	initial_tour.time = 0;
 }

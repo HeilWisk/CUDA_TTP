@@ -90,6 +90,7 @@
     <ClInclude Include="headers\config.h" />
     <ClInclude Include="headers\distance.cuh" />
     <ClInclude Include="headers\genetic.cuh" />
+    <ClInclude Include="headers\greedy.h" />
     <ClInclude Include="headers\item.cuh" />
     <ClInclude Include="headers\node.cuh" />
     <ClInclude Include="headers\population.cuh" />
