@@ -132,7 +132,7 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 	{
 		for (int j = 0; j < ITEMS; ++j)
 		{
-			if (individual.nodes[i].items[j].id > 0)
+			if (individual.nodes[i].items[j].id > 0 && individual.nodes[i].items[j].pickup == 1)
 			{
 				total_weight += individual.nodes[i].items[j].weight;
 				individual.item_picks[j] = individual.nodes[i].items[j];
@@ -143,6 +143,7 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 
 	if (total_weight > problem_params.knapsack_capacity)
 	{
+		// TODO: Revisar dado que la estrategia de retirar items no es la mas apta, es mejor castigar el recorrido
 		item* pick_items = freeKnapsackCapacity(individual.item_picks, problem_params.knapsack_capacity);
 		for (int i = 0; i < ITEMS; ++i)
 		{
@@ -154,22 +155,23 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 	for (int y = 0; y < CITIES; ++y)
 	{
 		node index = individual.nodes[y];
-		double velocity = problem_params.max_speed - carrying * (problem_params.max_speed - problem_params.min_speed) / problem_params.knapsack_capacity;
-		double distance = distanceBetweenNodes(problem_params.cities[index.id - 1], problem_params.cities[individual.nodes[y + 1].id - 1]);
-		time += distance / velocity;
 
 		for (int z = 0; z < ITEMS; ++z)
 		{
-			if (individual.item_picks[z].id > 0 && individual.item_picks[z].id == index.id)
+			if (individual.item_picks[z].id > 0 && individual.item_picks[z].id == index.id && individual.item_picks[z].pickup == 1)
 			{
 				carrying += individual.item_picks[z].weight;
 				profit += individual.item_picks[z].value;
 			}
 		}
 
+		double velocity = problem_params.max_speed - carrying * (problem_params.max_speed - problem_params.min_speed) / problem_params.knapsack_capacity;
+		double distance = distanceBetweenNodes(problem_params.cities[index.id - 1], problem_params.cities[individual.nodes[y + 1].id]);
+		time += distance / velocity;		
+
 		individual.profit = profit;
 		individual.time = time;
-		individual.fitness = 10 * profit - 0.3 * time;
+		individual.fitness = 10 * profit - problem_params.renting_ratio * time;
 		//return result;
 	}
 		

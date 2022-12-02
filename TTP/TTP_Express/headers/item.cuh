@@ -3,10 +3,11 @@
 //DEFINES: Item Data Type
 struct item {
 	int id;
-	float weight;
-	float value;
+	double weight;
+	double value;
 	int node;
 	float pw_ratio;
+	int pickup;
 
 	__host__ __device__ item()
 	{
@@ -15,6 +16,7 @@ struct item {
 		value = -1;
 		node = -1;
 		pw_ratio = value / weight;
+		pickup = 0;
 	}
 
 	__host__ __device__ item(int id_item, float w, float v, int node_id)
@@ -24,6 +26,7 @@ struct item {
 		value = v;
 		node = node_id;
 		pw_ratio = value / weight;
+		pickup = 0;
 	}
 
 	__host__ __device__ item& operator=(const item& var)
@@ -33,6 +36,7 @@ struct item {
 		value = var.value;
 		node = var.node;
 		pw_ratio = var.pw_ratio;
+		pickup = var.pickup;
 		return *this;
 	}
 
@@ -74,5 +78,14 @@ void displayItems(item* c, int size) {
 	}
 	printf("****************************************************************************************\n");
 	printf("\n");
+}
+
+void randomPickup(item* items)
+{
+	for (int i = 0; i < ITEMS; ++i)
+	{
+		if (items[i].id > 0)
+			items[i].pickup = rand() % 2;
+	}
 }
 

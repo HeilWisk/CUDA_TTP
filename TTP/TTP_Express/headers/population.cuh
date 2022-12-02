@@ -45,16 +45,23 @@ void initializePopulation(population& initialPopulation, tour& initialTour, dist
 /// <param name="problem_params"></param>
 void initializePopulation(population& initialPopulation, tour& initialTour, parameters problem_params)
 {
-	initialPopulation.tours[0] = initialTour;
+	// Generate random pickup for the items in each node od the tour
+	for (int i = 0; i < CITIES; ++i)
+	{
+		randomPickup(initialTour.nodes[i].items);
+	}
+	initialPopulation.tours[0] = initialTour;	
+	evaluateTour(initialPopulation.tours[0], problem_params);
+
 	for (int i = 1; i < TOURS; ++i)
 	{
-		evaluateTour(initialPopulation.tours[0], problem_params);
 		for (int j = 1; j < CITIES; ++j)
 		{
+			randomPickup(initialTour.nodes[j].items);
 			int randPos = 1 + (rand() % (CITIES - 1));
 			node tempNode = initialTour.nodes[j];
 			initialTour.nodes[j] = initialTour.nodes[randPos];
-			initialTour.nodes[randPos] = tempNode;
+			initialTour.nodes[randPos] = tempNode;			
 		}
 		initialPopulation.tours[i] = initialTour;
 		evaluateTour(initialPopulation.tours[i], problem_params);
