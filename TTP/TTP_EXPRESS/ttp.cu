@@ -12,13 +12,12 @@
 #include "headers/config.h"
 #include "headers/item.cuh"
 #include "headers/node.cuh"
+#include "headers/params.h"
 #include "headers/distance.cuh"
+#include "headers/greedy.h"
 #include "headers/tour.cuh"
 #include "headers/population.cuh"
 #include "headers/genetic.cuh"
-#include "headers/greedy.h"
-
-const int blockPerGrid = 8;
 
 #define DIMENSION "DIMENSION:"
 #define ITEM_QTY "NUMBER OF ITEMS:"
@@ -285,7 +284,7 @@ __global__ void tourTest(tour* tour, int tour_size)
 			{
 				printf(" > tour[%d].nodes[%d].items[%d].id: %d\n", t, n, i, tour[t].nodes[n].items[i].id);
 				printf(" > tour[%d].nodes[%d].items[%d].node: %d\n", t, n, i, tour[t].nodes[n].items[i].node);
-				printf(" > tour[%d].nodes[%d].items[%d].pw_ratio: %d\n", t, n, i, tour[t].nodes[n].items[i].pw_ratio);
+				printf(" > tour[%d].nodes[%d].items[%d].pw_ratio: %f\n", t, n, i, tour[t].nodes[n].items[i].pw_ratio);
 				printf(" > tour[%d].nodes[%d].items[%d].value: %f\n", t, n, i, tour[t].nodes[n].items[i].value);
 				printf(" > tour[%d].nodes[%d].items[%d].weight: %f\n", t, n, i, tour[t].nodes[n].items[i].weight);
 			}
@@ -303,7 +302,6 @@ __global__ void populationTest(population* population)
 {
 	for (int p = 0; p < POPULATION_SIZE; ++p)
 	{
-		printf(" > population[%d].id: %d\n", p, population[p].id);
 		for (int t = 0; t < TOURS; ++t)
 		{
 			printf(" > population[%d].tours[%d].fitness: %f\n", p, t, population[p].tours[t].fitness);
@@ -321,7 +319,7 @@ __global__ void populationTest(population* population)
 						{
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].id: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].id);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].node: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].node);
-							printf(" > population[%d].tours[%d].nodes[%d].items[%d].pw_ratio: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].pw_ratio);
+							printf(" > population[%d].tours[%d].nodes[%d].items[%d].pw_ratio: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].pw_ratio);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].value: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].value);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].weight: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].weight);
 						}
@@ -483,6 +481,23 @@ __global__ void evaluatePopulation(population* population, distance* distanceTab
 /// 
 /// </summary>
 /// <param name="population"></param>
+/// <param name="distanceTable"></param>
+/// <returns></returns>
+__global__ void evaluatePopulation(population* population, parameters problem_parameters)
+{
+	// Get Thread (particle) ID
+	int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+	if (tid >= TOURS)
+		return;
+
+	evaluateTour(population->tours[tid], problem_parameters);
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="population"></param>
 /// <param name="randomState"></param>
 /// <param name="parents"></param>
 /// <returns></returns>
@@ -571,16 +586,11 @@ int main()
 	size_t position;
 	const char openMode[] = "r";
 
-	// Problem variables
+	// Problem params
+	parameters problem;
 	int** matrix;
-	double knapsack_capacity;
-	double minimal_speed;
-	double maximun_speed;
-	double renting_ratio;
 	char edge_weight_type[1000];
 
-	unsigned int node_size;
-	unsigned int item_size;
 	unsigned int population_size = POPULATION_SIZE;
 	unsigned int tour_size = TOURS;
 
@@ -645,43 +655,43 @@ int main()
 		if (strncmp(str, DIMENSION, strlen(DIMENSION)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			node_size = atoi(sub);
-			printf("Nodes (Cities):				%d\n", node_size);
+			problem.cities_amount = atoi(sub);
+			printf("Nodes (Cities):				%d\n", problem.cities_amount);
 		}
 		// Extract the amount of items
 		else if (strncmp(str, ITEM_QTY, strlen(ITEM_QTY)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			item_size = atoi(sub);
-			printf("Item:					%d\n", item_size);
+			problem.items_amount = atoi(sub);
+			printf("Item:					%d\n", problem.items_amount);
 		}
 		// Extract the knapsack capacity
 		else if (strncmp(str, KNAPSACK_CAPACITY, strlen(KNAPSACK_CAPACITY)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			knapsack_capacity = atof(sub);
-			printf("Knapsack Capacity:			%lf\n", knapsack_capacity);
+			problem.knapsack_capacity = atof(sub);
+			printf("Knapsack Capacity:			%lf\n", problem.knapsack_capacity);
 		}
 		// Extract the minimal speed
 		else if (strncmp(str, MIN_SPEED, strlen(MIN_SPEED)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			minimal_speed = atof(sub);
-			printf("Minimum Speed:				%lf\n", minimal_speed);
+			problem.min_speed = atof(sub);
+			printf("Minimum Speed:				%lf\n", problem.min_speed);
 		}
 		// Extract the maximum speed
 		else if (strncmp(str, MAX_SPEED, strlen(MAX_SPEED)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			maximun_speed = atof(sub);
-			printf("Maximum Speed:				%lf\n", maximun_speed);
+			problem.max_speed = atof(sub);
+			printf("Maximum Speed:				%lf\n", problem.max_speed);
 		}
 		// Extract the renting ratio
 		else if (strncmp(str, RENTING_RATIO, strlen(RENTING_RATIO)) == 0)
 		{
 			subString(str, sub, position + 1, strlen(str) - position);
-			renting_ratio = atof(sub);
-			printf("Renting Ratio:				%lf\n", renting_ratio);
+			problem.renting_ratio = atof(sub);
+			printf("Renting Ratio:				%lf\n", problem.renting_ratio);
 		}
 		// Extract the edge weight type
 		else if (strncmp(str, EDGE_WEIGHT_TYPE, strlen(EDGE_WEIGHT_TYPE)) == 0)
@@ -725,7 +735,7 @@ int main()
 	unsigned int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
 
 	// Validate file consistency
-	if (item_rows != item_size)
+	if (item_rows != problem.items_amount)
 	{
 		perror("The file information is not consistent. Number of items Inconsistency.\n");
 		exit(EXIT_FAILURE);
@@ -735,27 +745,27 @@ int main()
 	unsigned int item_columns = 4;
 
 	// Get matrix
-	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, item_size, item_columns);
+	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, problem.items_amount, item_columns);
 
 	// Allocate memory for the array of structs
-	item* cpu_item = (item*)malloc(item_size * sizeof(item));
+	item* cpu_item = (item*)malloc(problem.items_amount * sizeof(item));
 	if (cpu_item == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 
 	// Convert to array of struct
-	extractItems(matrix, item_size, cpu_item);
+	extractItems(matrix, problem.items_amount, cpu_item);
 
 	// Visualize values for item matrix	
-	displayItems(cpu_item, item_size);
+	displayItems(cpu_item, problem.items_amount);
 
 	// Obtain nodes
 	// Calculate amount of nodes
 	unsigned int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
 
 	// Validate file consistency
-	if (node_rows != node_size)
+	if (node_rows != problem.cities_amount)
 	{
 		perror("The file information is not consistent. Number of node Inconsistency.\n");
 		exit(EXIT_FAILURE);
@@ -765,28 +775,28 @@ int main()
 	unsigned int node_columns = 3;
 
 	// Get matrix
-	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, node_size, node_columns);
+	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, problem.cities_amount, node_columns);
 
 	// Allocate memory for the array of structs
-	node* cpu_node = (node*)malloc(node_size * sizeof(node));
+	node* cpu_node = (node*)malloc(problem.cities_amount * sizeof(node));
 	if (cpu_node == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
 	}
 	// Convert to array of struct
-	extractNodes(matrix, node_size, cpu_node);
+	extractNodes(matrix, problem.cities_amount, cpu_node);
 
 	// Assign items to node
 	assignItems(cpu_item, cpu_node);
 
 	// Print node information
-	displayNodes(cpu_node, node_size);
+	displayNodes(cpu_node, problem.cities_amount);
 
 	// Assign nodes to tour
-	defineInitialTour(initial_tour, node_size, cpu_node);
+	defineInitialTour(initial_tour, problem.cities_amount, cpu_node);
 
 	// Calculate distance matrix in CPU
-	int distance_matrix_size = node_size * node_size;
+	int distance_matrix_size = problem.cities_amount * problem.cities_amount;
 
 	// Allocate memory for the distance matrix
 	distance* d = (distance*)malloc(distance_matrix_size * sizeof(distance));
@@ -795,11 +805,12 @@ int main()
 		exit(0);
 	}
 
-	euclideanDistanceCPU(cpu_node, cpu_node, d, node_size, distance_matrix_size);
+	euclideanDistanceCPU(cpu_node, cpu_node, d, problem.cities_amount, distance_matrix_size);
 	displayDistance(d, distance_matrix_size);
 
 	// Initialize population by generating POPULATION_SIZE number of permutations of the initial tour, all starting at the same city
-	initializePopulation(initial_population, initial_tour, d);
+	//initializePopulation(initial_population, initial_tour, d);
+	initializePopulation(initial_population, initial_tour, problem);
 
 	printPopulation(initial_population);
 
@@ -836,12 +847,12 @@ int main()
 	HANDLE_ERROR(cudaMalloc((void**)&device_parents, sizeof(tour) * size_t(tour_size) * 2));
 
 	// Allocate device memory for node matrix, node matrix transpose and distance matrix
-	HANDLE_ERROR(cudaMalloc(&device_node_matrix, size_t(node_size) * sizeof(node)));
-	HANDLE_ERROR(cudaMalloc(&device_node_t_matrix, size_t(node_size) * sizeof(node)));
+	HANDLE_ERROR(cudaMalloc(&device_node_matrix, size_t(problem.cities_amount) * sizeof(node)));
+	HANDLE_ERROR(cudaMalloc(&device_node_t_matrix, size_t(problem.cities_amount) * sizeof(node)));
 	HANDLE_ERROR(cudaMalloc(&device_distance, sizeof(distance) * CITIES * CITIES));
 
 	// Allocate device memory for states
-	HANDLE_ERROR(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(node_size)));
+	HANDLE_ERROR(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(problem.cities_amount)));
 
 	/*************************************************************************************************
 	* COPY HOST MEMORY TO DEVICE
@@ -851,7 +862,7 @@ int main()
 	HANDLE_ERROR(cudaMemcpy(device_population, &initial_population, sizeof(population), cudaMemcpyHostToDevice));
 
 	// Copy node data
-	HANDLE_ERROR(cudaMemcpy(device_node_matrix, cpu_node, size_t(node_size) * sizeof(node), cudaMemcpyHostToDevice));
+	HANDLE_ERROR(cudaMemcpy(device_node_matrix, cpu_node, size_t(problem.cities_amount) * sizeof(node), cudaMemcpyHostToDevice));
 
 	/*************************************************************************************************
 	* INITIALIZE RANDOM VALUES
@@ -874,18 +885,18 @@ int main()
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	// Copy results from device to host
-	node* h_node_t_matrix = (node*)malloc(sizeof(node) * node_size);
-	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, device_node_t_matrix, sizeof(node) * node_size, cudaMemcpyDeviceToHost));
+	node* h_node_t_matrix = (node*)malloc(sizeof(node) * problem.cities_amount);
+	HANDLE_ERROR(cudaMemcpy(h_node_t_matrix, device_node_t_matrix, sizeof(node) * problem.cities_amount, cudaMemcpyDeviceToHost));
 
 	// Show information on screen
-	displayNodes(h_node_t_matrix, node_size);
+	displayNodes(h_node_t_matrix, problem.cities_amount);
 	
 	// TODO: FIX GRID AND THREADS AND MATRIXDISTANCES KERNEL
 	dim3 grid(8, 8, 1);
 	dim3 threads(BLOCK_SIZE, BLOCK_SIZE, 1);
 
 	printf("Calculando la matriz de distancias en GPU\n");
-	matrixDistances << <grid, threads >> > (device_node_matrix, device_node_t_matrix, device_distance, node_size, node_size);
+	matrixDistances << <grid, threads >> > (device_node_matrix, device_node_t_matrix, device_distance, problem.cities_amount, problem.cities_amount);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	//Copy results from device to host
@@ -900,7 +911,8 @@ int main()
 	*************************************************************************************************/
 
 	// Figure out fitness and distance for each individual in population
-	evaluatePopulation << <BLOCKS, THREADS >> > (device_population, device_distance);
+	//evaluatePopulation << <BLOCKS, THREADS >> > (device_population, device_distance);
+	evaluatePopulation << <BLOCKS, THREADS >> > (device_population, problem);
 	HANDLE_ERROR(cudaDeviceSynchronize());
 
 	cudaError_t err = cudaSuccess;
@@ -964,10 +976,15 @@ int main()
 	tour fittest = getFittestTour(initial_population.tours, TOURS);
 	printf("TIME: %f\n", milliseconds / 1000);
 	printf("FITNESS: %f\n", fittest.fitness);
+	printf("PROFIT: %f\n", fittest.profit);
 	printf("MIN. DISTANCE: %f\n", fittest.total_distance);
 	printf("ROUTE: %d", fittest.nodes[0].id);
-	for(int i = 1; i < CITIES; ++i)
+	for(int i = 1; i < CITIES + 1; ++i)
 		printf(" > %d", fittest.nodes[i].id);
+	printf("\n");
+	printf("ITEMS: %f\n", fittest.item_picks[0].id);
+	for (int i = 1; i < ITEMS + 1; ++i)
+		printf(" > %d", fittest.item_picks[i].id);
 	printf("\n");
 
 	/*************************************************************************************************

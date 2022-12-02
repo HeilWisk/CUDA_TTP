@@ -65,6 +65,12 @@ struct node {
 	}
 };
 
+/// <summary>
+/// Calculate Distance between nodes
+/// </summary>
+/// <param name="src_node"></param>
+/// <param name="dst_node"></param>
+/// <returns></returns>
 __host__ __device__ double distanceBetweenNodes(const node& src_node, const node& dst_node)
 {
 	double x_distance = pow(dst_node.x - src_node.x, 2);

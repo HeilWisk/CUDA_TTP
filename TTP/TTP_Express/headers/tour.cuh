@@ -6,6 +6,7 @@ struct tour
 	double profit;
 	double time;
 	node nodes[CITIES+1];
+	item item_picks[ITEMS];
 
 	/// <summary>
 	/// 
@@ -17,6 +18,12 @@ struct tour
 		{
 			nodes[i] = node(-1, -1, -1);
 		}
+
+		for (int j = 0; j < ITEMS; j++)
+		{
+			item_picks[j] = item();
+		}
+
 		fitness = 0;
 		total_distance = 0;
 		time = 0;
@@ -34,6 +41,12 @@ struct tour
 		{
 			nodes[i] = t.nodes[i];
 		}
+
+		for (int j = 0; j < ITEMS; j++)
+		{
+			item_picks[j] = t.item_picks[j];
+		}
+
 		fitness = t.fitness;
 		total_distance = t.total_distance;
 		time = t.time;
@@ -96,6 +109,70 @@ __host__ __device__ void evaluateTour(tour& tour, const distance* distance_table
 		else
 			tour.fitness = 0;
 	}
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="individual"></param>
+/// <param name="distance_table"></param>
+/// <param name="problem_params"></param>
+/// <returns></returns>
+__host__ __device__ void evaluateTour(tour& individual, parameters problem_params)
+{
+	//tour result = individual;
+	double carrying = 0.0;
+	double profit = 0.0;
+	double time = 0.0;
+
+	// Obtain the total weight of the items and the quantity of items
+	double total_weight = 0.0;
+	int item_count = 0;
+	for (int i = 0; i < CITIES + 1; ++i)
+	{
+		for (int j = 0; j < ITEMS; ++j)
+		{
+			if (individual.nodes[i].items[j].id > 0)
+			{
+				total_weight += individual.nodes[i].items[j].weight;
+				individual.item_picks[j] = individual.nodes[i].items[j];
+				++item_count;
+			}
+		}
+	}
+
+	if (total_weight > problem_params.knapsack_capacity)
+	{
+		item* pick_items = freeKnapsackCapacity(individual.item_picks, problem_params.knapsack_capacity);
+		for (int i = 0; i < ITEMS; ++i)
+		{
+			if(pick_items->id > 0)
+				individual.item_picks[i] = pick_items[i];
+		}
+	}
+
+	for (int y = 0; y < CITIES; ++y)
+	{
+		node index = individual.nodes[y];
+		double velocity = problem_params.max_speed - carrying * (problem_params.max_speed - problem_params.min_speed) / problem_params.knapsack_capacity;
+		double distance = distanceBetweenNodes(problem_params.cities[index.id - 1], problem_params.cities[individual.nodes[y + 1].id - 1]);
+		time += distance / velocity;
+
+		for (int z = 0; z < ITEMS; ++z)
+		{
+			if (individual.item_picks[z].id > 0 && individual.item_picks[z].id == index.id)
+			{
+				carrying += individual.item_picks[z].weight;
+				profit += individual.item_picks[z].value;
+			}
+		}
+
+		individual.profit = profit;
+		individual.time = time;
+		individual.fitness = 10 * profit - 0.3 * time;
+		//return result;
+	}
+		
 }
 
 /// <summary>
