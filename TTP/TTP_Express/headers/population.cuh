@@ -78,8 +78,10 @@ void printPopulation(population population)
 	{
 		printf("Individual %d\n", i);
 		printf("> Fitness: %f\n", population.tours[i].fitness);
+		printf("> Profit: %f\n", population.tours[i].profit);
 		printf("> Total Distance: %f\n", population.tours[i].total_distance);
-		printf("> Nodes		>Item ID[PW RATIO]\n");
+		printf("> Time: %f\n", population.tours[i].time);
+		printf("> Nodes		>Item ID[PICKED]\n");
 		for (int j = 0; j < CITIES + 1; ++j)
 		{
 			if (population.tours[i].nodes[j].id > 0)
@@ -89,7 +91,7 @@ void printPopulation(population population)
 				for (int h = 0; h < ITEMS; h++)
 				{
 					if(population.tours[i].nodes[j].items[h].id > 0)
-						printf("		> %d[%f]", population.tours[i].nodes[j].items[h].id, population.tours[i].nodes[j].items[h].pw_ratio);
+						printf("		> %d[%d]", population.tours[i].nodes[j].items[h].id, population.tours[i].nodes[j].items[h].pickup);
 				}
 				printf("\n");
 			}

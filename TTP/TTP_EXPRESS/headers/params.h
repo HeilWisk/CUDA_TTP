@@ -2,7 +2,7 @@
 
 // DEFINES: Parameters Data Type
 struct parameters {
-	int knapsack_capacity;
+	double knapsack_capacity;
 	int cities_amount;
 	int items_amount;
 	double min_speed;

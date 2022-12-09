@@ -793,7 +793,7 @@ int main()
 	displayNodes(cpu_node, problem.cities_amount);
 
 	// Assign nodes to tour
-	defineInitialTour(initial_tour, problem.cities_amount, cpu_node);
+	defineInitialTour(initial_tour, problem, cpu_node);
 
 	// Calculate distance matrix in CPU
 	int distance_matrix_size = problem.cities_amount * problem.cities_amount;
@@ -830,11 +830,11 @@ int main()
 	distance* device_distance;
 	curandState* device_states;
 
-	float milliseconds;
+	float milliseconds = 0;
 	cudaEvent_t start, stop;
-	HANDLE_ERROR(cudaEventCreate(&start));
-	HANDLE_ERROR(cudaEventCreate(&stop));
-	HANDLE_ERROR(cudaEventRecord(start));
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	cudaEventRecord(start, 0);
 
 	/*************************************************************************************************
 	* ALLOCATE MEMORY FOR STRUCTS ON DEVICE
@@ -868,7 +868,7 @@ int main()
 	* INITIALIZE RANDOM VALUES
 	*************************************************************************************************/
 	initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));
-	HANDLE_ERROR(cudaDeviceSynchronize());
+	cudaDeviceSynchronize();
 
 	/*************************************************************************************************
 	* TODO: REMOVE THIS SECTION IF EVERITHING GOES WELL
@@ -882,7 +882,7 @@ int main()
 	// Execute CUDA Matrix Transposition
 	printf("Transponiendo la matrix de nodos de tamaño [%d][%d]\n", node_rows, 1);
 	transpose << <BLOCKS, THREADS >> > (device_node_matrix, device_node_t_matrix, node_rows, 1);
-	HANDLE_ERROR(cudaDeviceSynchronize());
+	cudaDeviceSynchronize();
 
 	// Copy results from device to host
 	node* h_node_t_matrix = (node*)malloc(sizeof(node) * problem.cities_amount);
@@ -897,7 +897,7 @@ int main()
 
 	printf("Calculando la matriz de distancias en GPU\n");
 	matrixDistances << <grid, threads >> > (device_node_matrix, device_node_t_matrix, device_distance, problem.cities_amount, problem.cities_amount);
-	HANDLE_ERROR(cudaDeviceSynchronize());
+	cudaDeviceSynchronize();
 
 	//Copy results from device to host
 	distance* h_distance = (distance*)malloc(sizeof(distance) * CITIES * CITIES);
@@ -913,7 +913,7 @@ int main()
 	// Figure out fitness and distance for each individual in population
 	//evaluatePopulation << <BLOCKS, THREADS >> > (device_population, device_distance);
 	evaluatePopulation << <BLOCKS, THREADS >> > (device_population, problem);
-	HANDLE_ERROR(cudaDeviceSynchronize());
+	cudaDeviceSynchronize();
 
 	cudaError_t err = cudaSuccess;
 
@@ -959,7 +959,7 @@ int main()
 		}
 	}
 
-	HANDLE_ERROR(cudaEventRecord(stop));
+	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&milliseconds, start, stop);
 
@@ -973,18 +973,20 @@ int main()
 	* OUTPUT
 	*************************************************************************************************/
 	printPopulation(initial_population);
-	tour fittest = getFittestTour(initial_population.tours, TOURS);
-	printf("TIME: %f\n", milliseconds / 1000);
-	printf("FITNESS: %f\n", fittest.fitness);
-	printf("PROFIT: %f\n", fittest.profit);
-	printf("MIN. DISTANCE: %f\n", fittest.total_distance);
-	printf("ROUTE: %d", fittest.nodes[0].id);
+	tour fittestOnEarth = getFittestTour(initial_population.tours, TOURS);
+	printf("TIME: %f\n", milliseconds);
+	printf("FITNESS: %f\n", fittestOnEarth.fitness);
+	printf("PROFIT: %f\n", fittestOnEarth.profit);
+	printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
 	for(int i = 1; i < CITIES + 1; ++i)
-		printf(" > %d", fittest.nodes[i].id);
+		printf(" > %d", fittestOnEarth.nodes[i].id);
 	printf("\n");
-	printf("ITEMS: %f\n", fittest.item_picks[0].id);
-	for (int i = 1; i < ITEMS + 1; ++i)
-		printf(" > %d", fittest.item_picks[i].id);
+	printf("ITEMS: %d", fittestOnEarth.item_picks[0].id);
+	for (int i = 1; i < ITEMS; ++i)
+	{
+		if(fittestOnEarth.item_picks[i].id > 0)
+			printf(" > %d", fittestOnEarth.item_picks[i].id);
+	}
 	printf("\n");
 
 	/*************************************************************************************************
