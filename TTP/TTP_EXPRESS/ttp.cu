@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <vector>
 
+#include "headers/helper_functions.h"
+#include "headers/helper_cuda.h"
 #include "headers/config.h"
 #include "headers/item.cuh"
 #include "headers/node.cuh"
@@ -832,9 +834,9 @@ int main()
 
 	float milliseconds = 0;
 	cudaEvent_t start, stop;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-	cudaEventRecord(start, 0);
+	checkCudaErrors(cudaEventCreate(&start));
+	checkCudaErrors(cudaEventCreate(&stop));
+	checkCudaErrors(cudaEventRecord(start));
 
 	/*************************************************************************************************
 	* ALLOCATE MEMORY FOR STRUCTS ON DEVICE
@@ -869,6 +871,13 @@ int main()
 	*************************************************************************************************/
 	initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));
 	cudaDeviceSynchronize();
+
+	checkCudaErrors(cudaEventRecord(stop));
+	checkCudaErrors(cudaEventSynchronize(stop));
+	float msecTotal = 0.0f;
+	checkCudaErrors(cudaEventElapsedTime(&msecTotal, start, stop));
+	// Compute and print the performance
+	printf("Time= %.3f msec", msecTotal);
 
 	/*************************************************************************************************
 	* TODO: REMOVE THIS SECTION IF EVERITHING GOES WELL
