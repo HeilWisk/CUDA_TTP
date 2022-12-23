@@ -44,6 +44,12 @@
     <ClInclude Include="headers\params.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="headers\helper_cuda.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_functions.h">
+      <Filter>headers</Filter>
+    </ClInclude>
     <ClInclude Include="headers\File.h">
       <Filter>headers</Filter>
     </ClInclude>

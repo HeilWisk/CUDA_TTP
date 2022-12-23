@@ -92,6 +92,8 @@
     <ClInclude Include="headers\File.h" />
     <ClInclude Include="headers\genetic.cuh" />
     <ClInclude Include="headers\greedy.h" />
+    <ClInclude Include="headers\helper_cuda.h" />
+    <ClInclude Include="headers\helper_functions.h" />
     <ClInclude Include="headers\item.cuh" />
     <ClInclude Include="headers\node.cuh" />
     <ClInclude Include="headers\params.h" />

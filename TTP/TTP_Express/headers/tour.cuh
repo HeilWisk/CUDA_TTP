@@ -124,6 +124,9 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 	double carrying = 0.0;
 	double profit = 0.0;
 	double time = 0.0;
+	double revenue = 0.0;
+	double velocity = 0.0;
+	double distance = 0.0;
 
 	// Obtain the total weight of the items and the quantity of items
 	double total_weight = 0.0;
@@ -135,7 +138,7 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 			if (individual.nodes[i].items[j].id > 0 && individual.nodes[i].items[j].pickup == 1)
 			{
 				total_weight += individual.nodes[i].items[j].weight;
-				individual.item_picks[j] = individual.nodes[i].items[j];
+				individual.item_picks[item_count] = individual.nodes[i].items[j];
 				++item_count;
 			}
 		}
@@ -143,13 +146,13 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 
 	if (total_weight > problem_params.knapsack_capacity)
 	{
-		// TODO: Revisar dado que la estrategia de retirar items no es la mas apta, es mejor castigar el recorrido
-		item* pick_items = freeKnapsackCapacity(individual.item_picks, problem_params.knapsack_capacity);
+		/*item* pick_items = freeKnapsackCapacity(individual.item_picks, problem_params.knapsack_capacity);
 		for (int i = 0; i < ITEMS; ++i)
 		{
 			if(pick_items->id > 0)
 				individual.item_picks[i] = pick_items[i];
-		}
+		}*/
+		time += total_weight;
 	}
 
 	for (int y = 0; y < CITIES; ++y)
@@ -158,23 +161,24 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 
 		for (int z = 0; z < ITEMS; ++z)
 		{
-			if (individual.item_picks[z].id > 0 && individual.item_picks[z].id == index.id && individual.item_picks[z].pickup == 1)
+			if (individual.item_picks[z].id > 0 && individual.item_picks[z].node == index.id && individual.item_picks[z].pickup == 1)
 			{
 				carrying += individual.item_picks[z].weight;
 				profit += individual.item_picks[z].value;
 			}
 		}
 
-		double velocity = problem_params.max_speed - carrying * (problem_params.max_speed - problem_params.min_speed) / problem_params.knapsack_capacity;
-		double distance = distanceBetweenNodes(problem_params.cities[index.id - 1], problem_params.cities[individual.nodes[y + 1].id]);
+		velocity = problem_params.max_speed - carrying * (problem_params.max_speed - problem_params.min_speed) / problem_params.knapsack_capacity;
+		distance = distanceBetweenNodes(problem_params.cities[index.id - 1], problem_params.cities[y + 1]);
 		time += distance / velocity;		
-
-		individual.profit = profit;
-		individual.time = time;
-		individual.fitness = 10 * profit - problem_params.renting_ratio * time;
+		revenue = profit - (problem_params.renting_ratio * time);
+		individual.total_distance += distance;
 		//return result;
 	}
-		
+
+	individual.profit = profit;
+	individual.time = time;
+	individual.fitness = revenue;
 }
 
 /// <summary>
@@ -232,10 +236,11 @@ void extractNodes(int** matrix, int rows, tour& tour)
 /// <param name="initial_tour"></param>
 /// <param name="node_quantity"></param>
 /// <param name="nodes"></param>
-void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
+/// void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
+void defineInitialTour(tour& initial_tour, parameters& params, node* nodes)
 {
 	// Load data on nodes	
-	for (int n = 0; n < node_quantity; n++)
+	for (int n = 0; n < params.cities_amount; n++)
 	{
 		initial_tour.nodes[n] = node();
 		initial_tour.nodes[n].id = nodes[n].id;
@@ -252,6 +257,7 @@ void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
 			initial_tour.nodes[n].items[i].node = nodes[n].items[i].node;
 			initial_tour.nodes[n].items[i].pw_ratio = nodes[n].items[i].value / nodes[n].items[i].weight;
 		}
+		params.cities[n] = initial_tour.nodes[n];
 	}
 
 	// Copy data from node 0 to the last node of the tour because in TTP the thief must return to the origin city (node)
