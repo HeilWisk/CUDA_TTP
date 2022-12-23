@@ -4,54 +4,66 @@
     <CudaCompile Include="ttp.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\config.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\distance.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\exception.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\File.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\genetic.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\greedy.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_cuda.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_functions.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_image.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_string.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_timer.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\item.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\node.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\params.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\population.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\tour.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <Filter Include="data">
-      <UniqueIdentifier>{bf5e2a16-6b71-4096-a7ed-5c8035a9a5f3}</UniqueIdentifier>
+      <UniqueIdentifier>{bba4fe79-9d38-4195-85d2-e4328bcf449c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="headers">
-      <UniqueIdentifier>{acf05050-6f2a-40b0-afd5-a096f3023591}</UniqueIdentifier>
+    <Filter Include="header">
+      <UniqueIdentifier>{cb4ff007-4215-460d-9ca7-d420e3324b83}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\w5_n4_bounded-strongly-corr.ttp">
       <Filter>data</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="headers\item.cuh">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\tour.cuh">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\node.cuh">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\distance.cuh">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\population.cuh">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\genetic.cuh">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\config.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\greedy.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\params.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\helper_cuda.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\helper_functions.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\File.h">
-      <Filter>headers</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

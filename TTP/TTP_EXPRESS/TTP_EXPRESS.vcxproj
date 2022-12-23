@@ -89,11 +89,15 @@
   <ItemGroup>
     <ClInclude Include="headers\config.h" />
     <ClInclude Include="headers\distance.cuh" />
+    <ClInclude Include="headers\exception.h" />
     <ClInclude Include="headers\File.h" />
     <ClInclude Include="headers\genetic.cuh" />
     <ClInclude Include="headers\greedy.h" />
     <ClInclude Include="headers\helper_cuda.h" />
     <ClInclude Include="headers\helper_functions.h" />
+    <ClInclude Include="headers\helper_image.h" />
+    <ClInclude Include="headers\helper_string.h" />
+    <ClInclude Include="headers\helper_timer.h" />
     <ClInclude Include="headers\item.cuh" />
     <ClInclude Include="headers\node.cuh" />
     <ClInclude Include="headers\params.h" />
