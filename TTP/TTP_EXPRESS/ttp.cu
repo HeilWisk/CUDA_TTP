@@ -18,7 +18,9 @@
 #include "headers/tour.cuh"
 #include "headers/population.cuh"
 #include "headers/genetic.cuh"
+#include "headers/File.h"
 
+#define NAME "PROBLEM NAME:"
 #define DIMENSION "DIMENSION:"
 #define ITEM_QTY "NUMBER OF ITEMS:"
 #define KNAPSACK_CAPACITY "CAPACITY OF KNAPSACK:"
@@ -599,7 +601,7 @@ int main()
 	/****************************************************************************************************
 	* PRINT START OF THE PROGRAM
 	****************************************************************************************************/
-	int count;
+	/*int count;
 	cudaDeviceProp properties;
 	HANDLE_ERROR(cudaGetDeviceCount(&count));
 	printf("****************************************************************************************\n");
@@ -618,7 +620,7 @@ int main()
 		printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
 		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
 	}
-	printf("****************************************************************************************\n");
+	printf("****************************************************************************************\n");*/
 
 #pragma endregion
 
@@ -651,6 +653,13 @@ int main()
 	// Obtain general data from file
 	while (fgets(str, 100, fp) != NULL) {
 		position = findCharacterPosition(str, ':');
+		// Extract problem name
+		if (strncmp(str, NAME, strlen(NAME)) == 0)
+		{
+			subString(str, sub, position + 1, strlen(str) - position-1);
+			strcpy(problem.name, sub);
+			createFile(problem.name);
+		}
 		// Extract amount of nodes (cities)
 		if (strncmp(str, DIMENSION, strlen(DIMENSION)) == 0)
 		{
@@ -811,6 +820,8 @@ int main()
 	// Initialize population by generating POPULATION_SIZE number of permutations of the initial tour, all starting at the same city
 	//initializePopulation(initial_population, initial_tour, d);
 	initializePopulation(initial_population, initial_tour, problem);
+
+	saveInitialPopulation(problem.name, initial_population, problem);
 
 	printPopulation(initial_population);
 
@@ -982,7 +993,7 @@ int main()
 	for(int i = 1; i < CITIES + 1; ++i)
 		printf(" > %d", fittest.nodes[i].id);
 	printf("\n");
-	printf("ITEMS: %f\n", fittest.item_picks[0].id);
+	printf("ITEMS: %d\n", fittest.item_picks[0].id);
 	for (int i = 1; i < ITEMS + 1; ++i)
 		printf(" > %d", fittest.item_picks[i].id);
 	printf("\n");

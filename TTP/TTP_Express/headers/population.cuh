@@ -89,7 +89,7 @@ void printPopulation(population population)
 				for (int h = 0; h < ITEMS; h++)
 				{
 					if(population.tours[i].nodes[j].items[h].id > 0)
-						printf("		> %d[%f]", population.tours[i].nodes[j].items[h].id, population.tours[i].nodes[j].items[h].pw_ratio);
+						printf("		> %d[%d]", population.tours[i].nodes[j].items[h].id, population.tours[i].nodes[j].items[h].pickup);
 				}
 				printf("\n");
 			}

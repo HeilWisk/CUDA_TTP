@@ -6,7 +6,7 @@ struct item {
 	double weight;
 	double value;
 	int node;
-	float pw_ratio;
+	double pw_ratio;
 	int pickup;
 
 	__host__ __device__ item()

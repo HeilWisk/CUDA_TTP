@@ -44,5 +44,8 @@
     <ClInclude Include="headers\params.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="headers\File.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

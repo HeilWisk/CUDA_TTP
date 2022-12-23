@@ -45,10 +45,10 @@ item selectItemByPwRatio(node node)
 /// <param name="items"></param>
 /// <param name="capacity"></param>
 /// <returns></returns>
-__host__ __device__ item* freeKnapsackCapacity(item* items, int capacity)
+__host__ __device__ item* freeKnapsackCapacity(item* items, double capacity)
 {
 	// Obtain the total weight of the items and the quantity of items
-	float total_weight = 0.0;
+	double total_weight = 0.0;
 	int item_count = 0;
 	for (int i = 0; i < ITEMS; ++i)
 	{
