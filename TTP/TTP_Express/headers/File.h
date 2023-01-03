@@ -69,6 +69,7 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem)
 				}
 			}				
 		}
+		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * 100) - bufferPos, " Profit: %f - Revenue: %f - Time: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time);
 		fprintf(fp, "%s\n", bufferWrite);
 	}
 

@@ -603,7 +603,7 @@ int main()
 	/****************************************************************************************************
 	* PRINT START OF THE PROGRAM
 	****************************************************************************************************/
-	/*int count;
+	int count;
 	cudaDeviceProp properties;
 	HANDLE_ERROR(cudaGetDeviceCount(&count));
 	printf("****************************************************************************************\n");
@@ -622,7 +622,7 @@ int main()
 		printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
 		printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
 	}
-	printf("****************************************************************************************\n");*/
+	printf("****************************************************************************************\n");
 
 #pragma endregion
 

@@ -169,7 +169,11 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 		}
 
 		velocity = problem_params.max_speed - carrying * (problem_params.max_speed - problem_params.min_speed) / problem_params.knapsack_capacity;
-		distance = distanceBetweenNodes(problem_params.cities[index.id - 1], problem_params.cities[y + 1]);
+		if (y + 1 == CITIES)
+			distance = distanceBetweenNodes(individual.nodes[y], individual.nodes[0]);
+		else
+			distance = distanceBetweenNodes(individual.nodes[y], individual.nodes[y + 1]);
+
 		time += distance / velocity;		
 		revenue = profit - (problem_params.renting_ratio * time);
 		individual.total_distance += distance;
