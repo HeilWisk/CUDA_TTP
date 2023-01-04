@@ -344,7 +344,7 @@ __global__ void populationTest(population* population)
 /// <param name="item_quantity"></param>
 /// <param name="state"></param>
 /// <returns></returns>
-__global__ void initPopulationGPU(population* initial_population, tour* initial_tour, const int population_size,/*distance* distances, const int node_size, const int item_size, */ curandState* state)
+__global__ void initPopulationGPU(population* initial_population, tour* initial_tour, const int population_size, curandState* state)
 {
 	node temp;
 

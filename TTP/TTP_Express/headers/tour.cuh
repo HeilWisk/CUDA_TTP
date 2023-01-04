@@ -146,12 +146,6 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 
 	if (total_weight > problem_params.knapsack_capacity)
 	{
-		/*item* pick_items = freeKnapsackCapacity(individual.item_picks, problem_params.knapsack_capacity);
-		for (int i = 0; i < ITEMS; ++i)
-		{
-			if(pick_items->id > 0)
-				individual.item_picks[i] = pick_items[i];
-		}*/
 		time += total_weight;
 	}
 

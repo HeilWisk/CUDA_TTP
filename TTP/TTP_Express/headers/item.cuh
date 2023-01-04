@@ -89,3 +89,18 @@ void randomPickup(item* items)
 	}
 }
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="items"></param>
+/// <param name="state"></param>
+/// <returns></returns>
+__device__ void randomPickup(item* items, curandState* state)
+{
+	for (int i = 0; i < ITEMS; ++i)
+	{
+		if (items[i].id > 0)
+			items[i].pickup = curand(state) % 2;
+	}
+}
+
