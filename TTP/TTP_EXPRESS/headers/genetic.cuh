@@ -140,3 +140,58 @@ __device__ node getValidNextNode(tour& parent, tour& child, node& current_node, 
 }
 
 #pragma endregion
+
+#pragma region HOST ONLY FUNCTIONS
+
+/// <summary>
+/// Host Function for tournament selection
+/// </summary>
+/// <param name="population"></param>
+/// <returns></returns>
+__host__ tour tournamentSelection(population& population)
+{
+	tour fittest_on_tournament;
+
+	int random_number;
+	for (int t = 0; t < TOURNAMENT_SIZE; ++t)
+	{
+		// Gets random number using the following formula
+		// FORMULA: random = (rand() % (upper - lower + 1)) + lower
+		random_number = (rand() % ((TOURS-1) + 1));
+		if (population.tours[random_number].fitness > fittest_on_tournament.fitness)
+			fittest_on_tournament = population.tours[random_number];
+	}
+
+	// Return the best tour on the population
+	return fittest_on_tournament;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="population"></param>
+/// <param name="parents"></param>
+/// <returns></returns>
+__host__ void selection(population &population, tour* parents)
+{
+	for (int i = 0; i < SELECTED_PARENTS; ++i)
+	{
+		parents[i] = tournamentSelection(population);
+	}
+}
+
+__host__ void crossover(population* population, tour* parents, distance* distanceTable, int index)
+{
+	//population->tours[tid].nodes[0] = parents[2 * tid].nodes[0];
+
+	//node nodeOne = getValidNextNode(parents[tid * 2], population->tours[tid], population->tours[tid].nodes[index - 1], index);
+	//node nodeTwo = getValidNextNode(parents[tid * 2 + 1], population->tours[tid], population->tours[tid].nodes[index - 1], index);
+
+	//// Compare the two nodes from parents to the last node that was chosen in the child
+	//if (distanceTable[nodeOne.id * CITIES + population->tours[tid].nodes[index - 1].id].value <= distanceTable[nodeTwo.id * CITIES + population->tours[tid].nodes[index - 1].id].value)
+	//	population->tours[tid].nodes[index] = nodeOne;
+	//else
+	//	population->tours[tid].nodes[index] = nodeTwo;
+}
+
+#pragma endregion

@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TTP", "TTP\TTP.vcxproj", "{13A46469-9473-40B0-96F4-01D353063788}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TTP_STRUCT", "TTP_STRUCT\TTP_STRUCT.vcxproj", "{9344E426-8605-4DD9-AD95-43A72E5AD2CC}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TTP_EXPRESS", "TTP_EXPRESS\TTP_EXPRESS.vcxproj", "{3ED56241-45C3-4A97-A631-FBEA85CD6850}"
 EndProject
 Global
@@ -15,14 +11,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{13A46469-9473-40B0-96F4-01D353063788}.Debug|x64.ActiveCfg = Debug|x64
-		{13A46469-9473-40B0-96F4-01D353063788}.Debug|x64.Build.0 = Debug|x64
-		{13A46469-9473-40B0-96F4-01D353063788}.Release|x64.ActiveCfg = Release|x64
-		{13A46469-9473-40B0-96F4-01D353063788}.Release|x64.Build.0 = Release|x64
-		{9344E426-8605-4DD9-AD95-43A72E5AD2CC}.Debug|x64.ActiveCfg = Debug|x64
-		{9344E426-8605-4DD9-AD95-43A72E5AD2CC}.Debug|x64.Build.0 = Debug|x64
-		{9344E426-8605-4DD9-AD95-43A72E5AD2CC}.Release|x64.ActiveCfg = Release|x64
-		{9344E426-8605-4DD9-AD95-43A72E5AD2CC}.Release|x64.Build.0 = Release|x64
 		{3ED56241-45C3-4A97-A631-FBEA85CD6850}.Debug|x64.ActiveCfg = Debug|x64
 		{3ED56241-45C3-4A97-A631-FBEA85CD6850}.Debug|x64.Build.0 = Debug|x64
 		{3ED56241-45C3-4A97-A631-FBEA85CD6850}.Release|x64.ActiveCfg = Release|x64

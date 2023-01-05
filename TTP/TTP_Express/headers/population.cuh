@@ -102,6 +102,7 @@ __global__ void initializePopulationCuda(population& initialPopulation, tour& in
 	}
 	initialPopulation.tours[thread_global_index] = initialTour;
 	evaluateTour(initialPopulation.tours[thread_global_index], problem_params);
+	SHOW("Individual %d: Profit: %f - Revenue: %f - Time: %f", thread_global_index, initialPopulation.tours[thread_global_index].fitness, initialPopulation.tours[thread_global_index].profit, initialPopulation.tours[thread_global_index].time);
 }
 
 /// <summary>

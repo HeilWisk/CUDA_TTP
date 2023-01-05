@@ -8,6 +8,7 @@
 #define MUTATION_RATE 0.05
 #define NUM_EVOLUTIONS 100
 #define TOURNAMENT_SIZE 50
+#define SELECTED_PARENTS 4
 #define ELITISM true
 #define MAX_COORD 250
 
@@ -16,6 +17,15 @@
 #define CITIES 5
 #define ITEMS 4
 #define TOURS 100
+
+// Other
+#define DEBUG
+#ifdef DEBUG
+#define SHOW printf
+#else
+#define SHOW // macros
+#endif // DEBUG
+
 
 
 
