@@ -180,8 +180,12 @@ __host__ void selection(population &population, tour* parents)
 	}
 }
 
-__host__ void crossover(population* population, tour* parents, distance* distanceTable, int index)
+__host__ void crossover(population &population, tour* parents)
 {
+	int randPosOne = (rand() % (CITIES - 1)) + 1;
+	SHOW("randPosOne = %d\n", randPosOne);
+	int randPosTwo = randPosOne + (rand() % ((CITIES - randPosOne)));
+	SHOW("randPosTwo = %d\n", randPosTwo);
 	//population->tours[tid].nodes[0] = parents[2 * tid].nodes[0];
 
 	//node nodeOne = getValidNextNode(parents[tid * 2], population->tours[tid], population->tours[tid].nodes[index - 1], index);

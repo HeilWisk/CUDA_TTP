@@ -606,7 +606,7 @@ int main()
 	int deviceCount = 0;
 	cudaDeviceProp properties;
 	cudaError_t deviceErr = cudaGetDeviceCount(&deviceCount);
-	if (deviceCount > 0 && deviceErr == cudaSuccess)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 	{
 		printf("****************************************************************************************\n");
 		printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
@@ -848,7 +848,7 @@ int main()
 	float milliseconds = 0;
 	cudaEvent_t start, stop;
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 	{
 		checkCudaErrors(cudaEventCreate(&start));
 		checkCudaErrors(cudaEventCreate(&stop));
@@ -904,7 +904,7 @@ int main()
 
 #pragma region DISTANCE MATRIX GPU
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 	{
 		/*************************************************************************************************
 		* CALCULATE DISTANCE MATRIX IN CUDA
@@ -943,7 +943,7 @@ int main()
 	* EVOLVE POPULATION
 	*************************************************************************************************/
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 	{
 		// Figure out fitness and distance for each individual in population
 		evaluatePopulation << <BLOCKS, THREADS >> > (device_population, problem);
@@ -960,7 +960,7 @@ int main()
 
 	for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 	{
-		if (deviceCount > 0 && deviceErr == cudaSuccess)
+		if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 		{
 			selection << <BLOCKS, THREADS >> > (device_population, device_states, device_parents);
 			err = cudaGetLastError();
@@ -1004,13 +1004,10 @@ int main()
 		selection(initial_population, host_parents);
 
 		// Breed the population with tournament selection and SCX crossover perform computation parallelized, build children iteratively
-		for (int j = 1; j < CITIES; ++j)
-		{
-			crossover << <BLOCKS, THREADS >> > (device_population, device_parents, device_states, device_distance, j);
-		}
+		crossover (initial_population, host_parents);
 	}
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 	{
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
@@ -1043,7 +1040,7 @@ int main()
 	}
 	printf("\n");
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 	{
 		/*************************************************************************************************
 		* RELEASE CUDA MEMORY

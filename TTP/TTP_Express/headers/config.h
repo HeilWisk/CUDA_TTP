@@ -26,6 +26,8 @@
 #define SHOW // macros
 #endif // DEBUG
 
+#define NO_GPU true
+
 
 
 
