@@ -45,7 +45,7 @@ void initializePopulation(population& initialPopulation, tour& initialTour, dist
 /// <param name="problem_params"></param>
 void initializePopulation(population& initialPopulation, tour& initialTour, parameters problem_params)
 {
-	// Generate random pickup for the items in each node od the tour
+	// Generate random pickup for the items in each node of the tour
 	for (int i = 0; i < CITIES; ++i)
 	{
 		randomPickup(initialTour.nodes[i].items);
@@ -69,12 +69,12 @@ void initializePopulation(population& initialPopulation, tour& initialTour, para
 }
 
 /// <summary>
-/// 
+/// Kernel to generate random population based on an initial tour
 /// </summary>
 /// <param name="initialPopulation"></param>
 /// <param name="initialTour"></param>
 /// <param name="problem_params"></param>
-__global__ void initializePopulationCuda(population& initialPopulation, tour& initialTour, parameters problem_params, curandState* state)
+__global__ void initializePopulationCuda(population* initialPopulation, tour initialTour, parameters problem_params, curandState* state)
 {
 	// Calculate global index of the threads for the 2D GRID
 	// Global index of every block on the grid
@@ -89,10 +89,10 @@ __global__ void initializePopulationCuda(population& initialPopulation, tour& in
 	if (thread_global_index >= TOURS)
 		return;
 
-	curandState local_state = state[thread_global_index];
+	curandState local_state = state[thread_global_index];	
 
 	// Generate random pickup for the items in each node of the tour
-	for (int i = 0; i < CITIES; ++i)
+	for (int i = 1; i < CITIES; ++i)
 	{
 		randomPickup(initialTour.nodes[i].items, &local_state);
 		int randPos = 1 + (curand(&local_state) % (CITIES - 1));
@@ -100,9 +100,9 @@ __global__ void initializePopulationCuda(population& initialPopulation, tour& in
 		initialTour.nodes[i] = initialTour.nodes[randPos];
 		initialTour.nodes[randPos] = tempNode;
 	}
-	initialPopulation.tours[thread_global_index] = initialTour;
-	evaluateTour(initialPopulation.tours[thread_global_index], problem_params);
-	SHOW("Individual %d: Profit: %f - Revenue: %f - Time: %f", thread_global_index, initialPopulation.tours[thread_global_index].fitness, initialPopulation.tours[thread_global_index].profit, initialPopulation.tours[thread_global_index].time);
+
+	initialPopulation->tours[thread_global_index] = initialTour;
+	evaluateTour(initialPopulation->tours[thread_global_index], problem_params);
 }
 
 /// <summary>

@@ -25,14 +25,17 @@ int createFile(char* name)
 	return 1;
 }
 
-int saveInitialPopulation(char* name, population& pop, parameters& problem)
+int saveInitialPopulation(char* name, population& pop, parameters& problem, bool isCuda)
 {
 	FILE* fp;
 	char bufferName[100];
 	char bufferWrite[100];
 	int bufferPos;
 
-	snprintf(bufferName, sizeof(char) * 100, ".\\output\\output_%s.txt", name);
+	if(isCuda)
+		snprintf(bufferName, sizeof(char) * 100, ".\\output\\output_CUDA_%s.txt", name);
+	else
+		snprintf(bufferName, sizeof(char) * 100, ".\\output\\output_%s.txt", name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)

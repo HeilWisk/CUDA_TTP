@@ -1,6 +1,6 @@
 // Kernel Config
 #define BLOCKS 1
-#define THREADS 96
+#define THREADS 100
 #define ISLANDS BLOCKS * THREADS
 #define BLOCK_SIZE 16 // Validate
 
@@ -26,8 +26,9 @@
 #define SHOW // macros
 #endif // DEBUG
 
-#define NO_GPU true
-
+#define NO_GPU false
+#define CUDA true
+#define NO_CUDA false
 
 
 
