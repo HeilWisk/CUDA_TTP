@@ -186,16 +186,83 @@ __host__ void crossover(population &population, tour* parents)
 	SHOW("randPosOne = %d\n", randPosOne);
 	int randPosTwo = randPosOne + (rand() % ((CITIES - randPosOne)));
 	SHOW("randPosTwo = %d\n", randPosTwo);
-	//population->tours[tid].nodes[0] = parents[2 * tid].nodes[0];
+}
 
-	//node nodeOne = getValidNextNode(parents[tid * 2], population->tours[tid], population->tours[tid].nodes[index - 1], index);
-	//node nodeTwo = getValidNextNode(parents[tid * 2 + 1], population->tours[tid], population->tours[tid].nodes[index - 1], index);
 
-	//// Compare the two nodes from parents to the last node that was chosen in the child
-	//if (distanceTable[nodeOne.id * CITIES + population->tours[tid].nodes[index - 1].id].value <= distanceTable[nodeTwo.id * CITIES + population->tours[tid].nodes[index - 1].id].value)
-	//	population->tours[tid].nodes[index] = nodeOne;
-	//else
-	//	population->tours[tid].nodes[index] = nodeTwo;
+__host__ void orderedCrossover(int* childNode, tour* parents)
+{
+	// Select parents from the parents array
+	int parentIndexOne = rand() % SELECTED_PARENTS;
+	int parentIndexTwo = rand() % SELECTED_PARENTS;
+
+	// Get the total size of the tours
+	int size = CITIES + 1;
+
+	// Choose two random numbers for the start and end indices of the slice
+	// In TTP the origin and destiny are the same, then the random must be in between
+	int randPosOne = (rand() % (size - 2)) + 1;
+	int randPosTwo = (rand() % (size - 2)) + 1;
+
+	// Make the smaller the start and the larger the end
+	if (randPosOne > randPosTwo)
+	{
+		int tempNumber = randPosTwo;
+		randPosTwo = randPosOne;
+		randPosOne = tempNumber;
+	}
+
+	// Instanciate child tour
+	int child[CITIES + 1];
+	int indexChild = randPosTwo % size;
+
+	// Copy first and last position to child
+	child[0] = parents[parentIndexOne].nodes[0].id;
+	child[CITIES] = parents[parentIndexOne].nodes[CITIES].id;
+
+	// Add the sublist in between the start and the end points to the children
+	for (int i = randPosOne; i < randPosTwo; ++i)
+	{
+		child[i] = parents[parentIndexOne].nodes[i].id;
+	}
+
+	// Iterate over each city in the parents tour
+	int currentCityIndex = 0;
+	int currentCityInParentTwo = 0;
+
+	for (int j = 0; j < size; ++j)
+	{
+		// Get the index of the current city
+		currentCityIndex = (randPosTwo + j) % size;
+
+		// Get the city at the current index in each of the two parent tours
+		currentCityInParentTwo = parents[parentIndexTwo].nodes[currentCityIndex].id;
+
+		// If child does not already contain the current city in parent two, add it
+		bool isPresentInChild = false;
+		for (int a = 0; a < size; ++a)
+		{
+			if (child[a] == currentCityInParentTwo)
+			{
+				isPresentInChild = true;
+				break;
+			}
+		}
+
+		if (!isPresentInChild)
+		{
+			child[indexChild] = currentCityInParentTwo;
+			if (indexChild == size - 1)
+				indexChild = 0;
+			else
+				indexChild = indexChild + 1;
+		}
+	}
+
+	// Assign the resulting child to the tour
+	for (int f = 0; f < size; ++f)
+	{
+		childNode[f] = child[f];
+	}
 }
 
 #pragma endregion

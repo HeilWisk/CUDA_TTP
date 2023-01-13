@@ -1022,7 +1022,8 @@ int main()
 		selection(initial_population_cpu, host_parents);
 
 		// Breed the population with tournament selection and SCX crossover perform computation parallelized, build children iteratively
-		crossover (initial_population_cpu, host_parents);
+		int* child = (int*)malloc(CITIES + 1 * sizeof(int));
+		orderedCrossover (child, host_parents);
 	}
 
 	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
