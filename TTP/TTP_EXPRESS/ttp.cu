@@ -677,6 +677,7 @@ int main()
 			subString(str, sub, position + 1, strlen(str) - position);
 			problem.items_amount = atoi(sub);
 			printf("Item:					%d\n", problem.items_amount);
+			printf("Items Per City:				%d\n", (problem.items_amount / (problem.cities_amount - 1)));
 		}
 		// Extract the knapsack capacity
 		else if (strncmp(str, KNAPSACK_CAPACITY, strlen(KNAPSACK_CAPACITY)) == 0)

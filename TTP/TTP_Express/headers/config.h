@@ -17,6 +17,7 @@
 #define CITIES 5
 #define ITEMS 4
 #define TOURS 100
+#define ITEMS_PER_CITY 1
 
 // Other
 #define DEBUG

@@ -135,11 +135,14 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 	{
 		for (int j = 0; j < ITEMS; ++j)
 		{
-			if (individual.nodes[i].items[j].id > 0 && individual.nodes[i].items[j].pickup == 1)
+			if (individual.nodes[i].items[j].id > 0)
 			{
-				total_weight += individual.nodes[i].items[j].weight;
 				individual.item_picks[item_count] = individual.nodes[i].items[j];
 				++item_count;
+				if (individual.nodes[i].items[j].pickup == 1)
+				{
+					total_weight += individual.nodes[i].items[j].weight;
+				}
 			}
 		}
 	}

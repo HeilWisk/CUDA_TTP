@@ -265,4 +265,20 @@ __host__ void orderedCrossover(int* childNode, tour* parents)
 	}
 }
 
+__host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentIndexTwo, item* child)
+{
+	// Choose a random position for cutting the picking plans of the parents
+	int cuttingPosition = (rand() % (ITEMS));	
+	
+	for (int i = 0; i < cuttingPosition; ++i)
+	{
+		child[i] = parents[parentIndexOne].item_picks[i];
+	}
+
+	for (int j = cuttingPosition; j < ITEMS; ++j)
+	{
+		child[j] = parents[parentIndexTwo].item_picks[j];
+	}
+}
+
 #pragma endregion
