@@ -281,4 +281,24 @@ __host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentInd
 	}
 }
 
+__host__ void flip(item* pickingPlan)
+{
+	// Choose a random position for the flip
+	int flipPosition = (rand() % (ITEMS));
+
+	if (pickingPlan[flipPosition].pickup == 1)
+	{
+		pickingPlan[flipPosition].pickup = 0;
+	}
+	else
+	{
+		pickingPlan[flipPosition].pickup = 1;
+	}
+}
+
+__host__ void twoOpt()
+{
+
+}
+
 #pragma endregion
