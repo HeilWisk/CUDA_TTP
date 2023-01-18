@@ -296,9 +296,56 @@ __host__ void flip(item* pickingPlan)
 	}
 }
 
-__host__ void twoOpt()
+__host__ void twoOptSwap(node* tour)
 {
+	int posOne = (rand() % CITIES -1) + 1;
+	int posTwo = (rand() % CITIES -1) + 1;
 
+	node tempOne;
+	node tempTwo;
+
+	// Instanciate new tour
+	int optTour[CITIES + 1];
+
+	// Make sure the two random numbers are different
+	do
+	{
+		posTwo = (rand() % CITIES - 1) + 1;
+	} 
+	while (posOne == posTwo);
+
+	// 1. Copy the segment of tour from tour[0] to tour[posOne- 1]
+	for (int i = 0; i < posOne - 1; ++i)
+	{
+		optTour[i] = tour[i].id;
+	}
+
+	// 2. From tour[posOne] to tour[posTwo] add them to the optTour in reverse order
+	int dec = 0;
+	for (int c = posOne; c <= posTwo; ++c)
+	{
+		optTour[c] = tour[posTwo - dec].id;
+		dec = dec + 1;
+	}
+
+	// 3. Add the rest of the tour to optTour
+	for (int z = posTwo + 1; z < CITIES + 1; ++z)
+	{
+		optTour[z] = tour[z].id;
+	}
+
+}
+
+__host__ void exchange(item* pickingPlan)
+{
+	// Choose a random position for the flip
+	int exPosOne = (rand() % (ITEMS));
+	int exPosTwo = (rand() % (ITEMS));
+	item tempItem;
+
+	tempItem = pickingPlan[exPosOne];
+	pickingPlan[exPosOne] = pickingPlan[exPosTwo];
+	pickingPlan[exPosTwo] = tempItem;
 }
 
 #pragma endregion
