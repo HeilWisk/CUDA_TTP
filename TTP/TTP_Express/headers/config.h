@@ -11,6 +11,7 @@
 #define SELECTED_PARENTS 4
 #define ELITISM true
 #define MAX_COORD 250
+#define LOCAL_SEARCH_PROBABILITY 0.2
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1

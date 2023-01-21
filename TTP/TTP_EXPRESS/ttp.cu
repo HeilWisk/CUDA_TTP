@@ -979,6 +979,7 @@ int main()
 
 	for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 	{
+		// GPU Genetic Algorithm
 		if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 		{
 			selection << <BLOCKS, THREADS >> > (device_population, device_states, device_parents);
@@ -1020,11 +1021,16 @@ int main()
 		}
 		
 		// CPU GA
+
+		// Select the best parents of the current generation
 		selection(initial_population_cpu, host_parents);
 
-		// Breed the population with tournament selection and SCX crossover perform computation parallelized, build children iteratively
-		int* child = (int*)malloc(CITIES + 1 * sizeof(int));
-		orderedCrossover (child, host_parents);
+		// Decide the amount of descendants to generate
+		int descendants = getOffspringAmount(initial_population_cpu.tours);
+
+		// Breed the population performing crossover (Combination of Ordered Crossover 
+		// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
+		crossover(initial_population_cpu, host_parents, descendants);
 	}
 
 	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)

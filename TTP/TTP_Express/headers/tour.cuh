@@ -63,7 +63,7 @@ struct tour
 	{
 		for (int i = 0; i < CITIES + 1; ++i)
 		{
-			if (nodes[i].x != t.nodes[i].x || nodes[i].y != t.nodes[i].y)
+			if (nodes[i].x != t.nodes[i].x || nodes[i].y != t.nodes[i].y || nodes[i].items != t.nodes[i].items)
 			{
 				return false;
 			}
