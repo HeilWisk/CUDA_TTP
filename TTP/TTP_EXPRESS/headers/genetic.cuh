@@ -180,43 +180,7 @@ __host__ void selection(population &population, tour* parents)
 	}
 }
 
-__host__ void crossover(population &population, tour* parents, int offspringAmount)
-{
-	tour* childs = (tour*)malloc(offspringAmount * sizeof(tour));
-	if (childs == NULL)
-	{
-		fprintf(stderr, "Out of Memory in function crossover");
-		exit(0);
-	}
-
-	for (int o = 0; o < offspringAmount; ++o)
-	{
-		// Select parents from the parents array
-		int parentIndexOne = rand() % SELECTED_PARENTS;
-		int parentIndexTwo = rand() % SELECTED_PARENTS;
-
-		int* child = (int*)malloc(CITIES + 1 * sizeof(int));
-
-		// Generate child for the TSP Sub-Problem using ordered crossover
-		orderedCrossover(child, parents, parentIndexOne, parentIndexTwo, childs[o]);
-
-		// Generate child for the KP Sub-Problem using one point crossover
-		onePointCrossover(parents, parentIndexOne, parentIndexTwo, childs[o].item_picks, childs[o]);
-
-		bool alreadyInPopulation = false;
-		for (int f = 0; f < TOURS; ++f)
-		{
-			if (population.tours[f] == childs[o])
-			{
-				alreadyInPopulation = true;
-				break;
-			}
-		}
-	}
-}
-
-
-__host__ void orderedCrossover(int* childNode, tour* parents, int parentIndexOne, int parentIndexTwo, tour childTour)
+__host__ void orderedCrossover(int* childNode, tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour)
 {
 	// Get the total size of the tours
 	int size = CITIES + 1;
@@ -293,7 +257,7 @@ __host__ void orderedCrossover(int* childNode, tour* parents, int parentIndexOne
 	}
 }
 
-__host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentIndexTwo, item* child, tour childTour)
+__host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentIndexTwo, item* child, tour& childTour)
 {
 	// Choose a random position for cutting the picking plans of the parents
 	int cuttingPosition = (rand() % (ITEMS));	
@@ -304,15 +268,16 @@ __host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentInd
 
 		//Test - BEGIN
 		childTour.item_picks[i] = parents[parentIndexOne].item_picks[i];
-		for (int p = 1; p < CITIES - 1; ++p)
+		for (int p = 1; p < CITIES; ++p)
 		{
 			if (childTour.nodes[p].id == childTour.item_picks[i].node)
 			{
-				for (int ia = 0; ia < ITEMS_PER_CITY; ++ia)
+				for (int ia = 0; ia < ITEMS; ++ia)
 				{
 					if (childTour.nodes[p].items[ia].id == childTour.item_picks[i].id)
 					{
 						childTour.nodes[p].items[ia] = childTour.item_picks[i];
+						break;
 					}
 				}
 			}
@@ -326,15 +291,16 @@ __host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentInd
 
 		//Test - BEGIN
 		childTour.item_picks[j] = parents[parentIndexTwo].item_picks[j];
-		for (int p = 1; p < CITIES - 1; ++p)
+		for (int p = 1; p < CITIES; ++p)
 		{
 			if (childTour.nodes[p].id == childTour.item_picks[j].node)
 			{
-				for (int ia = 0; ia < ITEMS_PER_CITY; ++ia)
+				for (int ia = 0; ia < ITEMS; ++ia)
 				{
 					if (childTour.nodes[p].items[ia].id == childTour.item_picks[j].id)
 					{
 						childTour.nodes[p].items[ia] = childTour.item_picks[j];
+						break;
 					}
 				}
 			}
@@ -343,70 +309,121 @@ __host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentInd
 	}
 }
 
-__host__ void flip(item* pickingPlan)
+__host__ void flip(tour& pickingPlan)
 {
 	// Choose a random position for the flip
 	int flipPosition = (rand() % (ITEMS));
 
-	if (pickingPlan[flipPosition].pickup == 1)
+	if (pickingPlan.item_picks[flipPosition].pickup == 1)
 	{
-		pickingPlan[flipPosition].pickup = 0;
+		pickingPlan.item_picks[flipPosition].pickup = 0;
+		for (int i = 1; i < CITIES; ++i)
+		{
+			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
+			{
+				for (int j = 0; j < ITEMS; ++j)
+				{
+					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
+					{
+						pickingPlan.nodes[i].items[j].pickup = 0;
+						break;
+					}
+				}
+			}
+		}
 	}
 	else
 	{
-		pickingPlan[flipPosition].pickup = 1;
+		pickingPlan.item_picks[flipPosition].pickup = 1;
+		for (int i = 1; i < CITIES; ++i)
+		{
+			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
+			{
+				for (int j = 0; j < ITEMS; ++j)
+				{
+					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
+					{
+						pickingPlan.nodes[i].items[j].pickup = 1;
+						break;
+					}
+				}
+			}
+		}
 	}
 }
 
-__host__ void twoOptSwap(node* tour)
+__host__ void twoOptSwap(tour& tour)
 {
-	int posOne = (rand() % CITIES -1) + 1;
-	int posTwo = (rand() % CITIES -1) + 1;
-
-	node tempOne;
-	node tempTwo;
+	int posOne = (rand() % (CITIES -1)) + 1;
+	int posTwo = (rand() % (CITIES -1)) + 1;
 
 	// Instanciate new tour
-	int optTour[CITIES + 1];
+	node optTour[CITIES + 1];
 
 	// Make sure the two random numbers are different
 	do
 	{
-		posTwo = (rand() % CITIES - 1) + 1;
+		posTwo = (rand() % (CITIES - 1)) + 1;
 	} 
 	while (posOne == posTwo);
 
 	// 1. Copy the segment of tour from tour[0] to tour[posOne- 1]
-	for (int i = 0; i < posOne - 1; ++i)
+	for (int i = 0; i <= posOne - 1; ++i)
 	{
-		optTour[i] = tour[i].id;
+		optTour[i] = tour.nodes[i];
 	}
 
 	// 2. From tour[posOne] to tour[posTwo] add them to the optTour in reverse order
 	int dec = 0;
 	for (int c = posOne; c <= posTwo; ++c)
 	{
-		optTour[c] = tour[posTwo - dec].id;
+		optTour[c] = tour.nodes[posTwo - dec];
 		dec = dec + 1;
 	}
 
 	// 3. Add the rest of the tour to optTour
 	for (int z = posTwo + 1; z < CITIES + 1; ++z)
 	{
-		optTour[z] = tour[z].id;
+		optTour[z] = tour.nodes[z];
+	}
+
+	for (int a = 0; a < CITIES + 1; ++a)
+	{
+		tour.nodes[a] = optTour[a];
 	}
 }
 
-__host__ void exchange(item* pickingPlan)
+__host__ void exchange(tour& pickingPlan)
 {
 	// Choose a random position for the flip
 	int exPosOne = (rand() % (ITEMS));
 	int exPosTwo = (rand() % (ITEMS));
 	item tempItem;
 
-	tempItem = pickingPlan[exPosOne];
-	pickingPlan[exPosOne] = pickingPlan[exPosTwo];
-	pickingPlan[exPosTwo] = tempItem;
+	tempItem = pickingPlan.item_picks[exPosOne];
+	pickingPlan.item_picks[exPosOne].pickup = pickingPlan.item_picks[exPosTwo].pickup;
+	pickingPlan.item_picks[exPosTwo].pickup = tempItem.pickup;
+
+	for (int i = 1; i < CITIES; ++i)
+	{
+		if ((pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosOne].node) || (pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosTwo].node))
+		{
+			for (int j = 0; j < ITEMS; ++j)
+			{
+				if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[exPosOne].id)
+				{
+					pickingPlan.nodes[i].items[j].pickup = pickingPlan.item_picks[exPosOne].pickup;
+					break;
+				}
+
+				if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[exPosTwo].id)
+				{
+					pickingPlan.nodes[i].items[j].pickup = pickingPlan.item_picks[exPosTwo].pickup;
+					break;
+				}
+			}
+		}
+	}
 }
 
 __host__ int getOffspringAmount(tour* solutions)
@@ -424,7 +441,99 @@ __host__ int getOffspringAmount(tour* solutions)
 	}
 
 	// Return the amount of offspring to generate
-	return offspringAmount;
+	return TOURS - offspringAmount;
+}
+
+__host__ void crossover(population& population, tour* parents, int offspringAmount, parameters params)
+{
+	tour* childs = (tour*)malloc(offspringAmount * sizeof(tour));
+	if (childs == NULL)
+	{
+		fprintf(stderr, "Out of Memory in function crossover");
+		exit(0);
+	}
+
+	for (int o = 0; o < offspringAmount; ++o)
+	{
+		// Select parents from the parents array
+		int parentIndexOne = rand() % SELECTED_PARENTS;
+		int parentIndexTwo = rand() % SELECTED_PARENTS;
+
+		int* child = (int*)malloc(CITIES + 1 * sizeof(int));
+
+		// Generate unique offspring not already in solution
+		bool alreadyInPopulation = false;
+
+		do
+		{
+			// Generate child for the TSP Sub-Problem using ordered crossover
+			orderedCrossover(child, parents, parentIndexOne, parentIndexTwo, childs[o]);
+
+			// Generate child for the KP Sub-Problem using one point crossover
+			onePointCrossover(parents, parentIndexOne, parentIndexTwo, childs[o].item_picks, childs[o]);
+
+			// Evaluate the new child
+			evaluateTour(childs[o], params);
+
+			for (int f = 0; f < TOURS; ++f)
+			{
+				if (population.tours[f] == childs[o])
+				{
+					alreadyInPopulation = true;
+					break;
+				}
+			}
+		} while (alreadyInPopulation);
+	}
+
+	for (int b = 0; b < offspringAmount; ++b)
+	{
+		for (int a = 0; a < TOURS; ++a)
+		{
+			if (population.tours[a].fitness < 0)
+			{
+				population.tours[a] = childs[b];
+				break;
+			}
+		}
+	}
+}
+
+__host__ void localSearch(population& currentPopulation, parameters params)
+{
+	for (int i = 0; i < TOURS; ++i)
+	{
+		double probability = (double)rand() / (double)RAND_MAX;
+		if (probability < LOCAL_SEARCH_PROBABILITY)
+		{
+			tour testTour2Opt = currentPopulation.tours[i];
+			twoOptSwap(testTour2Opt);
+			evaluateTour(testTour2Opt, params);
+
+			tour testTourFlip = currentPopulation.tours[i];
+			flip(testTourFlip);
+			evaluateTour(testTourFlip, params);
+
+			tour testTourEx = currentPopulation.tours[i];
+			exchange(testTourEx);
+			evaluateTour(testTourEx, params);
+
+			if (testTour2Opt.fitness >= currentPopulation.tours[i].fitness && testTour2Opt.fitness >= testTourFlip.fitness && testTour2Opt.fitness >= testTourEx.fitness)
+			{
+				currentPopulation.tours[i] = testTour2Opt;
+			}
+
+			if (testTourFlip.fitness >= currentPopulation.tours[i].fitness && testTourFlip.fitness >= testTour2Opt.fitness && testTourFlip.fitness >= testTourEx.fitness)
+			{
+				currentPopulation.tours[i] = testTourFlip;
+			}
+
+			if (testTourEx.fitness >= currentPopulation.tours[i].fitness && testTourEx.fitness >= testTour2Opt.fitness && testTourEx.fitness >= testTourFlip.fitness)
+			{
+				currentPopulation.tours[i] = testTourEx;
+			}
+		}
+	}
 }
 
 #pragma endregion

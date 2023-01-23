@@ -31,6 +31,8 @@
 #define NO_GPU true
 #define CUDA true
 #define NO_CUDA false
+#define WRITE_BUFFER 200
+#define NAME_BUFFER 200
 
 
 

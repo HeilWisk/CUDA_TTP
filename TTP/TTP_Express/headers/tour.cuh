@@ -137,7 +137,8 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 		{
 			if (individual.nodes[i].items[j].id > 0)
 			{
-				individual.item_picks[item_count] = individual.nodes[i].items[j];
+				//individual.item_picks[item_count] = individual.nodes[i].items[j];
+				individual.item_picks[(individual.nodes[i].items[j].id - 1)].pickup = individual.nodes[i].items[j].pickup;
 				++item_count;
 				if (individual.nodes[i].items[j].pickup == 1)
 				{
@@ -171,12 +172,14 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 		else
 			distance = distanceBetweenNodes(individual.nodes[y], individual.nodes[y + 1]);
 
-		time += distance / velocity;		
+		time += distance / velocity;
 		revenue = profit - (problem_params.renting_ratio * time);
-		individual.total_distance += distance;
+		distance += distance;
+		//individual.total_distance += distance;
 		//return result;
 	}
 
+	individual.total_distance = distance;
 	individual.profit = profit;
 	individual.time = time;
 	individual.fitness = revenue;
@@ -238,7 +241,7 @@ void extractNodes(int** matrix, int rows, tour& tour)
 /// <param name="node_quantity"></param>
 /// <param name="nodes"></param>
 /// void defineInitialTour(tour& initial_tour, const int node_quantity, node* nodes)
-void defineInitialTour(tour& initial_tour, parameters& params, node* nodes)
+void defineInitialTour(tour& initial_tour, parameters& params, node* nodes, item* items)
 {
 	// Load data on nodes	
 	for (int n = 0; n < params.cities_amount; n++)
@@ -263,6 +266,12 @@ void defineInitialTour(tour& initial_tour, parameters& params, node* nodes)
 
 	// Copy data from node 0 to the last node of the tour because in TTP the thief must return to the origin city (node)
 	initial_tour.nodes[CITIES] = initial_tour.nodes[0];
+
+	// Initialize item picks
+	for (int a = 0; a < ITEMS; ++a)
+	{
+		initial_tour.item_picks[a] = items[a];
+	}
 
 	initial_tour.fitness = 0;
 	initial_tour.total_distance = 0;

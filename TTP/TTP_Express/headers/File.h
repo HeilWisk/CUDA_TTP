@@ -9,9 +9,9 @@
 int createFile(char* name)
 {
 	FILE* fp;
-	char bufferName[100];
+	char bufferName[NAME_BUFFER];
 
-	snprintf(bufferName, sizeof(char) * 100, ".\\output\\output_%s.txt", name);
+	snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
 
 	fp = fopen(bufferName, "w");
 	if (fp == NULL)
@@ -28,14 +28,14 @@ int createFile(char* name)
 int saveInitialPopulation(char* name, population& pop, parameters& problem, bool isCuda)
 {
 	FILE* fp;
-	char bufferName[100];
-	char bufferWrite[100];
+	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
 	int bufferPos;
 
 	if(isCuda)
-		snprintf(bufferName, sizeof(char) * 100, ".\\output\\output_CUDA_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
 	else
-		snprintf(bufferName, sizeof(char) * 100, ".\\output\\output_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -48,16 +48,16 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 
 	for (int i = 0; i < TOURS; ++i)
 	{
-		bufferPos = snprintf(bufferWrite, sizeof(char) * 100, "Individual %d: ", i);
+		bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "Individual %d: ", i);
 		for (int j = 0; j < problem.cities_amount + 1; ++j)
 		{
 			if (pop.tours[i].nodes[j].id > 0)
 			{
 				if (j > 0)
 				{
-					bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * 100) - bufferPos, ", ");
+					bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
 				}					
-				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * 100) - bufferPos, "%d", pop.tours[i].nodes[j].id);
+				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", pop.tours[i].nodes[j].id);
 
 				for (int k = 0; k < problem.items_amount; ++k)
 				{
@@ -65,16 +65,180 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 					{
 						if (k > 0)
 						{
-							bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * 100) - bufferPos, ", ");
+							bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
 						}
-						bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * 100) - bufferPos, "[%d]", pop.tours[i].nodes[j].items[k].pickup);
+						bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "[%d]", pop.tours[i].nodes[j].items[k].pickup);
 					}
 				}
 			}				
 		}
-		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * 100) - bufferPos, " Profit: %f - Revenue: %f - Time: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time);
+		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time, pop.tours[i].total_distance);
 		fprintf(fp, "%s\n", bufferWrite);
 	}
+
+	fclose(fp);
+	return 1;
+}
+
+int saveOffspring(char* name, population& pop, parameters& problem, int generation, bool isCuda)
+{
+	FILE* fp;
+	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
+	int bufferPos;
+
+	if (isCuda)
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
+	else
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+
+	fp = fopen(bufferName, "a");
+	if (fp == NULL)
+	{
+		printf("No fue posible abrir el archivo");
+		return 0;
+	}
+
+	fprintf(fp, "\n");
+	fprintf(fp, "POPULATION FOR GENERATION %d\n", generation);
+
+	for (int i = 0; i < TOURS; ++i)
+	{
+		bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "Individual %d: ", i);
+		for (int j = 0; j < problem.cities_amount + 1; ++j)
+		{
+			if (pop.tours[i].nodes[j].id > 0)
+			{
+				if (j > 0)
+				{
+					bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+				}
+				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", pop.tours[i].nodes[j].id);
+
+				for (int k = 0; k < problem.items_amount; ++k)
+				{
+					if (pop.tours[i].nodes[j].items[k].id > 0)
+					{
+						if (k > 0)
+						{
+							bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+						}
+						bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "[%d]", pop.tours[i].nodes[j].items[k].pickup);
+					}
+				}
+			}
+		}
+		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time, pop.tours[i].total_distance);
+		fprintf(fp, "%s\n", bufferWrite);
+	}
+
+	fclose(fp);
+	return 1;
+}
+
+int saveParents(char* name, tour* parents, parameters& problem, int generation, bool isCuda)
+{
+	FILE* fp;
+	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
+	int bufferPos;
+
+	if (isCuda)
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
+	else
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+
+	fp = fopen(bufferName, "a");
+	if (fp == NULL)
+	{
+		printf("No fue posible abrir el archivo");
+		return 0;
+	}
+
+	fprintf(fp, "\n");
+	fprintf(fp, "PARENTS FOR GENERATION %d\n", generation);
+
+	for (int i = 0; i < SELECTED_PARENTS; ++i)
+	{
+		bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "Parent %d: ", i);
+		for (int j = 0; j < problem.cities_amount + 1; ++j)
+		{
+			if (parents[i].nodes[j].id > 0)
+			{
+				if (j > 0)
+				{
+					bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+				}
+				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", parents[i].nodes[j].id);
+
+				for (int k = 0; k < problem.items_amount; ++k)
+				{
+					if (parents[i].nodes[j].items[k].id > 0)
+					{
+						if (k > 0)
+						{
+							bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+						}
+						bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "[%d]", parents[i].nodes[j].items[k].pickup);
+					}
+				}
+			}
+		}
+		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", parents[i].fitness, parents[i].profit, parents[i].time, parents[i].total_distance);
+		fprintf(fp, "%s\n", bufferWrite);
+	}
+
+	fclose(fp);
+	return 1;
+}
+
+int saveFittest(char* name, tour fittest, parameters& problem, int generation, bool isCuda)
+{
+	FILE* fp;
+	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
+	int bufferPos;
+
+	if (isCuda)
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
+	else
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+
+	fp = fopen(bufferName, "a");
+	if (fp == NULL)
+	{
+		printf("No fue posible abrir el archivo");
+		return 0;
+	}
+
+	fprintf(fp, "\n");
+	fprintf(fp, "FITTEST OF GENERATION %d\n", generation);
+	bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "Fittest: ");
+	for (int j = 0; j < problem.cities_amount + 1; ++j)
+	{
+		if (fittest.nodes[j].id > 0)
+		{
+			if (j > 0)
+			{
+				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+			}
+			bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", fittest.nodes[j].id);
+
+			for (int k = 0; k < problem.items_amount; ++k)
+			{
+				if (fittest.nodes[j].items[k].id > 0)
+				{
+					if (k > 0)
+					{
+						bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+					}
+					bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "[%d]", fittest.nodes[j].items[k].pickup);
+				}
+			}
+		}
+	}
+	bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", fittest.fitness, fittest.profit, fittest.time, fittest.total_distance);
+	fprintf(fp, "%s\n", bufferWrite);
 
 	fclose(fp);
 	return 1;

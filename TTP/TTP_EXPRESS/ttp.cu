@@ -808,7 +808,7 @@ int main()
 	displayNodes(cpu_node, problem.cities_amount);
 
 	// Assign nodes to tour
-	defineInitialTour(initial_tour, problem, cpu_node);
+	defineInitialTour(initial_tour, problem, cpu_node, cpu_item);
 
 	// Calculate distance matrix in CPU
 	int distance_matrix_size = problem.cities_amount * problem.cities_amount;
@@ -977,6 +977,22 @@ int main()
 		exit(0);
 	}
 
+	tour fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
+	saveFittest(problem.name, fittestOnEarth, problem, 0, NO_CUDA);
+	printf("FITTEST TOUR OF INITIAL POPULATION: \n");
+	printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
+	printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
+	for (int i = 1; i < CITIES + 1; ++i)
+		printf(" > %d", fittestOnEarth.nodes[i].id);
+	printf("\n");
+	printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
+	for (int i = 1; i < ITEMS; ++i)
+	{
+		if (fittestOnEarth.item_picks[i].id > 0)
+			printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
+	}
+	printf("\n");
+
 	for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 	{
 		// GPU Genetic Algorithm
@@ -1025,12 +1041,35 @@ int main()
 		// Select the best parents of the current generation
 		selection(initial_population_cpu, host_parents);
 
+		saveParents(problem.name, host_parents, problem, i+1, NO_CUDA);
+
 		// Decide the amount of descendants to generate
 		int descendants = getOffspringAmount(initial_population_cpu.tours);
 
 		// Breed the population performing crossover (Combination of Ordered Crossover 
 		// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-		crossover(initial_population_cpu, host_parents, descendants);
+		crossover(initial_population_cpu, host_parents, descendants, problem);
+
+		localSearch(initial_population_cpu, problem);
+
+		saveOffspring(problem.name, initial_population_cpu, problem, i+1, NO_CUDA);
+
+		// Get Fittest tour of the generation
+		fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
+		saveFittest(problem.name, fittestOnEarth, problem, i + 1, NO_CUDA);
+		printf("FITTEST TOUR OF GENERATION %d: \n", i+1);
+		printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
+		printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
+		for (int i = 1; i < CITIES + 1; ++i)
+			printf(" > %d", fittestOnEarth.nodes[i].id);
+		printf("\n");
+		printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
+		for (int i = 1; i < ITEMS; ++i)
+		{
+			if (fittestOnEarth.item_picks[i].id > 0)
+				printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
+		}
+		printf("\n");
 	}
 
 	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
@@ -1049,22 +1088,7 @@ int main()
 	/*************************************************************************************************
 	* OUTPUT
 	*************************************************************************************************/
-	printPopulation(initial_population_cpu);
-	tour fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
-	printf("TIME: %f\n", milliseconds);
-	printf("FITNESS: %f\n", fittestOnEarth.fitness);
-	printf("PROFIT: %f\n", fittestOnEarth.profit);
-	printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
-	for (int i = 1; i < CITIES + 1; ++i)
-		printf(" > %d", fittestOnEarth.nodes[i].id);
-	printf("\n");
-	printf("ITEMS: %d", fittestOnEarth.item_picks[0].id);
-	for (int i = 1; i < ITEMS; ++i)
-	{
-		if (fittestOnEarth.item_picks[i].id > 0)
-			printf(" > %d", fittestOnEarth.item_picks[i].id);
-	}
-	printf("\n");
+	//printPopulation(initial_population_cpu);
 
 	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
 	{
