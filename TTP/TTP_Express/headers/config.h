@@ -28,7 +28,8 @@
 #define SHOW // macros
 #endif // DEBUG
 
-#define NO_GPU true
+#define GPU true
+#define CPU true
 #define CUDA true
 #define NO_CUDA false
 #define WRITE_BUFFER 200

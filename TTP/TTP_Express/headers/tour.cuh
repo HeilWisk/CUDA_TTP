@@ -175,8 +175,6 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 		time += distance / velocity;
 		revenue = profit - (problem_params.renting_ratio * time);
 		distance += distance;
-		//individual.total_distance += distance;
-		//return result;
 	}
 
 	individual.total_distance = distance;

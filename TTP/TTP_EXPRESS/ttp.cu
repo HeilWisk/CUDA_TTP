@@ -606,7 +606,7 @@ int main()
 	int deviceCount = 0;
 	cudaDeviceProp properties;
 	cudaError_t deviceErr = cudaGetDeviceCount(&deviceCount);
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
 	{
 		printf("****************************************************************************************\n");
 		printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
@@ -849,7 +849,7 @@ int main()
 	float milliseconds = 0;
 	cudaEvent_t start, stop;
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
 	{
 		// Create output file
 		char file_name[] = "CUDA_";
@@ -902,11 +902,6 @@ int main()
 
 		initializePopulationCuda << <BLOCKS, THREADS >> > (device_population, initial_tour, problem, device_states);
 		cudaDeviceSynchronize();
-
-		/*************************************************************************************************
-		* TODO: REMOVE THIS SECTION IF EVERITHING GOES WELL
-		*************************************************************************************************/
-		//populationTest << <1, 1 >> > (device_population);
 		
 		/*************************************************************************************************
 		* COPY RESULTS TO HOST
@@ -923,7 +918,7 @@ int main()
 
 #pragma region DISTANCE MATRIX GPU
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
 	{
 		/*************************************************************************************************
 		* CALCULATE DISTANCE MATRIX IN CUDA
@@ -962,7 +957,7 @@ int main()
 	* EVOLVE POPULATION
 	*************************************************************************************************/
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
 	{
 		// Figure out fitness and distance for each individual in population
 		evaluatePopulation << <BLOCKS, THREADS >> > (device_population, problem);
@@ -996,83 +991,123 @@ int main()
 	for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 	{
 		// GPU Genetic Algorithm
-		if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
+		if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
 		{
-			selection << <BLOCKS, THREADS >> > (device_population, device_states, device_parents);
+			// Select Parents For The Next Generation
+			selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_states);
 			err = cudaGetLastError();
 			if (err != cudaSuccess) {
 				fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
 
-			// Breed the population with tournament selection and SCX crossover perform computation parallelized, build children iteratively
-			for (int j = 1; j < CITIES; ++j)
+			// Copy Device Information to Host
+			cudaMemcpy(&host_parents, device_parents, sizeof(tour) * SELECTED_PARENTS, cudaMemcpyDeviceToHost);
+			cudaDeviceSynchronize();
+
+			// Save Parents Information To File
+			saveParents(problem.name, host_parents, problem, i + 1, CUDA);
+
+			// Decide the amount of descendants to generate
+			int cudaDescendants = getOffspringAmount(initial_population_gpu.tours);
+
+			// Reserve Memory for the descendants
+			tour* device_offspring;
+			checkCudaErrors(cudaMalloc((void**)&device_offspring, sizeof(tour)* size_t(tour_size)* cudaDescendants));
+
+			// Breed the population performing crossover (Combination of Ordered Crossover 
+			// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
+			crossoverKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_offspring, cudaDescendants, problem, device_states);
+			err = cudaGetLastError();
+			if (err != cudaSuccess) {
+				fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
+				exit(0);
+			}
+			
+			// Assign descendants to the population
+			for (int b = 0; b < cudaDescendants; ++b)
 			{
-				crossover << <BLOCKS, THREADS >> > (device_population, device_parents, device_states, device_distance, j);
-				//HANDLE_ERROR(cudaDeviceSynchronize());
-				err = cudaGetLastError();
-				if (err != cudaSuccess) {
-					fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
-					exit(0);
+				for (int a = 0; a < TOURS; ++a)
+				{
+					if (device_population->tours[a].fitness < 0)
+					{
+						device_population->tours[a] = device_offspring[b];
+						break;
+					}
 				}
 			}
 
-			// Perform mutation
-			mutation << <BLOCKS, THREADS >> > (device_population, device_states);
-			//HANDLE_ERROR(cudaDeviceSynchronize());
+			// Perform local search (mutation)
+			localSearchKernel << <BLOCKS, THREADS >> > (device_population, problem, device_states);
 			err = cudaGetLastError();
 			if (err != cudaSuccess) {
 				fprintf(stderr, "Mutation Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
 
-			// Evaluate the resulting population
-			evaluatePopulation << <BLOCKS, THREADS >> > (device_population, device_distance);
-			//HANDLE_ERROR(cudaDeviceSynchronize());
-			err = cudaGetLastError();
-			if (err != cudaSuccess) {
-				fprintf(stderr, "Evaluate Population Kernel: %s\n", cudaGetErrorString(err));
-				exit(0);
+			// Copy Device Information to Host
+			cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost);
+			cudaDeviceSynchronize();
+
+			saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA);
+
+			// Get Fittest tour of the generation
+			fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
+			saveFittest(problem.name, fittestOnEarth, problem, i + 1, CUDA);
+			printf("FITTEST CUDA TOUR OF GENERATION %d: \n", i + 1);
+			printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
+			printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
+			for (int i = 1; i < CITIES + 1; ++i)
+				printf(" > %d", fittestOnEarth.nodes[i].id);
+			printf("\n");
+			printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
+			for (int i = 1; i < ITEMS; ++i)
+			{
+				if (fittestOnEarth.item_picks[i].id > 0)
+					printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
 			}
+			printf("\n");
 		}
 		
-		// CPU GA
-
-		// Select the best parents of the current generation
-		selection(initial_population_cpu, host_parents);
-
-		saveParents(problem.name, host_parents, problem, i+1, NO_CUDA);
-
-		// Decide the amount of descendants to generate
-		int descendants = getOffspringAmount(initial_population_cpu.tours);
-
-		// Breed the population performing crossover (Combination of Ordered Crossover 
-		// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-		crossover(initial_population_cpu, host_parents, descendants, problem);
-
-		localSearch(initial_population_cpu, problem);
-
-		saveOffspring(problem.name, initial_population_cpu, problem, i+1, NO_CUDA);
-
-		// Get Fittest tour of the generation
-		fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
-		saveFittest(problem.name, fittestOnEarth, problem, i + 1, NO_CUDA);
-		printf("FITTEST TOUR OF GENERATION %d: \n", i+1);
-		printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
-		printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
-		for (int i = 1; i < CITIES + 1; ++i)
-			printf(" > %d", fittestOnEarth.nodes[i].id);
-		printf("\n");
-		printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
-		for (int i = 1; i < ITEMS; ++i)
+		// CPU Genetic Algorithm
+		if (CPU)
 		{
-			if (fittestOnEarth.item_picks[i].id > 0)
-				printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
+			// Select the best parents of the current generation
+			selection(initial_population_cpu, host_parents);
+
+			saveParents(problem.name, host_parents, problem, i + 1, NO_CUDA);
+
+			// Decide the amount of descendants to generate
+			int descendants = getOffspringAmount(initial_population_cpu.tours);
+
+			// Breed the population performing crossover (Combination of Ordered Crossover 
+			// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
+			crossover(initial_population_cpu, host_parents, descendants, problem);
+
+			localSearch(initial_population_cpu, problem);
+
+			saveOffspring(problem.name, initial_population_cpu, problem, i + 1, NO_CUDA);
+
+			// Get Fittest tour of the generation
+			fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
+			saveFittest(problem.name, fittestOnEarth, problem, i + 1, NO_CUDA);
+			printf("FITTEST TOUR OF GENERATION %d: \n", i + 1);
+			printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
+			printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
+			for (int i = 1; i < CITIES + 1; ++i)
+				printf(" > %d", fittestOnEarth.nodes[i].id);
+			printf("\n");
+			printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
+			for (int i = 1; i < ITEMS; ++i)
+			{
+				if (fittestOnEarth.item_picks[i].id > 0)
+					printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
+			}
+			printf("\n");
 		}
-		printf("\n");
 	}
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
 	{
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
@@ -1090,7 +1125,7 @@ int main()
 	*************************************************************************************************/
 	//printPopulation(initial_population_cpu);
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !NO_GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
 	{
 		/*************************************************************************************************
 		* RELEASE CUDA MEMORY

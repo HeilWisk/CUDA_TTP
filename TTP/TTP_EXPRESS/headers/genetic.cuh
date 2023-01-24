@@ -139,6 +139,354 @@ __device__ node getValidNextNode(tour& parent, tour& child, node& current_node, 
 	return node();
 }
 
+__device__ void selectionKernel(population& population, tour* parents, curandState* state)
+{
+	// Calculate global index of the threads for the 2D GRID
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index >= SELECTED_PARENTS)
+	{
+		return;
+	}
+	
+	parents[thread_global_index] = tournamentSelection(population, state, thread_global_index);
+}
+
+__device__ void orderedCrossoverKernel(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state)
+{
+	// Get the total size of the tours
+	int size = CITIES + 1;
+
+	// Choose two random numbers for the start and end indices of the slice
+	// In TTP the origin and destiny are the same, then the random must be in between
+	int randPosOne = (curand(state) % (size - 2)) + 1;
+	int randPosTwo = (curand(state) % (size - 2)) + 1;
+
+	// Make the smaller the start and the larger the end
+	if (randPosOne > randPosTwo)
+	{
+		int tempNumber = randPosTwo;
+		randPosTwo = randPosOne;
+		randPosOne = tempNumber;
+	}
+
+	// Instanciate child tour
+	int indexChild = randPosTwo % size;
+
+	// Copy first and last position to child
+	childTour.nodes[0] = parents[parentIndexOne].nodes[0];
+	childTour.nodes[CITIES] = parents[parentIndexOne].nodes[CITIES];
+
+	// Add the sublist in between the start and the end points to the children
+	for (int i = randPosOne; i < randPosTwo; ++i)
+	{
+		childTour.nodes[i] = parents[parentIndexOne].nodes[i];
+	}
+
+	// Iterate over each city in the parents tour
+	int currentCityIndex = 0;
+	int currentCityInParentTwo = 0;
+
+	for (int j = 0; j < size; ++j)
+	{
+		// Get the index of the current city
+		currentCityIndex = (randPosTwo + j) % size;
+
+		// Get the city at the current index in each of the two parent tours
+		currentCityInParentTwo = parents[parentIndexTwo].nodes[currentCityIndex].id;
+
+		// If child does not already contain the current city in parent two, add it
+		bool isPresentInChild = false;
+		for (int a = 0; a < size; ++a)
+		{
+			if (childTour.nodes[a].id == currentCityInParentTwo)
+			{
+				isPresentInChild = true;
+				break;
+			}
+		}
+
+		if (!isPresentInChild)
+		{
+			childTour.nodes[indexChild] = parents[parentIndexTwo].nodes[currentCityIndex];
+			if (indexChild == size - 1)
+				indexChild = 0;
+			else
+				indexChild = indexChild + 1;
+		}
+	}
+}
+
+__device__ void onePointCrossoverKernel(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state)
+{
+	// Choose a random position for cutting the picking plans of the parents
+	int cuttingPosition = (curand(state) % (ITEMS));
+
+	for (int i = 0; i < cuttingPosition; ++i)
+	{
+		childTour.item_picks[i] = parents[parentIndexOne].item_picks[i];
+		for (int p = 1; p < CITIES; ++p)
+		{
+			if (childTour.nodes[p].id == childTour.item_picks[i].node)
+			{
+				for (int ia = 0; ia < ITEMS; ++ia)
+				{
+					if (childTour.nodes[p].items[ia].id == childTour.item_picks[i].id)
+					{
+						childTour.nodes[p].items[ia] = childTour.item_picks[i];
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	for (int j = cuttingPosition; j < ITEMS; ++j)
+	{
+		childTour.item_picks[j] = parents[parentIndexTwo].item_picks[j];
+		for (int p = 1; p < CITIES; ++p)
+		{
+			if (childTour.nodes[p].id == childTour.item_picks[j].node)
+			{
+				for (int ia = 0; ia < ITEMS; ++ia)
+				{
+					if (childTour.nodes[p].items[ia].id == childTour.item_picks[j].id)
+					{
+						childTour.nodes[p].items[ia] = childTour.item_picks[j];
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+__device__ void crossoverKernel(population& population, tour* parents, tour* offspring, int offspringAmount, parameters params, curandState* state)
+{
+	// Calculate global index of the threads for the 2D GRID
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index >= offspringAmount)
+	{
+		return;
+	}
+
+	curandState local_state = state[thread_global_index];
+
+	// Select parents from the parents array
+	int parentIndexOne = curand(&local_state) % SELECTED_PARENTS;
+	int parentIndexTwo = curand(&local_state) % SELECTED_PARENTS;
+
+	//int* child = (int*)malloc(CITIES + 1 * sizeof(int));
+
+	// Generate unique offspring not already in solution
+	bool alreadyInPopulation = false;
+
+	do
+	{
+		// Generate child for the TSP Sub-Problem using ordered crossover
+		orderedCrossoverKernel(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state);
+
+		// Generate child for the KP Sub-Problem using one point crossover
+		onePointCrossoverKernel(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state);
+
+		// Evaluate the new child
+		evaluateTour(offspring[thread_global_index], params);
+
+		for (int f = 0; f < TOURS; ++f)
+		{
+			if (population.tours[f] == offspring[thread_global_index])
+			{
+				alreadyInPopulation = true;
+				break;
+			}
+		}
+	} while (alreadyInPopulation);
+}
+
+__device__ void flipKernel(tour& pickingPlan, curandState* state)
+{
+	// Choose a random position for the flip
+	int flipPosition = (curand(state) % (ITEMS));
+
+	if (pickingPlan.item_picks[flipPosition].pickup == 1)
+	{
+		pickingPlan.item_picks[flipPosition].pickup = 0;
+		for (int i = 1; i < CITIES; ++i)
+		{
+			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
+			{
+				for (int j = 0; j < ITEMS; ++j)
+				{
+					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
+					{
+						pickingPlan.nodes[i].items[j].pickup = 0;
+						break;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		pickingPlan.item_picks[flipPosition].pickup = 1;
+		for (int i = 1; i < CITIES; ++i)
+		{
+			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
+			{
+				for (int j = 0; j < ITEMS; ++j)
+				{
+					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
+					{
+						pickingPlan.nodes[i].items[j].pickup = 1;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+__device__ void twoOptSwapKernel(tour& tour, curandState* state)
+{
+	int posOne = (curand(state) % (CITIES - 1)) + 1;
+	int posTwo = (curand(state) % (CITIES - 1)) + 1;
+
+	// Instanciate new tour
+	node optTour[CITIES + 1];
+
+	// Make sure the two random numbers are different
+	do
+	{
+		posTwo = (curand(state) % (CITIES - 1)) + 1;
+	} while (posOne == posTwo);
+
+	// 1. Copy the segment of tour from tour[0] to tour[posOne- 1]
+	for (int i = 0; i <= posOne - 1; ++i)
+	{
+		optTour[i] = tour.nodes[i];
+	}
+
+	// 2. From tour[posOne] to tour[posTwo] add them to the optTour in reverse order
+	int dec = 0;
+	for (int c = posOne; c <= posTwo; ++c)
+	{
+		optTour[c] = tour.nodes[posTwo - dec];
+		dec = dec + 1;
+	}
+
+	// 3. Add the rest of the tour to optTour
+	for (int z = posTwo + 1; z < CITIES + 1; ++z)
+	{
+		optTour[z] = tour.nodes[z];
+	}
+
+	for (int a = 0; a < CITIES + 1; ++a)
+	{
+		tour.nodes[a] = optTour[a];
+	}
+}
+
+__device__ void exchangeKernel(tour& pickingPlan, curandState* state)
+{
+	// Choose a random position for the flip
+	int exPosOne = (curand(state) % (ITEMS));
+	int exPosTwo = (curand(state) % (ITEMS));
+	item tempItem;
+
+	tempItem = pickingPlan.item_picks[exPosOne];
+	pickingPlan.item_picks[exPosOne].pickup = pickingPlan.item_picks[exPosTwo].pickup;
+	pickingPlan.item_picks[exPosTwo].pickup = tempItem.pickup;
+
+	for (int i = 1; i < CITIES; ++i)
+	{
+		if ((pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosOne].node) || (pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosTwo].node))
+		{
+			for (int j = 0; j < ITEMS; ++j)
+			{
+				if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[exPosOne].id)
+				{
+					pickingPlan.nodes[i].items[j].pickup = pickingPlan.item_picks[exPosOne].pickup;
+					break;
+				}
+
+				if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[exPosTwo].id)
+				{
+					pickingPlan.nodes[i].items[j].pickup = pickingPlan.item_picks[exPosTwo].pickup;
+					break;
+				}
+			}
+		}
+	}
+}
+
+__device__ void localSearchKernel(population& currentPopulation, parameters params, curandState* state)
+{
+	// Calculate global index of the threads for the 2D GRID
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index >= TOURS)
+	{
+		return;
+	}
+
+	curandState local_state = state[thread_global_index];
+
+	// Generate random probability
+	double probability = (double)curand(&local_state) / (double)RAND_MAX;
+	
+	if (probability < LOCAL_SEARCH_PROBABILITY)
+	{
+		tour testTour2Opt = currentPopulation.tours[thread_global_index];
+		twoOptSwapKernel(testTour2Opt, &local_state);
+		evaluateTour(testTour2Opt, params);
+
+		tour testTourFlip = currentPopulation.tours[thread_global_index];
+		flipKernel(testTourFlip, &local_state);
+		evaluateTour(testTourFlip, params);
+
+		tour testTourEx = currentPopulation.tours[thread_global_index];
+		exchangeKernel(testTourEx, &local_state);
+		evaluateTour(testTourEx, params);
+
+		if (testTour2Opt.fitness >= currentPopulation.tours[thread_global_index].fitness && testTour2Opt.fitness >= testTourFlip.fitness && testTour2Opt.fitness >= testTourEx.fitness)
+		{
+			currentPopulation.tours[thread_global_index] = testTour2Opt;
+		}
+
+		if (testTourFlip.fitness >= currentPopulation.tours[thread_global_index].fitness && testTourFlip.fitness >= testTour2Opt.fitness && testTourFlip.fitness >= testTourEx.fitness)
+		{
+			currentPopulation.tours[thread_global_index] = testTourFlip;
+		}
+
+		if (testTourEx.fitness >= currentPopulation.tours[thread_global_index].fitness && testTourEx.fitness >= testTour2Opt.fitness && testTourEx.fitness >= testTourFlip.fitness)
+		{
+			currentPopulation.tours[thread_global_index] = testTourEx;
+		}
+	}
+}
+
 #pragma endregion
 
 #pragma region HOST ONLY FUNCTIONS

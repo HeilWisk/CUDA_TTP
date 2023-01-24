@@ -89,7 +89,7 @@ __global__ void initializePopulationCuda(population* initialPopulation, tour ini
 	if (thread_global_index >= TOURS)
 		return;
 
-	curandState local_state = state[thread_global_index];	
+	curandState local_state = state[thread_global_index];
 
 	// Generate random pickup for the items in each node of the tour
 	for (int i = 1; i < CITIES; ++i)
