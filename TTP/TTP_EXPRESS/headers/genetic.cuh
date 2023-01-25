@@ -59,8 +59,7 @@ __device__ void tournamentSelectionDevice(population* population, tour* tourname
 	for (int t = 0; t < TOURNAMENT_SIZE; ++t)
 	{
 		// Gets random number from global random state on GPU
-		random_number = curand_uniform(d_state) * (TOURS - 1);
-		//printf("Thread %d - Random Position %d\n", thread_id, random_number);
+		random_number = curand(d_state) % (TOURS - 1);
 		if (population->tours[random_number].fitness > tournamentFitness)
 		{
 			tournamentFitness = population->tours[random_number].fitness;
@@ -68,7 +67,6 @@ __device__ void tournamentSelectionDevice(population* population, tour* tourname
 		}
 	}
 
-	//printf("Thread %d - Fittest Position %d\n", thread_id, fittestPosition);
 	// Evaluate the fittest tour on the tournament
 	parents[thread_id] = population->tours[fittestPosition];
 }

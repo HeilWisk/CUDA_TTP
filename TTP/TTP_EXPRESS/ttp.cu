@@ -261,6 +261,9 @@ __global__ void initCuRand(curandState* state, time_t seed)
 	// Global index of every thread on the grid
 	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
 
+	if (thread_global_index >= TOURS)
+		return;
+
 	curand_init(seed, thread_global_index, 0, &state[thread_global_index]);
 }
 
@@ -824,6 +827,7 @@ int main()
 	distance* device_distance;
 	curandState* device_states;
 	tour* device_tournament;
+	tour* device_offspring;
 
 	float milliseconds = 0;
 	cudaEvent_t start, stop;
@@ -831,7 +835,7 @@ int main()
 	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		// Create output file
-		char file_name[] = "CUDA_";
+		char file_name[200] = "CUDA_";
 		strcat(file_name, problem.name);
 		createFile(file_name);
 
@@ -860,18 +864,21 @@ int main()
 		// Allocate device memory for tournament selection
 		checkCudaErrors(cudaMalloc((void**)&device_tournament, sizeof(tour) * size_t(tour_size) * TOURNAMENT_SIZE));
 
+		// Reserve Memory for the descendants
+		checkCudaErrors(cudaMalloc((void**)&device_offspring, sizeof(tour)* size_t(tour_size)* TOURS));
+
 		/*************************************************************************************************
 		* COPY HOST MEMORY TO DEVICE
 		*************************************************************************************************/
 
 		// Copy node data
-		HANDLE_ERROR(cudaMemcpy(device_node_matrix, cpu_node, size_t(problem.cities_amount) * sizeof(node), cudaMemcpyHostToDevice));
+		checkCudaErrors(cudaMemcpy(device_node_matrix, cpu_node, size_t(problem.cities_amount) * sizeof(node), cudaMemcpyHostToDevice));
 
 		/*************************************************************************************************
 		* INITIALIZE RANDOM VALUES
 		*************************************************************************************************/
 		initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));
-		cudaDeviceSynchronize();
+		checkCudaErrors(cudaDeviceSynchronize());
 
 		checkCudaErrors(cudaEventRecord(stop));
 		checkCudaErrors(cudaEventSynchronize(stop));
@@ -939,7 +946,7 @@ int main()
 	* EVOLVE POPULATION
 	*************************************************************************************************/
 
-	tour fittestOnEarth;
+	tour fittestOnEarth;	
 
 	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
@@ -1006,21 +1013,17 @@ int main()
 				fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
-			cudaDeviceSynchronize();
+			checkCudaErrors(cudaDeviceSynchronize());
 			
 			// Copy Device Information to Host
-			cudaMemcpy(&host_parents, device_parents, sizeof(tour) * SELECTED_PARENTS, cudaMemcpyDeviceToHost);
-			cudaDeviceSynchronize();
+			checkCudaErrors(cudaMemcpy(&host_parents, device_parents, sizeof(tour) * SELECTED_PARENTS, cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaDeviceSynchronize());
 			
 			// Save Parents Information To File
 			saveParents(problem.name, host_parents, problem, i + 1, CUDA);
 			
 			// Decide the amount of descendants to generate
-			int cudaDescendants = getOffspringAmount(initial_population_gpu.tours);
-
-			// Reserve Memory for the descendants
-			tour* device_offspring;
-			checkCudaErrors(cudaMalloc((void**)&device_offspring, sizeof(tour)* size_t(tour_size)* cudaDescendants));
+			int cudaDescendants = getOffspringAmount(initial_population_gpu.tours);			
 
 			// Breed the population performing crossover (Combination of Ordered Crossover 
 			// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
@@ -1030,7 +1033,7 @@ int main()
 				fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
-			cudaDeviceSynchronize();
+			checkCudaErrors(cudaDeviceSynchronize());
 
 			// Perform local search (mutation)
 			localSearchKernel << <BLOCKS, THREADS >> > (device_population, problem, device_states);
@@ -1039,11 +1042,11 @@ int main()
 				fprintf(stderr, "Local Search Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
-			cudaDeviceSynchronize();
+			checkCudaErrors(cudaDeviceSynchronize());
 
 			// Copy Device Information to Host
-			cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost);
-			cudaDeviceSynchronize();
+			checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaDeviceSynchronize());
 
 			saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA);
 
@@ -1062,7 +1065,7 @@ int main()
 				if (fittestOnEarth.item_picks[i].id > 0)
 					printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
 			}
-			printf("\n\n");			
+			printf("\n\n");
 		}
 		
 		// CPU Genetic Algorithm
@@ -1135,6 +1138,7 @@ int main()
 		cudaFree(device_distance);
 		cudaFree(device_states);
 		cudaFree(device_tournament);
+		cudaFree(device_offspring);
 	}
 	return 0;
 }

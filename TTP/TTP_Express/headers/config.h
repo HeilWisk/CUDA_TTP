@@ -32,8 +32,8 @@
 #define CPU false
 #define CUDA true
 #define NO_CUDA false
-#define WRITE_BUFFER 200
-#define NAME_BUFFER 200
+#define WRITE_BUFFER 500
+#define NAME_BUFFER 500
 
 
 
