@@ -261,9 +261,6 @@ __global__ void initCuRand(curandState* state, time_t seed)
 	// Global index of every thread on the grid
 	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
 
-	if (thread_global_index >= TOURS)
-		return;
-
 	curand_init(seed, thread_global_index, 0, &state[thread_global_index]);
 }
 
@@ -502,25 +499,6 @@ __global__ void evaluatePopulation(population* population, parameters problem_pa
 /// 
 /// </summary>
 /// <param name="population"></param>
-/// <param name="randomState"></param>
-/// <param name="parents"></param>
-/// <returns></returns>
-__global__ void selection(population* population, curandState* randomState, tour* parents)
-{
-	// Get thread (particle) ID
-	int tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-	if (tid >= TOURS)
-		return;
-
-	parents[tid * 2] = tournamentSelection(*population, randomState, tid);
-	parents[tid * 2 + 1] = tournamentSelection(*population, randomState, tid);
-}
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="population"></param>
 /// <param name="parents"></param>
 /// <param name="randomState"></param>
 /// <param name="distanceTable"></param>
@@ -598,7 +576,7 @@ int main()
 	unsigned int population_size = POPULATION_SIZE;
 	unsigned int tour_size = TOURS;
 
-#pragma region PRINT GPU PROPERTIES
+#pragma region PRINT GRAPHICAL PROCESSING UNIT PROPERTIES
 
 	/****************************************************************************************************
 	* PRINT START OF THE PROGRAM
@@ -606,7 +584,7 @@ int main()
 	int deviceCount = 0;
 	cudaDeviceProp properties;
 	cudaError_t deviceErr = cudaGetDeviceCount(&deviceCount);
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		printf("****************************************************************************************\n");
 		printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
@@ -735,7 +713,7 @@ int main()
 	printf("AMOUNT OF EVOLUTIONS:			%d\n", NUM_EVOLUTIONS);
 	printf("****************************************************************************************\n");
 
-#pragma region POPULATION INITIALIZATION CPU
+#pragma region POPULATION INITIALIZATION CENTRAL PROCESSING UNIT
 
 	/*************************************************************************************************
 	* POPULATION INITIALIZATION ON HOST (CPU)
@@ -832,7 +810,7 @@ int main()
 
 #pragma endregion
 
-#pragma region POPULATION INITIALIZATION GPU
+#pragma region POPULATION INITIALIZATION GRAPHICAL PROCESSING UNIT
 
 	/*************************************************************************************************
 	* POPULATION INITIALIZATION ON DEVICE (GPU)
@@ -845,11 +823,12 @@ int main()
 	node* device_node_t_matrix;
 	distance* device_distance;
 	curandState* device_states;
+	tour* device_tournament;
 
 	float milliseconds = 0;
 	cudaEvent_t start, stop;
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		// Create output file
 		char file_name[] = "CUDA_";
@@ -865,18 +844,21 @@ int main()
 		*************************************************************************************************/
 
 		// Allocate device memory for population
-		HANDLE_ERROR(cudaMalloc((void**)&device_population, sizeof(population) * size_t(population_size)));
+		checkCudaErrors(cudaMalloc((void**)&device_population, sizeof(population) * size_t(population_size)));
 
 		// Allocate device memory for parents selected from tournament selection
-		HANDLE_ERROR(cudaMalloc((void**)&device_parents, sizeof(tour) * size_t(tour_size) * SELECTED_PARENTS));
+		checkCudaErrors(cudaMalloc((void**)&device_parents, sizeof(tour) * size_t(tour_size) * SELECTED_PARENTS));
 
 		// Allocate device memory for node matrix, node matrix transpose and distance matrix
-		HANDLE_ERROR(cudaMalloc(&device_node_matrix, size_t(problem.cities_amount) * sizeof(node)));
-		HANDLE_ERROR(cudaMalloc(&device_node_t_matrix, size_t(problem.cities_amount) * sizeof(node)));
-		HANDLE_ERROR(cudaMalloc(&device_distance, sizeof(distance) * CITIES * CITIES));
+		checkCudaErrors(cudaMalloc(&device_node_matrix, size_t(problem.cities_amount) * sizeof(node)));
+		checkCudaErrors(cudaMalloc(&device_node_t_matrix, size_t(problem.cities_amount) * sizeof(node)));
+		checkCudaErrors(cudaMalloc(&device_distance, sizeof(distance) * CITIES * CITIES));
 
 		// Allocate device memory for states
-		HANDLE_ERROR(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(problem.cities_amount)));
+		checkCudaErrors(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(problem.cities_amount)));
+
+		// Allocate device memory for tournament selection
+		checkCudaErrors(cudaMalloc((void**)&device_tournament, sizeof(tour) * size_t(tour_size) * TOURNAMENT_SIZE));
 
 		/*************************************************************************************************
 		* COPY HOST MEMORY TO DEVICE
@@ -916,9 +898,9 @@ int main()
 	}
 #pragma endregion
 
-#pragma region DISTANCE MATRIX GPU
+#pragma region DISTANCE MATRIX GRAPHICAL PROCESSING UNIT
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		/*************************************************************************************************
 		* CALCULATE DISTANCE MATRIX IN CUDA
@@ -957,57 +939,82 @@ int main()
 	* EVOLVE POPULATION
 	*************************************************************************************************/
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
+	tour fittestOnEarth;
+
+	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		// Figure out fitness and distance for each individual in population
 		evaluatePopulation << <BLOCKS, THREADS >> > (device_population, problem);
 		cudaDeviceSynchronize();
+
+		// Copy Device Information to Host
+		cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost);
+		cudaDeviceSynchronize();
+
+		fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
+		saveFittest(problem.name, fittestOnEarth, problem, 0, CUDA);
+		printf("FITTEST TOUR OF CUDA INITIAL POPULATION: \n");
+		printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
+		printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
+		for (int i = 1; i < CITIES + 1; ++i)
+			printf(" > %d", fittestOnEarth.nodes[i].id);
+		printf("\n");
+		printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
+		for (int i = 1; i < ITEMS; ++i)
+		{
+			if (fittestOnEarth.item_picks[i].id > 0)
+				printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
+		}
+		printf("\n\n");		
 	}
 
 	cudaError_t err = cudaSuccess;
 
-	tour* host_parents = (tour*)malloc(SELECTED_PARENTS * sizeof(tour));
-	if (host_parents == NULL) {
-		fprintf(stderr, "Out of Memory");
-		exit(0);
-	}
+	tour host_parents[SELECTED_PARENTS];
+	tour host_tournament[TOURNAMENT_SIZE];
 
-	tour fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
-	saveFittest(problem.name, fittestOnEarth, problem, 0, NO_CUDA);
-	printf("FITTEST TOUR OF INITIAL POPULATION: \n");
-	printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
-	printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
-	for (int i = 1; i < CITIES + 1; ++i)
-		printf(" > %d", fittestOnEarth.nodes[i].id);
-	printf("\n");
-	printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
-	for (int i = 1; i < ITEMS; ++i)
+	if (CPU)
 	{
-		if (fittestOnEarth.item_picks[i].id > 0)
-			printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
+		fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
+		saveFittest(problem.name, fittestOnEarth, problem, 0, NO_CUDA);
+		printf("FITTEST TOUR OF INITIAL POPULATION: \n");
+		printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
+		printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
+		for (int i = 1; i < CITIES + 1; ++i)
+			printf(" > %d", fittestOnEarth.nodes[i].id);
+		printf("\n");
+		printf("ITEMS: %d[%d]", fittestOnEarth.item_picks[0].id, fittestOnEarth.item_picks[0].pickup);
+		for (int i = 1; i < ITEMS; ++i)
+		{
+			if (fittestOnEarth.item_picks[i].id > 0)
+				printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
+		}
+		printf("\n\n");
 	}
-	printf("\n");
 
 	for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 	{
 		// GPU Genetic Algorithm
-		if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
+		if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 		{
+			printf("Iteration %d\n", i);
+			
 			// Select Parents For The Next Generation
-			selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_states);
+			selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_tournament, device_states);
 			err = cudaGetLastError();
 			if (err != cudaSuccess) {
 				fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
-
+			cudaDeviceSynchronize();
+			
 			// Copy Device Information to Host
 			cudaMemcpy(&host_parents, device_parents, sizeof(tour) * SELECTED_PARENTS, cudaMemcpyDeviceToHost);
 			cudaDeviceSynchronize();
-
+			
 			// Save Parents Information To File
 			saveParents(problem.name, host_parents, problem, i + 1, CUDA);
-
+			
 			// Decide the amount of descendants to generate
 			int cudaDescendants = getOffspringAmount(initial_population_gpu.tours);
 
@@ -1023,27 +1030,16 @@ int main()
 				fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
-			
-			// Assign descendants to the population
-			for (int b = 0; b < cudaDescendants; ++b)
-			{
-				for (int a = 0; a < TOURS; ++a)
-				{
-					if (device_population->tours[a].fitness < 0)
-					{
-						device_population->tours[a] = device_offspring[b];
-						break;
-					}
-				}
-			}
+			cudaDeviceSynchronize();
 
 			// Perform local search (mutation)
 			localSearchKernel << <BLOCKS, THREADS >> > (device_population, problem, device_states);
 			err = cudaGetLastError();
 			if (err != cudaSuccess) {
-				fprintf(stderr, "Mutation Kernel: %s\n", cudaGetErrorString(err));
+				fprintf(stderr, "Local Search Kernel: %s\n", cudaGetErrorString(err));
 				exit(0);
 			}
+			cudaDeviceSynchronize();
 
 			// Copy Device Information to Host
 			cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost);
@@ -1066,7 +1062,7 @@ int main()
 				if (fittestOnEarth.item_picks[i].id > 0)
 					printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
 			}
-			printf("\n");
+			printf("\n\n");			
 		}
 		
 		// CPU Genetic Algorithm
@@ -1083,6 +1079,8 @@ int main()
 			// Breed the population performing crossover (Combination of Ordered Crossover 
 			// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
 			crossover(initial_population_cpu, host_parents, descendants, problem);
+
+			//saveOffspring(problem.name, initial_population_cpu, problem, 666, NO_CUDA);
 
 			localSearch(initial_population_cpu, problem);
 
@@ -1103,11 +1101,11 @@ int main()
 				if (fittestOnEarth.item_picks[i].id > 0)
 					printf(" > %d[%d]", fittestOnEarth.item_picks[i].id, fittestOnEarth.item_picks[i].pickup);
 			}
-			printf("\n");
+			printf("\n\n");
 		}
 	}
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
@@ -1125,7 +1123,7 @@ int main()
 	*************************************************************************************************/
 	//printPopulation(initial_population_cpu);
 
-	if (deviceCount > 0 && deviceErr == cudaSuccess && !GPU)
+	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		/*************************************************************************************************
 		* RELEASE CUDA MEMORY
@@ -1136,6 +1134,7 @@ int main()
 		cudaFree(device_node_t_matrix);
 		cudaFree(device_distance);
 		cudaFree(device_states);
+		cudaFree(device_tournament);
 	}
 	return 0;
 }

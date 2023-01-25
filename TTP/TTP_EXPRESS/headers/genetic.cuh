@@ -31,41 +31,48 @@ __host__ __device__ tour getFittestTour(tour* tours, const int& population_size)
 
 #pragma region DEVICE ONLY UTILITIES
 
-/// <summary>
-/// Evaluates and returns the best tour on a tournament
-/// </summary>
-/// <param name="population">- Population to evaluate</param>
-/// <param name="d_state">- State for random generation</param>
-/// <param name="thread_id">- Thread Id of the executor thread</param>
-/// <param name="node_quantity">- Node quantity</param>
-/// <param name="item_quantity">- Item quantity</param>
-/// <returns></returns>
-__device__ tour tournamentSelection(population& population, curandState* d_state, const int& thread_id)
+__device__ int getFittestTourDevice(double* tours, const int& population_size)
 {
-	tour tournament[TOURNAMENT_SIZE];
+	// Set the default fittest tour
+	float fittest = tours[0];
+	int position = 0;
 
+	// Evaluates fitness of each tour in the array against the current fittest
+	for (int i = 0; i < population_size; ++i)
+	{
+		if (tours[i] >= fittest)
+		{
+			fittest = tours[i];
+			position = i;
+		}
+	}
+
+	// Return the position of the fittest tour on the array
+	return position;
+}
+
+__device__ void tournamentSelectionDevice(population* population, tour* tournament, tour* parents, curandState* d_state, int thread_id)
+{	
+	double tournamentFitness = 0;
+	int fittestPosition = 0;
 	int random_number;
 	for (int t = 0; t < TOURNAMENT_SIZE; ++t)
 	{
 		// Gets random number from global random state on GPU
-		random_number = curand_uniform(&d_state[thread_id]) * (TOURS - 1);
-		tournament[t] = population.tours[random_number];
+		random_number = curand_uniform(d_state) * (TOURS - 1);
+		//printf("Thread %d - Random Position %d\n", thread_id, random_number);
+		if (population->tours[random_number].fitness > tournamentFitness)
+		{
+			tournamentFitness = population->tours[random_number].fitness;
+			fittestPosition = random_number;
+		}
 	}
 
+	//printf("Thread %d - Fittest Position %d\n", thread_id, fittestPosition);
 	// Evaluate the fittest tour on the tournament
-	tour fittest_on_tournament = getFittestTour(tournament, TOURNAMENT_SIZE);
-
-	// Return the best tour on the population
-	return fittest_on_tournament;
+	parents[thread_id] = population->tours[fittestPosition];
 }
 
-/// <summary>
-/// Obtain the position of a node in a tour
-/// </summary>
-/// <param name="node">- Node to look for</param>
-/// <param name="tour">- Tour where to look</param>
-/// <param name="tour_size">- Tour Size</param>
-/// <returns></returns>
 __device__ int getIndexOfNode(node& node, tour& tour, const int& tour_size)
 {
 	for (int i = 0; i < tour_size; ++i)
@@ -76,12 +83,6 @@ __device__ int getIndexOfNode(node& node, tour& tour, const int& tour_size)
 	return -1;
 }
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="n"></param>
-/// <param name="tour"></param>
-/// <returns></returns>
 __device__ node getNode(int& n, tour& tour)
 {
 	for (int i = 0; i < CITIES; ++i)
@@ -96,14 +97,6 @@ __device__ node getNode(int& n, tour& tour)
 	return node();
 }
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="parent"></param>
-/// <param name="child"></param>
-/// <param name="current_node"></param>
-/// <param name="child_size"></param>
-/// <returns></returns>
 __device__ node getValidNextNode(tour& parent, tour& child, node& current_node, const int& child_size)
 {
 	node valid_node;
@@ -139,27 +132,7 @@ __device__ node getValidNextNode(tour& parent, tour& child, node& current_node, 
 	return node();
 }
 
-__device__ void selectionKernel(population& population, tour* parents, curandState* state)
-{
-	// Calculate global index of the threads for the 2D GRID
-	// Global index of every block on the grid
-	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
-	// Global index of every thread in block
-	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
-	// Number of thread per block
-	int threads_per_block = blockDim.x * blockDim.y;
-	// Global index of every thread on the grid
-	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
-
-	if (thread_global_index >= SELECTED_PARENTS)
-	{
-		return;
-	}
-	
-	parents[thread_global_index] = tournamentSelection(population, state, thread_global_index);
-}
-
-__device__ void orderedCrossoverKernel(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state)
+__device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state, int thread)
 {
 	// Get the total size of the tours
 	int size = CITIES + 1;
@@ -175,11 +148,11 @@ __device__ void orderedCrossoverKernel(tour* parents, int parentIndexOne, int pa
 		int tempNumber = randPosTwo;
 		randPosTwo = randPosOne;
 		randPosOne = tempNumber;
-	}
+	}	
 
 	// Instanciate child tour
 	int indexChild = randPosTwo % size;
-
+	
 	// Copy first and last position to child
 	childTour.nodes[0] = parents[parentIndexOne].nodes[0];
 	childTour.nodes[CITIES] = parents[parentIndexOne].nodes[CITIES];
@@ -188,6 +161,13 @@ __device__ void orderedCrossoverKernel(tour* parents, int parentIndexOne, int pa
 	for (int i = randPosOne; i < randPosTwo; ++i)
 	{
 		childTour.nodes[i] = parents[parentIndexOne].nodes[i];
+		for (int j = 0; j < ITEMS; ++j)
+		{
+			if (childTour.nodes[i].items[j].id > 0)
+			{
+				childTour.item_picks[(childTour.nodes[i].items[j].id - 1)].pickup = childTour.nodes[i].items[j].pickup;
+			}
+		}
 	}
 
 	// Iterate over each city in the parents tour
@@ -196,38 +176,54 @@ __device__ void orderedCrossoverKernel(tour* parents, int parentIndexOne, int pa
 
 	for (int j = 0; j < size; ++j)
 	{
-		// Get the index of the current city
-		currentCityIndex = (randPosTwo + j) % size;
+		indexChild = (randPosTwo + j) % size;
 
-		// Get the city at the current index in each of the two parent tours
-		currentCityInParentTwo = parents[parentIndexTwo].nodes[currentCityIndex].id;
-
-		// If child does not already contain the current city in parent two, add it
-		bool isPresentInChild = false;
-		for (int a = 0; a < size; ++a)
+		if (childTour.nodes[indexChild].id <= 0)
 		{
-			if (childTour.nodes[a].id == currentCityInParentTwo)
+			for (int k = 0; k < size; ++k)
 			{
-				isPresentInChild = true;
-				break;
-			}
-		}
+				// Get the index of the current city
+				currentCityIndex = (randPosTwo + k) % size;
 
-		if (!isPresentInChild)
-		{
-			childTour.nodes[indexChild] = parents[parentIndexTwo].nodes[currentCityIndex];
-			if (indexChild == size - 1)
-				indexChild = 0;
-			else
-				indexChild = indexChild + 1;
-		}
+				// Get the city at the current index in each of the two parent tours
+				currentCityInParentTwo = parents[parentIndexTwo].nodes[currentCityIndex].id;
+
+				// If child does not already contain the current city in parent two, add it
+				bool isPresentInChild = false;
+				for (int a = 0; a < size; ++a)
+				{
+					if (childTour.nodes[a].id == currentCityInParentTwo)
+					{
+						isPresentInChild = true;
+						break;
+					}
+				}
+
+				if (!isPresentInChild)
+				{
+					childTour.nodes[indexChild] = parents[parentIndexTwo].nodes[currentCityIndex];
+					for (int j = 0; j < ITEMS; ++j)
+					{
+						if (childTour.nodes[indexChild].items[j].id > 0)
+						{
+							childTour.item_picks[(childTour.nodes[indexChild].items[j].id - 1)].pickup = childTour.nodes[indexChild].items[j].pickup;
+						}
+					}
+					break;
+				}
+			}
+		}	
 	}
 }
 
-__device__ void onePointCrossoverKernel(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state)
+__device__ void onePointCrossoverDevice(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state, int thread)
 {
+	SHOW("Thread: %d - ChildTourOriginal = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup,childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
+	
 	// Choose a random position for cutting the picking plans of the parents
 	int cuttingPosition = (curand(state) % (ITEMS));
+
+	SHOW("Thread: %d - Parent 1 = %d|%d|%d|%d - Parent 2 = %d|%d|%d|%d - Cutting = %d\n", thread, parents[parentIndexOne].item_picks[0].pickup, parents[parentIndexOne].item_picks[1].pickup, parents[parentIndexOne].item_picks[2].pickup, parents[parentIndexOne].item_picks[3].pickup, parents[parentIndexTwo].item_picks[0].pickup, parents[parentIndexTwo].item_picks[1].pickup, parents[parentIndexTwo].item_picks[2].pickup, parents[parentIndexTwo].item_picks[3].pickup, cuttingPosition);
 
 	for (int i = 0; i < cuttingPosition; ++i)
 	{
@@ -266,59 +262,11 @@ __device__ void onePointCrossoverKernel(tour* parents, int parentIndexOne, int p
 			}
 		}
 	}
+
+	SHOW("Thread: %d - ChildTourNew = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
 }
 
-__device__ void crossoverKernel(population& population, tour* parents, tour* offspring, int offspringAmount, parameters params, curandState* state)
-{
-	// Calculate global index of the threads for the 2D GRID
-	// Global index of every block on the grid
-	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
-	// Global index of every thread in block
-	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
-	// Number of thread per block
-	int threads_per_block = blockDim.x * blockDim.y;
-	// Global index of every thread on the grid
-	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
-
-	if (thread_global_index >= offspringAmount)
-	{
-		return;
-	}
-
-	curandState local_state = state[thread_global_index];
-
-	// Select parents from the parents array
-	int parentIndexOne = curand(&local_state) % SELECTED_PARENTS;
-	int parentIndexTwo = curand(&local_state) % SELECTED_PARENTS;
-
-	//int* child = (int*)malloc(CITIES + 1 * sizeof(int));
-
-	// Generate unique offspring not already in solution
-	bool alreadyInPopulation = false;
-
-	do
-	{
-		// Generate child for the TSP Sub-Problem using ordered crossover
-		orderedCrossoverKernel(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state);
-
-		// Generate child for the KP Sub-Problem using one point crossover
-		onePointCrossoverKernel(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state);
-
-		// Evaluate the new child
-		evaluateTour(offspring[thread_global_index], params);
-
-		for (int f = 0; f < TOURS; ++f)
-		{
-			if (population.tours[f] == offspring[thread_global_index])
-			{
-				alreadyInPopulation = true;
-				break;
-			}
-		}
-	} while (alreadyInPopulation);
-}
-
-__device__ void flipKernel(tour& pickingPlan, curandState* state)
+__device__ void flipDevice(tour& pickingPlan, curandState* state)
 {
 	// Choose a random position for the flip
 	int flipPosition = (curand(state) % (ITEMS));
@@ -361,47 +309,40 @@ __device__ void flipKernel(tour& pickingPlan, curandState* state)
 	}
 }
 
-__device__ void twoOptSwapKernel(tour& tour, curandState* state)
+__device__ void twoOptSwapDevice(tour* baseTour, tour& twoOptTour, curandState* state, int thread)
 {
 	int posOne = (curand(state) % (CITIES - 1)) + 1;
 	int posTwo = (curand(state) % (CITIES - 1)) + 1;
-
-	// Instanciate new tour
-	node optTour[CITIES + 1];
 
 	// Make sure the two random numbers are different
 	do
 	{
 		posTwo = (curand(state) % (CITIES - 1)) + 1;
-	} while (posOne == posTwo);
+	} 
+	while (posOne == posTwo);	
 
 	// 1. Copy the segment of tour from tour[0] to tour[posOne- 1]
 	for (int i = 0; i <= posOne - 1; ++i)
 	{
-		optTour[i] = tour.nodes[i];
+		twoOptTour.nodes[i] = baseTour->nodes[i];
 	}
 
 	// 2. From tour[posOne] to tour[posTwo] add them to the optTour in reverse order
 	int dec = 0;
 	for (int c = posOne; c <= posTwo; ++c)
 	{
-		optTour[c] = tour.nodes[posTwo - dec];
+		twoOptTour.nodes[c] = baseTour->nodes[posTwo - dec];
 		dec = dec + 1;
 	}
 
 	// 3. Add the rest of the tour to optTour
 	for (int z = posTwo + 1; z < CITIES + 1; ++z)
 	{
-		optTour[z] = tour.nodes[z];
-	}
-
-	for (int a = 0; a < CITIES + 1; ++a)
-	{
-		tour.nodes[a] = optTour[a];
+		twoOptTour.nodes[z] = baseTour->nodes[z];
 	}
 }
 
-__device__ void exchangeKernel(tour& pickingPlan, curandState* state)
+__device__ void exchangeDevice(tour& pickingPlan, curandState* state)
 {
 	// Choose a random position for the flip
 	int exPosOne = (curand(state) % (ITEMS));
@@ -434,68 +375,10 @@ __device__ void exchangeKernel(tour& pickingPlan, curandState* state)
 	}
 }
 
-__device__ void localSearchKernel(population& currentPopulation, parameters params, curandState* state)
-{
-	// Calculate global index of the threads for the 2D GRID
-	// Global index of every block on the grid
-	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
-	// Global index of every thread in block
-	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
-	// Number of thread per block
-	int threads_per_block = blockDim.x * blockDim.y;
-	// Global index of every thread on the grid
-	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
-
-	if (thread_global_index >= TOURS)
-	{
-		return;
-	}
-
-	curandState local_state = state[thread_global_index];
-
-	// Generate random probability
-	double probability = (double)curand(&local_state) / (double)RAND_MAX;
-	
-	if (probability < LOCAL_SEARCH_PROBABILITY)
-	{
-		tour testTour2Opt = currentPopulation.tours[thread_global_index];
-		twoOptSwapKernel(testTour2Opt, &local_state);
-		evaluateTour(testTour2Opt, params);
-
-		tour testTourFlip = currentPopulation.tours[thread_global_index];
-		flipKernel(testTourFlip, &local_state);
-		evaluateTour(testTourFlip, params);
-
-		tour testTourEx = currentPopulation.tours[thread_global_index];
-		exchangeKernel(testTourEx, &local_state);
-		evaluateTour(testTourEx, params);
-
-		if (testTour2Opt.fitness >= currentPopulation.tours[thread_global_index].fitness && testTour2Opt.fitness >= testTourFlip.fitness && testTour2Opt.fitness >= testTourEx.fitness)
-		{
-			currentPopulation.tours[thread_global_index] = testTour2Opt;
-		}
-
-		if (testTourFlip.fitness >= currentPopulation.tours[thread_global_index].fitness && testTourFlip.fitness >= testTour2Opt.fitness && testTourFlip.fitness >= testTourEx.fitness)
-		{
-			currentPopulation.tours[thread_global_index] = testTourFlip;
-		}
-
-		if (testTourEx.fitness >= currentPopulation.tours[thread_global_index].fitness && testTourEx.fitness >= testTour2Opt.fitness && testTourEx.fitness >= testTourFlip.fitness)
-		{
-			currentPopulation.tours[thread_global_index] = testTourEx;
-		}
-	}
-}
-
 #pragma endregion
 
 #pragma region HOST ONLY FUNCTIONS
 
-/// <summary>
-/// Host Function for tournament selection
-/// </summary>
-/// <param name="population"></param>
-/// <returns></returns>
 __host__ tour tournamentSelection(population& population)
 {
 	tour fittest_on_tournament;
@@ -514,12 +397,6 @@ __host__ tour tournamentSelection(population& population)
 	return fittest_on_tournament;
 }
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="population"></param>
-/// <param name="parents"></param>
-/// <returns></returns>
 __host__ void selection(population &population, tour* parents)
 {
 	for (int i = 0; i < SELECTED_PARENTS; ++i)
@@ -547,21 +424,16 @@ __host__ void orderedCrossover(int* childNode, tour* parents, int parentIndexOne
 	}
 
 	// Instanciate child tour
-	int child[CITIES + 1];
 	int indexChild = randPosTwo % size;
 
 	// Copy first and last position to child
-	child[0] = parents[parentIndexOne].nodes[0].id;
-	childTour.nodes[0] = parents[parentIndexOne].nodes[0]; //Test
-
-	child[CITIES] = parents[parentIndexOne].nodes[CITIES].id;
-	childTour.nodes[CITIES] = parents[parentIndexOne].nodes[CITIES]; //Test
+	childTour.nodes[0] = parents[parentIndexOne].nodes[0];
+	childTour.nodes[CITIES] = parents[parentIndexOne].nodes[CITIES];
 
 	// Add the sublist in between the start and the end points to the children
 	for (int i = randPosOne; i < randPosTwo; ++i)
 	{
-		child[i] = parents[parentIndexOne].nodes[i].id;
-		childTour.nodes[i] = parents[parentIndexOne].nodes[i]; //Test
+		childTour.nodes[i] = parents[parentIndexOne].nodes[i];
 	}
 
 	// Iterate over each city in the parents tour
@@ -570,38 +442,36 @@ __host__ void orderedCrossover(int* childNode, tour* parents, int parentIndexOne
 
 	for (int j = 0; j < size; ++j)
 	{
-		// Get the index of the current city
-		currentCityIndex = (randPosTwo + j) % size;
+		indexChild = (randPosTwo + j) % size;
 
-		// Get the city at the current index in each of the two parent tours
-		currentCityInParentTwo = parents[parentIndexTwo].nodes[currentCityIndex].id;
-
-		// If child does not already contain the current city in parent two, add it
-		bool isPresentInChild = false;
-		for (int a = 0; a < size; ++a)
+		if (childTour.nodes[indexChild].id < 0)
 		{
-			if (child[a] == currentCityInParentTwo && childTour.nodes[a].id == currentCityInParentTwo)
+			for (int k = 0; k < size; ++k)
 			{
-				isPresentInChild = true;
-				break;
+				// Get the index of the current city
+				currentCityIndex = (randPosTwo + k) % size;
+
+				// Get the city at the current index in each of the two parent tours
+				currentCityInParentTwo = parents[parentIndexTwo].nodes[currentCityIndex].id;
+
+				// If child does not already contain the current city in parent two, add it
+				bool isPresentInChild = false;
+				for (int a = 0; a < size; ++a)
+				{
+					if (childTour.nodes[a].id == currentCityInParentTwo)
+					{
+						isPresentInChild = true;
+						break;
+					}
+				}
+
+				if (!isPresentInChild)
+				{
+					childTour.nodes[indexChild] = parents[parentIndexTwo].nodes[currentCityIndex];
+					break;
+				}
 			}
 		}
-
-		if (!isPresentInChild)
-		{
-			child[indexChild] = currentCityInParentTwo;
-			childTour.nodes[indexChild] = parents[parentIndexTwo].nodes[currentCityIndex]; //Test
-			if (indexChild == size - 1)
-				indexChild = 0;
-			else
-				indexChild = indexChild + 1;
-		}
-	}
-
-	// Assign the resulting child to the tour
-	for (int f = 0; f < size; ++f)
-	{
-		childNode[f] = child[f];
 	}
 }
 
@@ -794,14 +664,14 @@ __host__ int getOffspringAmount(tour* solutions)
 
 __host__ void crossover(population& population, tour* parents, int offspringAmount, parameters params)
 {
-	tour* childs = (tour*)malloc(offspringAmount * sizeof(tour));
+	tour* childs = (tour*)malloc(TOURS * sizeof(tour));
 	if (childs == NULL)
 	{
 		fprintf(stderr, "Out of Memory in function crossover");
 		exit(0);
 	}
 
-	for (int o = 0; o < offspringAmount; ++o)
+	for (int o = 0; o < TOURS; ++o)
 	{
 		// Select parents from the parents array
 		int parentIndexOne = rand() % SELECTED_PARENTS;
@@ -832,9 +702,14 @@ __host__ void crossover(population& population, tour* parents, int offspringAmou
 				}
 			}
 		} while (alreadyInPopulation);
+
+		if (population.tours[o].fitness < 0)
+		{
+			population.tours[o] = childs[o];
+		}
 	}
 
-	for (int b = 0; b < offspringAmount; ++b)
+	/*for (int b = 0; b < offspringAmount; ++b)
 	{
 		for (int a = 0; a < TOURS; ++a)
 		{
@@ -844,7 +719,7 @@ __host__ void crossover(population& population, tour* parents, int offspringAmou
 				break;
 			}
 		}
-	}
+	}*/
 }
 
 __host__ void localSearch(population& currentPopulation, parameters params)
@@ -884,4 +759,149 @@ __host__ void localSearch(population& currentPopulation, parameters params)
 	}
 }
 
+#pragma endregion
+
+#pragma region KERNELS
+
+__global__ void selectionKernel(population* population, tour* parents, tour* tournament, curandState* state)
+{
+	// Calculate global index of the threads for the 2D GRID
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index >= SELECTED_PARENTS)
+	{
+		return;
+	}
+
+	curandState local_state = state[thread_global_index];
+	tournamentSelectionDevice(population, tournament, parents, &local_state, thread_global_index);
+}
+
+__global__ void crossoverKernel(population* population, tour* parents, tour* offspring, int offspringAmount, parameters params, curandState* state)
+{
+	// Calculate global index of the threads for the 2D GRID
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index >= TOURS)
+	{
+		return;
+	}
+
+	if (population->tours[thread_global_index].fitness < 0)
+	{
+		curandState local_state = state[thread_global_index];
+
+		// Select parents from the parents array
+		int parentIndexOne = curand(&local_state) % SELECTED_PARENTS;
+		int parentIndexTwo = curand(&local_state) % SELECTED_PARENTS;
+
+		// Generate unique offspring not already in solution
+		bool alreadyInPopulation = false;
+
+		do
+		{
+			// Generate child for the TSP Sub-Problem using ordered crossover
+			orderedCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+
+			// Generate child for the KP Sub-Problem using one point crossover
+			onePointCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+
+			// Evaluate the new child
+			evaluateTour(offspring[thread_global_index], params);
+
+			for (int f = 0; f < TOURS; ++f)
+			{
+				if (population->tours[f] == offspring[thread_global_index])
+				{
+					alreadyInPopulation = true;
+					break;
+				}
+			}
+		} while (alreadyInPopulation);
+	}
+	else
+	{
+		offspring[thread_global_index] = population->tours[thread_global_index];
+	}
+
+	population->tours[thread_global_index] = offspring[thread_global_index];
+}
+
+__global__ void localSearchKernel(population* currentPopulation, parameters params, curandState* state)
+{
+	// Calculate global index of the threads for the 2D GRID
+	// Global index of every block on the grid
+	int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+	if (thread_global_index >= TOURS)
+	{
+		return;
+	}
+
+	curandState local_state = state[thread_global_index];
+
+	// Generate random probability
+	double probability = curand_uniform_double(&local_state);
+
+	SHOW("Thread %d - PROBABILITY = %f\n", thread_global_index, probability);
+
+	if (probability < LOCAL_SEARCH_PROBABILITY)
+	{
+		tour testTour2Opt = currentPopulation->tours[thread_global_index];
+		twoOptSwapDevice(&currentPopulation->tours[thread_global_index], testTour2Opt, &local_state, thread_global_index);
+		evaluateTour(testTour2Opt, params);
+
+		SHOW("Thread %d - Tour2Opt = %f - Tour = %f\n", thread_global_index, testTour2Opt.fitness, currentPopulation->tours[thread_global_index].fitness);
+
+		tour testTourFlip = currentPopulation->tours[thread_global_index];
+		flipDevice(testTourFlip, &local_state);
+		evaluateTour(testTourFlip, params);
+
+		SHOW("Thread %d - TourFlip = %f - Tour = %f\n", thread_global_index, testTourFlip.fitness, currentPopulation->tours[thread_global_index].fitness);
+
+		tour testTourEx = currentPopulation->tours[thread_global_index];
+		exchangeDevice(testTourEx, &local_state);
+		evaluateTour(testTourEx, params);
+
+		SHOW("Thread %d - TourEx = %f - Tour = %f\n", thread_global_index, testTourEx.fitness, currentPopulation->tours[thread_global_index].fitness);
+
+		SHOW("Thread %d - Tour2Opt = %f - TourFlip = %f - TourEx = %f - Tour = %f\n", thread_global_index, testTour2Opt.fitness, testTourFlip.fitness, testTourEx.fitness, currentPopulation->tours[thread_global_index].fitness);
+
+		if (testTour2Opt.fitness >= currentPopulation->tours[thread_global_index].fitness && testTour2Opt.fitness >= testTourFlip.fitness && testTour2Opt.fitness >= testTourEx.fitness)
+		{
+			currentPopulation->tours[thread_global_index] = testTour2Opt;
+		}
+
+		if (testTourFlip.fitness >= currentPopulation->tours[thread_global_index].fitness && testTourFlip.fitness >= testTour2Opt.fitness && testTourFlip.fitness >= testTourEx.fitness)
+		{
+			currentPopulation->tours[thread_global_index] = testTourFlip;
+		}
+
+		if (testTourEx.fitness >= currentPopulation->tours[thread_global_index].fitness && testTourEx.fitness >= testTour2Opt.fitness && testTourEx.fitness >= testTourFlip.fitness)
+		{
+			currentPopulation->tours[thread_global_index] = testTourEx;
+		}
+	}
+}
+	
 #pragma endregion

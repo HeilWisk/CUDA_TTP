@@ -21,7 +21,7 @@
 #define ITEMS_PER_CITY 1
 
 // Other
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define SHOW printf
 #else
@@ -29,7 +29,7 @@
 #endif // DEBUG
 
 #define GPU true
-#define CPU true
+#define CPU false
 #define CUDA true
 #define NO_CUDA false
 #define WRITE_BUFFER 200
