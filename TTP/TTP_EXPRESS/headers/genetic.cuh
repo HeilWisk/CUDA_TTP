@@ -31,27 +31,7 @@ __host__ __device__ tour getFittestTour(tour* tours, const int& population_size)
 
 #pragma region DEVICE ONLY UTILITIES
 
-__device__ int getFittestTourDevice(double* tours, const int& population_size)
-{
-	// Set the default fittest tour
-	float fittest = tours[0];
-	int position = 0;
-
-	// Evaluates fitness of each tour in the array against the current fittest
-	for (int i = 0; i < population_size; ++i)
-	{
-		if (tours[i] >= fittest)
-		{
-			fittest = tours[i];
-			position = i;
-		}
-	}
-
-	// Return the position of the fittest tour on the array
-	return position;
-}
-
-__device__ void tournamentSelectionDevice(population* population, tour* tournament, tour* parents, curandState* d_state, int thread_id)
+__device__ void tournamentSelectionDevice(population* population, tour* parents, curandState* d_state, int thread_id)
 {	
 	double tournamentFitness = 0;
 	int fittestPosition = 0;
@@ -69,65 +49,6 @@ __device__ void tournamentSelectionDevice(population* population, tour* tourname
 
 	// Evaluate the fittest tour on the tournament
 	parents[thread_id] = population->tours[fittestPosition];
-}
-
-__device__ int getIndexOfNode(node& node, tour& tour, const int& tour_size)
-{
-	for (int i = 0; i < tour_size; ++i)
-	{
-		if (node == tour.nodes[i])
-			return i;
-	}
-	return -1;
-}
-
-__device__ node getNode(int& n, tour& tour)
-{
-	for (int i = 0; i < CITIES; ++i)
-	{
-		if (tour.nodes[i].id == n)
-			return tour.nodes[i];
-	}
-
-	printf("%d, %d", blockIdx.x, threadIdx.x);
-	printf("Could not find node %d in this tour: ", n);
-	printTour(tour, CITIES);
-	return node();
-}
-
-__device__ node getValidNextNode(tour& parent, tour& child, node& current_node, const int& child_size)
-{
-	node valid_node;
-	int index_of_current_node = getIndexOfNode(current_node, parent, CITIES);
-
-	// Search for first valid node (not already a child) occurring after current_node location in parent tour
-	for (int i = index_of_current_node + 1; i < CITIES; ++i)
-	{
-		// If not in chlid already, select it
-		if (getIndexOfNode(parent.nodes[i], child, child_size) == -1)
-			return parent.nodes[i];
-	}
-
-	// Loop through node ids [1...Amount of Nodes] and find first valid node to choose as a next point in construction of child tour
-	for (int i = 1; i < CITIES; ++i)
-	{
-		bool in_tour_already = false;
-		for (int j = 1; j < child_size; ++j)
-		{
-			if (child.nodes[j].id == i)
-			{
-				in_tour_already = true;
-				break;
-			}
-		}
-
-		if (!in_tour_already)
-			return getNode(i, parent);
-	}
-
-	// if there is an error
-	printf("No valid city was found\n\n");
-	return node();
 }
 
 __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state, int thread)
@@ -403,7 +324,7 @@ __host__ void selection(population &population, tour* parents)
 	}
 }
 
-__host__ void orderedCrossover(int* childNode, tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour)
+__host__ void orderedCrossover(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour)
 {
 	// Get the total size of the tours
 	int size = CITIES + 1;
@@ -675,15 +596,13 @@ __host__ void crossover(population& population, tour* parents, int offspringAmou
 		int parentIndexOne = rand() % SELECTED_PARENTS;
 		int parentIndexTwo = rand() % SELECTED_PARENTS;
 
-		int* child = (int*)malloc(CITIES + 1 * sizeof(int));
-
 		// Generate unique offspring not already in solution
 		bool alreadyInPopulation = false;
 
 		do
 		{
 			// Generate child for the TSP Sub-Problem using ordered crossover
-			orderedCrossover(child, parents, parentIndexOne, parentIndexTwo, childs[o]);
+			orderedCrossover(parents, parentIndexOne, parentIndexTwo, childs[o]);
 
 			// Generate child for the KP Sub-Problem using one point crossover
 			onePointCrossover(parents, parentIndexOne, parentIndexTwo, childs[o].item_picks, childs[o]);
@@ -706,18 +625,6 @@ __host__ void crossover(population& population, tour* parents, int offspringAmou
 			population.tours[o] = childs[o];
 		}
 	}
-
-	/*for (int b = 0; b < offspringAmount; ++b)
-	{
-		for (int a = 0; a < TOURS; ++a)
-		{
-			if (population.tours[a].fitness < 0)
-			{
-				population.tours[a] = childs[b];
-				break;
-			}
-		}
-	}*/
 }
 
 __host__ void localSearch(population& currentPopulation, parameters params)
@@ -761,7 +668,7 @@ __host__ void localSearch(population& currentPopulation, parameters params)
 
 #pragma region KERNELS
 
-__global__ void selectionKernel(population* population, tour* parents, tour* tournament, curandState* state)
+__global__ void selectionKernel(population* population, tour* parents, curandState* state)
 {
 	// Calculate global index of the threads for the 2D GRID
 	// Global index of every block on the grid
@@ -779,7 +686,8 @@ __global__ void selectionKernel(population* population, tour* parents, tour* tou
 	}
 
 	curandState local_state = state[thread_global_index];
-	tournamentSelectionDevice(population, tournament, parents, &local_state, thread_global_index);
+
+	tournamentSelectionDevice(population, parents, &local_state, thread_global_index);
 }
 
 __global__ void crossoverKernel(population* population, tour* parents, tour* offspring, int offspringAmount, parameters params, curandState* state)

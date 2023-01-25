@@ -498,67 +498,6 @@ __global__ void evaluatePopulation(population* population, parameters problem_pa
 	evaluateTour(population->tours[tid], problem_parameters);
 }
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="population"></param>
-/// <param name="parents"></param>
-/// <param name="randomState"></param>
-/// <param name="distanceTable"></param>
-/// <param name="index"></param>
-/// <returns></returns>
-__global__ void crossover(population* population, tour* parents, curandState* randomState, distance* distanceTable, int index)
-{
-	// Get thread (particle) ID
-	int tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-	if (tid >= TOURS)
-		return;
-
-	population->tours[tid].nodes[0] = parents[2 * tid].nodes[0];
-
-	node nodeOne = getValidNextNode(parents[tid * 2], population->tours[tid], population->tours[tid].nodes[index - 1], index);
-	node nodeTwo = getValidNextNode(parents[tid * 2 + 1], population->tours[tid], population->tours[tid].nodes[index - 1], index);
-
-	// Compare the two nodes from parents to the last node that was chosen in the child
-	if (distanceTable[nodeOne.id * CITIES + population->tours[tid].nodes[index - 1].id].value <= distanceTable[nodeTwo.id * CITIES + population->tours[tid].nodes[index - 1].id].value)
-		population->tours[tid].nodes[index] = nodeOne;
-	else
-		population->tours[tid].nodes[index] = nodeTwo;
-}
-
-/// <summary>
-/// Kernel to perform mutation (Swap to random nodes)
-/// </summary>
-/// <param name="population"></param>
-/// <param name="randomState"></param>
-/// <returns></returns>
-__global__ void mutation(population* population, curandState* randomState)
-{
-	// Get thread (particle) ID
-	int tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-	if (tid >= TOURS)
-		return;
-
-	// Pick a radom number between zero (0) and one (1)
-	curandState localState = randomState[tid];
-
-	// Only mutate by random chance: If random number is less than the mutation rate the mutation is executed (swap to nodes)
-	if (curand_uniform(&localState) < MUTATION_RATE)
-	{
-		// Don´t mutate the first node in the route
-		int random_number_one = 1 + curand_uniform(&localState) * (CITIES - 1.000001);
-		int random_number_two = 1 + curand_uniform(&localState) * (CITIES - 1.000001);
-
-		node temp_node = population->tours[tid].nodes[random_number_one];
-		population->tours[tid].nodes[random_number_one] = population->tours[tid].nodes[random_number_two];
-		population->tours[tid].nodes[random_number_two] = temp_node;
-
-		randomState[tid] = localState;
-	}
-}
-
 int main()
 {
 	/****************************************************************************************************
@@ -825,8 +764,7 @@ int main()
 	node* device_node_matrix;
 	node* device_node_t_matrix;
 	distance* device_distance;
-	curandState* device_states;
-	tour* device_tournament;
+	curandState* device_states;	
 	tour* device_offspring;
 
 	float milliseconds = 0;
@@ -860,9 +798,6 @@ int main()
 
 		// Allocate device memory for states
 		checkCudaErrors(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(problem.cities_amount)));
-
-		// Allocate device memory for tournament selection
-		checkCudaErrors(cudaMalloc((void**)&device_tournament, sizeof(tour) * size_t(tour_size) * TOURNAMENT_SIZE));
 
 		// Reserve Memory for the descendants
 		checkCudaErrors(cudaMalloc((void**)&device_offspring, sizeof(tour)* size_t(tour_size)* TOURS));
@@ -1007,7 +942,7 @@ int main()
 			printf("Iteration %d\n", i);
 			
 			// Select Parents For The Next Generation
-			selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_tournament, device_states);
+			selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_states);
 			err = cudaGetLastError();
 			if (err != cudaSuccess) {
 				fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
@@ -1137,7 +1072,6 @@ int main()
 		cudaFree(device_node_t_matrix);
 		cudaFree(device_distance);
 		cudaFree(device_states);
-		cudaFree(device_tournament);
 		cudaFree(device_offspring);
 	}
 	return 0;

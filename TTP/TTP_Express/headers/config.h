@@ -29,7 +29,7 @@
 #endif // DEBUG
 
 #define GPU true
-#define CPU false
+#define CPU true
 #define CUDA true
 #define NO_CUDA false
 #define WRITE_BUFFER 500
