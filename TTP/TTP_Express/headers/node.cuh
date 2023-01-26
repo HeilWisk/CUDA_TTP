@@ -58,7 +58,7 @@ struct node {
 
 		for (int i = 0; i < ITEMS; ++i)
 		{
-			if (items[i].id != var.items[i].id || items[i].value != var.items[i].value || items[i].weight != var.items[i].weight || items[i].pw_ratio != var.items[i].pw_ratio || items[i].node != var.items[i].node)
+			if (items[i].id != var.items[i].id || items[i].value != var.items[i].value || items[i].weight != var.items[i].weight || items[i].node != var.items[i].node)
 				result = false;
 		}
 		return result;
@@ -164,7 +164,6 @@ void assignItems(item* items, node* nodes)
 					nodes[n].items[node_index].value = items[s].value;
 					nodes[n].items[node_index].weight = items[s].weight;
 					nodes[n].items[node_index].node = items[s].node;
-					nodes[n].items[node_index].pw_ratio = items[s].value / items[s].weight;
 					node_index++;
 				}
 			}

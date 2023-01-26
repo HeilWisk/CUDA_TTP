@@ -257,7 +257,6 @@ void defineInitialTour(tour& initial_tour, parameters& params, node* nodes, item
 			initial_tour.nodes[n].items[i].value = nodes[n].items[i].value;
 			initial_tour.nodes[n].items[i].weight = nodes[n].items[i].weight;
 			initial_tour.nodes[n].items[i].node = nodes[n].items[i].node;
-			initial_tour.nodes[n].items[i].pw_ratio = nodes[n].items[i].value / nodes[n].items[i].weight;
 		}
 		params.cities[n] = initial_tour.nodes[n];
 	}

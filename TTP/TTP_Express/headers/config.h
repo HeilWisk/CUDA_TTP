@@ -1,11 +1,9 @@
 // Kernel Config
 #define BLOCKS 1
 #define THREADS 100
-#define ISLANDS BLOCKS * THREADS
 #define BLOCK_SIZE 16 // Validate
 
 // Genetic Algorithm Config
-#define MUTATION_RATE 0.05
 #define NUM_EVOLUTIONS 100
 #define TOURNAMENT_SIZE 50
 #define SELECTED_PARENTS 4

@@ -288,7 +288,6 @@ __global__ void tourTest(tour* tour, int tour_size)
 			{
 				printf(" > tour[%d].nodes[%d].items[%d].id: %d\n", t, n, i, tour[t].nodes[n].items[i].id);
 				printf(" > tour[%d].nodes[%d].items[%d].node: %d\n", t, n, i, tour[t].nodes[n].items[i].node);
-				printf(" > tour[%d].nodes[%d].items[%d].pw_ratio: %f\n", t, n, i, tour[t].nodes[n].items[i].pw_ratio);
 				printf(" > tour[%d].nodes[%d].items[%d].value: %f\n", t, n, i, tour[t].nodes[n].items[i].value);
 				printf(" > tour[%d].nodes[%d].items[%d].weight: %f\n", t, n, i, tour[t].nodes[n].items[i].weight);
 			}
@@ -323,7 +322,6 @@ __global__ void populationTest(population* population)
 						{
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].id: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].id);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].node: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].node);
-							printf(" > population[%d].tours[%d].nodes[%d].items[%d].pw_ratio: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].pw_ratio);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].value: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].value);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].weight: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].weight);
 						}
@@ -887,11 +885,11 @@ int main()
 	{
 		// Figure out fitness and distance for each individual in population
 		evaluatePopulation << <BLOCKS, THREADS >> > (device_population, problem);
-		cudaDeviceSynchronize();
+		checkCudaErrors(cudaDeviceSynchronize());
 
 		// Copy Device Information to Host
-		cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost);
-		cudaDeviceSynchronize();
+		checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+		checkCudaErrors(cudaDeviceSynchronize());
 
 		fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
 		saveFittest(problem.name, fittestOnEarth, problem, 0, CUDA);
@@ -955,14 +953,11 @@ int main()
 			checkCudaErrors(cudaDeviceSynchronize());
 			
 			// Save Parents Information To File
-			saveParents(problem.name, host_parents, problem, i + 1, CUDA);
-			
-			// Decide the amount of descendants to generate
-			int cudaDescendants = getOffspringAmount(initial_population_gpu.tours);			
+			saveParents(problem.name, host_parents, problem, i + 1, CUDA);		
 
 			// Breed the population performing crossover (Combination of Ordered Crossover 
 			// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-			crossoverKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_offspring, cudaDescendants, problem, device_states);
+			crossoverKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_offspring, problem, device_states);
 			err = cudaGetLastError();
 			if (err != cudaSuccess) {
 				fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
@@ -1011,12 +1006,9 @@ int main()
 
 			saveParents(problem.name, host_parents, problem, i + 1, NO_CUDA);
 
-			// Decide the amount of descendants to generate
-			int descendants = getOffspringAmount(initial_population_cpu.tours);
-
 			// Breed the population performing crossover (Combination of Ordered Crossover 
 			// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-			crossover(initial_population_cpu, host_parents, descendants, problem);
+			crossover(initial_population_cpu, host_parents, problem);
 
 			//saveOffspring(problem.name, initial_population_cpu, problem, 666, NO_CUDA);
 

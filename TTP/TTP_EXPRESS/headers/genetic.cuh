@@ -581,7 +581,7 @@ __host__ int getOffspringAmount(tour* solutions)
 	return TOURS - offspringAmount;
 }
 
-__host__ void crossover(population& population, tour* parents, int offspringAmount, parameters params)
+__host__ void crossover(population& population, tour* parents, parameters params)
 {
 	tour* childs = (tour*)malloc(TOURS * sizeof(tour));
 	if (childs == NULL)
@@ -690,7 +690,7 @@ __global__ void selectionKernel(population* population, tour* parents, curandSta
 	tournamentSelectionDevice(population, parents, &local_state, thread_global_index);
 }
 
-__global__ void crossoverKernel(population* population, tour* parents, tour* offspring, int offspringAmount, parameters params, curandState* state)
+__global__ void crossoverKernel(population* population, tour* parents, tour* offspring, parameters params, curandState* state)
 {
 	// Calculate global index of the threads for the 2D GRID
 	// Global index of every block on the grid
