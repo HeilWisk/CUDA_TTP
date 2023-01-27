@@ -73,6 +73,7 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 	// Instanciate child tour
 	int indexChild = randPosTwo % size;
 
+	//printf("thread %d - index %d - id %d - x %f - y %f\n", thread, indexChild, childTour.nodes[indexChild].id, childTour.nodes[indexChild].x, childTour.nodes[indexChild].y);
 	//printf("thread %d - posone %d - postwo %d - index %d\n", thread, randPosOne, randPosTwo, indexChild);
 	
 	// Copy first and last position to child
@@ -92,6 +93,8 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 		}
 	}
 
+	//printf("thread %d - index %d - id %d - x %f - y %f\n", thread, indexChild, childTour.nodes[indexChild].id, childTour.nodes[indexChild].x, childTour.nodes[indexChild].y);
+
 	// Iterate over each city in the parents tour
 	int currentCityIndex = 0;
 	int currentCityInParentTwo = 0;
@@ -100,7 +103,9 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 	{
 		indexChild = (randPosTwo + j) % size;
 
-		if (childTour.nodes[indexChild].id >= 0)
+		//printf("thread %d - index %d - id %d - x %f - y %f\n", thread, indexChild, childTour.nodes[indexChild].id, childTour.nodes[indexChild].x, childTour.nodes[indexChild].y);
+
+		if (childTour.nodes[indexChild].id < 0)
 		{
 			for (int k = 0; k < size; ++k)
 			{
@@ -136,22 +141,22 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 			}
 		}	
 	}
+
+	//printf("thread %d - posone %d - postwo %d - index %d - first node id %d\n", thread, randPosOne, randPosTwo, indexChild, childTour.nodes[0].id);
 }
 
 __device__ void onePointCrossoverDevice(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state, int thread)
 {
-	/*if (thread == THREAD_EVOLUTION)
-	{
-		SHOW("Thread: %d - ChildTourOriginal = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
-	}*/
+	
+	//printf("Thread: %d - ChildTourOriginal = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
+	
 	
 	// Choose a random position for cutting the picking plans of the parents
 	int cuttingPosition = (curand(state) % (ITEMS));
 
-	/*if (thread == THREAD_EVOLUTION)
-	{
-		SHOW("Thread: %d - Parent 1 = %d|%d|%d|%d - Parent 2 = %d|%d|%d|%d - Cutting = %d\n", thread, parents[parentIndexOne].item_picks[0].pickup, parents[parentIndexOne].item_picks[1].pickup, parents[parentIndexOne].item_picks[2].pickup, parents[parentIndexOne].item_picks[3].pickup, parents[parentIndexTwo].item_picks[0].pickup, parents[parentIndexTwo].item_picks[1].pickup, parents[parentIndexTwo].item_picks[2].pickup, parents[parentIndexTwo].item_picks[3].pickup, cuttingPosition);
-	}*/
+	
+	//printf("Thread: %d - Parent 1 = %d|%d|%d|%d - Parent 2 = %d|%d|%d|%d - Cutting = %d\n", thread, parents[parentIndexOne].item_picks[0].pickup, parents[parentIndexOne].item_picks[1].pickup, parents[parentIndexOne].item_picks[2].pickup, parents[parentIndexOne].item_picks[3].pickup, parents[parentIndexTwo].item_picks[0].pickup, parents[parentIndexTwo].item_picks[1].pickup, parents[parentIndexTwo].item_picks[2].pickup, parents[parentIndexTwo].item_picks[3].pickup, cuttingPosition);
+	
 
 	for (int i = 0; i < cuttingPosition; ++i)
 	{
@@ -191,10 +196,7 @@ __device__ void onePointCrossoverDevice(tour* parents, int parentIndexOne, int p
 		}
 	}
 
-	/*if (thread == THREAD_EVOLUTION)
-	{
-		SHOW("Thread: %d - ChildTourNew = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
-	}*/
+	//printf("Thread: %d - ChildTourNew = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);	
 }
 
 __device__ void flipDevice(tour& pickingPlan, curandState* state)
@@ -720,6 +722,8 @@ __global__ void crossoverKernel(population* population, tour* parents, tour* off
 
 	// Generate unique offspring not already in solution
 	bool alreadyInPopulation = false;
+
+	offspring[thread_global_index] = tour();
 
 	//printf("population->tours[%d].fitness = %f \n", thread_global_index, population->tours[thread_global_index].fitness);
 
