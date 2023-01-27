@@ -59,7 +59,7 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 				}					
 				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", pop.tours[i].nodes[j].id);
 
-				for (int k = 0; k < problem.items_amount; ++k)
+				for (int k = 0; k < problem.items_per_city; ++k)
 				{
 					if (pop.tours[i].nodes[j].items[k].id > 0)
 					{
@@ -115,7 +115,7 @@ int saveOffspring(char* name, population& pop, parameters& problem, int generati
 				}
 				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", pop.tours[i].nodes[j].id);
 
-				for (int k = 0; k < problem.items_amount; ++k)
+				for (int k = 0; k < problem.items_per_city; ++k)
 				{
 					if (pop.tours[i].nodes[j].items[k].id > 0)
 					{
@@ -171,7 +171,7 @@ int saveParents(char* name, tour* parents, parameters& problem, int generation, 
 				}
 				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", parents[i].nodes[j].id);
 
-				for (int k = 0; k < problem.items_amount; ++k)
+				for (int k = 0; k < problem.items_per_city; ++k)
 				{
 					if (parents[i].nodes[j].items[k].id > 0)
 					{
@@ -224,7 +224,7 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 			}
 			bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", fittest.nodes[j].id);
 
-			for (int k = 0; k < problem.items_amount; ++k)
+			for (int k = 0; k < problem.items_per_city; ++k)
 			{
 				if (fittest.nodes[j].items[k].id > 0)
 				{

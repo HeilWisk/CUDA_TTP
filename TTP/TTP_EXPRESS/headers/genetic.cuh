@@ -32,24 +32,20 @@ __host__ __device__ tour getFittestTour(tour* tours, const int& population_size)
 #pragma region DEVICE ONLY UTILITIES
 
 __device__ void tournamentSelectionDevice(population* population, tour* parents, curandState* d_state, int thread_id)
-{	
-	double tournamentFitness = 0;
-	int fittestPosition = 0;
-	int random_number;
+{		
+	int random_number = curand(d_state) % (TOURS - 1);
+	double tournamentFitness = population->tours[random_number].fitness;
+	int fittestPosition = random_number;
+
 	for (int t = 0; t < TOURNAMENT_SIZE; ++t)
 	{
 		// Gets random number from global random state on GPU
 		random_number = curand(d_state) % (TOURS - 1);
-		if (population->tours[random_number].fitness > tournamentFitness)
+		if (population->tours[random_number].fitness >= tournamentFitness)
 		{
 			tournamentFitness = population->tours[random_number].fitness;
 			fittestPosition = random_number;
 		}
-
-		/*if (thread_id == THREAD_TOURNAMENT)
-		{
-			SHOW("Thread %d - random_number %d\n", thread_id, random_number);
-		}*/
 	}
 
 	// Evaluate the fittest tour on the tournament
@@ -72,10 +68,12 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 		int tempNumber = randPosTwo;
 		randPosTwo = randPosOne;
 		randPosOne = tempNumber;
-	}	
+	}
 
 	// Instanciate child tour
 	int indexChild = randPosTwo % size;
+
+	//printf("thread %d - posone %d - postwo %d - index %d\n", thread, randPosOne, randPosTwo, indexChild);
 	
 	// Copy first and last position to child
 	childTour.nodes[0] = parents[parentIndexOne].nodes[0];
@@ -85,7 +83,7 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 	for (int i = randPosOne; i < randPosTwo; ++i)
 	{
 		childTour.nodes[i] = parents[parentIndexOne].nodes[i];
-		for (int j = 0; j < ITEMS; ++j)
+		for (int j = 0; j < ITEMS_PER_CITY; ++j)
 		{
 			if (childTour.nodes[i].items[j].id > 0)
 			{
@@ -102,7 +100,7 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 	{
 		indexChild = (randPosTwo + j) % size;
 
-		if (childTour.nodes[indexChild].id <= 0)
+		if (childTour.nodes[indexChild].id >= 0)
 		{
 			for (int k = 0; k < size; ++k)
 			{
@@ -126,7 +124,7 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 				if (!isPresentInChild)
 				{
 					childTour.nodes[indexChild] = parents[parentIndexTwo].nodes[currentCityIndex];
-					for (int j = 0; j < ITEMS; ++j)
+					for (int j = 0; j < ITEMS_PER_CITY; ++j)
 					{
 						if (childTour.nodes[indexChild].items[j].id > 0)
 						{
@@ -162,7 +160,7 @@ __device__ void onePointCrossoverDevice(tour* parents, int parentIndexOne, int p
 		{
 			if (childTour.nodes[p].id == childTour.item_picks[i].node)
 			{
-				for (int ia = 0; ia < ITEMS; ++ia)
+				for (int ia = 0; ia < ITEMS_PER_CITY; ++ia)
 				{
 					if (childTour.nodes[p].items[ia].id == childTour.item_picks[i].id)
 					{
@@ -181,7 +179,7 @@ __device__ void onePointCrossoverDevice(tour* parents, int parentIndexOne, int p
 		{
 			if (childTour.nodes[p].id == childTour.item_picks[j].node)
 			{
-				for (int ia = 0; ia < ITEMS; ++ia)
+				for (int ia = 0; ia < ITEMS_PER_CITY; ++ia)
 				{
 					if (childTour.nodes[p].items[ia].id == childTour.item_picks[j].id)
 					{
@@ -211,7 +209,7 @@ __device__ void flipDevice(tour& pickingPlan, curandState* state)
 		{
 			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
 			{
-				for (int j = 0; j < ITEMS; ++j)
+				for (int j = 0; j < ITEMS_PER_CITY; ++j)
 				{
 					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
 					{
@@ -229,7 +227,7 @@ __device__ void flipDevice(tour& pickingPlan, curandState* state)
 		{
 			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
 			{
-				for (int j = 0; j < ITEMS; ++j)
+				for (int j = 0; j < ITEMS_PER_CITY; ++j)
 				{
 					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
 					{
@@ -290,7 +288,7 @@ __device__ void exchangeDevice(tour& pickingPlan, curandState* state)
 	{
 		if ((pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosOne].node) || (pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosTwo].node))
 		{
-			for (int j = 0; j < ITEMS; ++j)
+			for (int j = 0; j < ITEMS_PER_CITY; ++j)
 			{
 				if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[exPosOne].id)
 				{
@@ -314,9 +312,10 @@ __device__ void exchangeDevice(tour& pickingPlan, curandState* state)
 
 __host__ tour tournamentSelection(population& population)
 {
-	tour fittest_on_tournament;
+	int random_number = (rand() % ((TOURS - 1) + 1));;
 
-	int random_number;
+	tour fittest_on_tournament = population.tours[random_number];
+
 	for (int t = 0; t < TOURNAMENT_SIZE; ++t)
 	{
 		// Gets random number using the following formula
@@ -408,22 +407,19 @@ __host__ void orderedCrossover(tour* parents, int parentIndexOne, int parentInde
 	}
 }
 
-__host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentIndexTwo, item* child, tour& childTour)
+__host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour)
 {
 	// Choose a random position for cutting the picking plans of the parents
 	int cuttingPosition = (rand() % (ITEMS));	
 	
 	for (int i = 0; i < cuttingPosition; ++i)
 	{
-		child[i] = parents[parentIndexOne].item_picks[i];
-
-		//Test - BEGIN
 		childTour.item_picks[i] = parents[parentIndexOne].item_picks[i];
 		for (int p = 1; p < CITIES; ++p)
 		{
 			if (childTour.nodes[p].id == childTour.item_picks[i].node)
 			{
-				for (int ia = 0; ia < ITEMS; ++ia)
+				for (int ia = 0; ia < ITEMS_PER_CITY; ++ia)
 				{
 					if (childTour.nodes[p].items[ia].id == childTour.item_picks[i].id)
 					{
@@ -433,20 +429,16 @@ __host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentInd
 				}
 			}
 		}
-		//Test - END
 	}
 
 	for (int j = cuttingPosition; j < ITEMS; ++j)
 	{
-		child[j] = parents[parentIndexTwo].item_picks[j];
-
-		//Test - BEGIN
 		childTour.item_picks[j] = parents[parentIndexTwo].item_picks[j];
 		for (int p = 1; p < CITIES; ++p)
 		{
 			if (childTour.nodes[p].id == childTour.item_picks[j].node)
 			{
-				for (int ia = 0; ia < ITEMS; ++ia)
+				for (int ia = 0; ia < ITEMS_PER_CITY; ++ia)
 				{
 					if (childTour.nodes[p].items[ia].id == childTour.item_picks[j].id)
 					{
@@ -456,7 +448,6 @@ __host__ void onePointCrossover(tour* parents, int parentIndexOne, int parentInd
 				}
 			}
 		}
-		//Test - END
 	}
 }
 
@@ -472,7 +463,7 @@ __host__ void flip(tour& pickingPlan)
 		{
 			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
 			{
-				for (int j = 0; j < ITEMS; ++j)
+				for (int j = 0; j < ITEMS_PER_CITY; ++j)
 				{
 					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
 					{
@@ -490,7 +481,7 @@ __host__ void flip(tour& pickingPlan)
 		{
 			if (pickingPlan.nodes[i].id == pickingPlan.item_picks[flipPosition].node)
 			{
-				for (int j = 0; j < ITEMS; ++j)
+				for (int j = 0; j < ITEMS_PER_CITY; ++j)
 				{
 					if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[flipPosition].id)
 					{
@@ -559,7 +550,7 @@ __host__ void exchange(tour& pickingPlan)
 	{
 		if ((pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosOne].node) || (pickingPlan.nodes[i].id == pickingPlan.item_picks[exPosTwo].node))
 		{
-			for (int j = 0; j < ITEMS; ++j)
+			for (int j = 0; j < ITEMS_PER_CITY; ++j)
 			{
 				if (pickingPlan.nodes[i].items[j].id == pickingPlan.item_picks[exPosOne].id)
 				{
@@ -619,7 +610,7 @@ __host__ void crossover(population& population, tour* parents, parameters params
 			orderedCrossover(parents, parentIndexOne, parentIndexTwo, childs[o]);
 
 			// Generate child for the KP Sub-Problem using one point crossover
-			onePointCrossover(parents, parentIndexOne, parentIndexTwo, childs[o].item_picks, childs[o]);
+			onePointCrossover(parents, parentIndexOne, parentIndexTwo, childs[o]);
 
 			// Evaluate the new child
 			evaluateTour(childs[o], &params);
@@ -721,44 +712,42 @@ __global__ void crossoverKernel(population* population, tour* parents, tour* off
 		return;
 	}
 
+	curandState local_state = state[thread_global_index];
+
+	// Select parents from the parents array
+	int parentIndexOne = curand(&local_state) % SELECTED_PARENTS;
+	int parentIndexTwo = curand(&local_state) % SELECTED_PARENTS;
+
+	// Generate unique offspring not already in solution
+	bool alreadyInPopulation = false;
+
+	//printf("population->tours[%d].fitness = %f \n", thread_global_index, population->tours[thread_global_index].fitness);
+
+	do
+	{
+		// Generate child for the TSP Sub-Problem using ordered crossover
+		orderedCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+
+		// Generate child for the KP Sub-Problem using one point crossover
+		onePointCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+
+		// Evaluate the new child
+		evaluateTour(offspring[thread_global_index], params);
+
+		for (int f = 0; f < TOURS; ++f)
+		{
+			if (population->tours[f] == offspring[thread_global_index])
+			{
+				alreadyInPopulation = true;
+				break;
+			}
+		}
+	} while (alreadyInPopulation);
+	
 	if (population->tours[thread_global_index].fitness < 0)
 	{
-		curandState local_state = state[thread_global_index];
-
-		// Select parents from the parents array
-		int parentIndexOne = curand(&local_state) % SELECTED_PARENTS;
-		int parentIndexTwo = curand(&local_state) % SELECTED_PARENTS;
-
-		// Generate unique offspring not already in solution
-		bool alreadyInPopulation = false;
-
-		do
-		{
-			// Generate child for the TSP Sub-Problem using ordered crossover
-			orderedCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
-
-			// Generate child for the KP Sub-Problem using one point crossover
-			onePointCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
-
-			// Evaluate the new child
-			evaluateTour(offspring[thread_global_index], params);
-
-			for (int f = 0; f < TOURS; ++f)
-			{
-				if (population->tours[f] == offspring[thread_global_index])
-				{
-					alreadyInPopulation = true;
-					break;
-				}
-			}
-		} while (alreadyInPopulation);
+		population->tours[thread_global_index] = offspring[thread_global_index];
 	}
-	else
-	{
-		offspring[thread_global_index] = population->tours[thread_global_index];
-	}
-
-	population->tours[thread_global_index] = offspring[thread_global_index];
 }
 
 __global__ void localSearchKernel(population* currentPopulation, parameters* params, curandState* state)

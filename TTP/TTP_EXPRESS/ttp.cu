@@ -747,7 +747,7 @@ int main()
 	displayNodes(cpu_node, problem.cities_amount);
 
 	// Assign nodes to tour
-	defineInitialTour(initial_tour, problem, cpu_node, cpu_item);
+	defineInitialTour(initial_tour, &problem, cpu_node, cpu_item);
 
 	// Calculate distance matrix in CPU
 	//int distance_matrix_size = problem.cities_amount * problem.cities_amount;

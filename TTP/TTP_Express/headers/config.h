@@ -13,8 +13,8 @@
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
-#define CITIES 5
-#define ITEMS 4
+#define CITIES 52
+#define ITEMS 51
 #define TOURS 100
 #define ITEMS_PER_CITY 1
 
@@ -30,14 +30,9 @@
 #define THREAD_EVOLUTION // macros
 #endif // DEBUG
 
-#define GPU false
+#define GPU true
 #define CPU true
 #define CUDA true
 #define NO_CUDA false
 #define WRITE_BUFFER 500
 #define NAME_BUFFER 500
-
-
-
-
-

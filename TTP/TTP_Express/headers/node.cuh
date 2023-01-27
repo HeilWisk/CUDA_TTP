@@ -5,28 +5,24 @@ struct node {
 	int id;
 	double x;
 	double y;
-	item items[ITEMS];
+	item items[ITEMS_PER_CITY];
 
 	__host__ __device__ node()
 	{
 		id = -1;
 		x = -1;
 		y = -1;
-		for (int i = 0; i < ITEMS; ++i)
+		for (int i = 0; i < ITEMS_PER_CITY; ++i)
 		{
 			items[i] = item(-1, -1, -1, -1);
 		}
 	}
 
-	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate/*, item its*/)
+	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate)
 	{
 		id = id_node;
 		x = x_coordinate;
 		y = y_coordinate;
-		/*for (int i = 0; i < ITEMS; i++)
-		{
-			items[i] = its.items[i];
-		}*/
 		
 	}
 
@@ -40,7 +36,7 @@ struct node {
 		id = var.id;
 		x = var.x;
 		y = var.y;
-		for (int i = 0; i < ITEMS; ++i)
+		for (int i = 0; i < ITEMS_PER_CITY; ++i)
 		{
 			items[i] = var.items[i];
 		}
@@ -56,7 +52,7 @@ struct node {
 	{
 		bool result = id == var.id && x == var.x && y == var.y;
 
-		for (int i = 0; i < ITEMS; ++i)
+		for (int i = 0; i < ITEMS_PER_CITY; ++i)
 		{
 			if (items[i].id != var.items[i].id || items[i].value != var.items[i].value || items[i].weight != var.items[i].weight || items[i].node != var.items[i].node)
 				result = false;
@@ -90,7 +86,7 @@ void displayNodes(node* c, int size) {
 	printf("ID	X		Y		ITEMS\n");
 	for (int i = 0; i < size; ++i) {
 		printf("%d	%f	%f", c[i].id, c[i].x, c[i].y);
-		for (int j = 0; j < ITEMS; ++j)
+		for (int j = 0; j < ITEMS_PER_CITY; ++j)
 		{
 			if(c[i].items[j].id > 0)
 				printf("	> %d", c[i].items[j].id);
@@ -110,8 +106,8 @@ void displayNodes(node* c, int size) {
 void extractNodes(int** matrix, int rows, node* c) {
 	for (int i = 0; i < rows; ++i) {
 		c[i].id = matrix[i][0];
-		c[i].x = (float)matrix[i][1];
-		c[i].y = (float)matrix[i][2];
+		c[i].x = (double)matrix[i][1];
+		c[i].y = (double)matrix[i][2];
 	}
 }
 
@@ -124,8 +120,8 @@ void extractNodes(int** matrix, int rows, node* c) {
 void extractItems(int** matrix, int rows, node& node) {
 	for (int s = 0; s < rows; ++s) {
 		node.items[s].id = matrix[s][0];
-		node.items[s].value = (float)matrix[s][1];
-		node.items[s].weight = (float)matrix[s][2];
+		node.items[s].value = (double)matrix[s][1];
+		node.items[s].weight = (double)matrix[s][2];
 		node.items[s].node = matrix[s][3];
 	}
 }
@@ -138,20 +134,10 @@ void extractItems(int** matrix, int rows, node& node) {
 void assignItems(item* items, node* nodes)
 {
 	int node_index;
-	int amount_items_per_node;
+	int amount_items_per_node = ITEMS_PER_CITY;
 	// Loop through the node array
 	for (int n = 0; n < CITIES; n++)
 	{
-		// Count the amount of items per node to calculate memory allocation
-		amount_items_per_node = 0;
-		for (int s = 0; s < ITEMS; ++s)
-		{
-			if (items[s].node == nodes[n].id)
-			{
-				amount_items_per_node += amount_items_per_node + 1;
-			}
-		}
-
 		// Validate if the given node has asigned items
 		if (amount_items_per_node > 0)
 		{

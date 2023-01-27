@@ -77,7 +77,7 @@ void displayItems(item* c, int size) {
 
 void randomPickup(item* items)
 {
-	for (int i = 0; i < ITEMS; ++i)
+	for (int i = 0; i < ITEMS_PER_CITY; ++i)
 	{
 		if (items[i].id > 0)
 			items[i].pickup = rand() % 2;
@@ -92,7 +92,7 @@ void randomPickup(item* items)
 /// <returns></returns>
 __device__ void randomPickup(item* items, curandState* state)
 {
-	for (int i = 0; i < ITEMS; ++i)
+	for (int i = 0; i < ITEMS_PER_CITY; ++i)
 	{
 		if (items[i].id > 0)
 			items[i].pickup = curand(state) % 2;

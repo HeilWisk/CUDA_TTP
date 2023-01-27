@@ -106,7 +106,7 @@ __global__ void initializePopulationCuda(population* initialPopulation, tour* in
 		local_tour.nodes[randPos] = tempNode;
 	}
 
-	initialPopulation->tours[thread_global_index] = local_tour; //initialPopulation->tours[thread_global_index] = initialTour;
+	initialPopulation->tours[thread_global_index] = local_tour;
 	evaluateTour(initialPopulation->tours[thread_global_index], problem_params);
 }
 
@@ -130,7 +130,7 @@ void printPopulation(population population)
 			{
 				printf("> %d", population.tours[i].nodes[j].id);
 
-				for (int h = 0; h < ITEMS; h++)
+				for (int h = 0; h < ITEMS_PER_CITY; h++)
 				{
 					if(population.tours[i].nodes[j].items[h].id > 0)
 						printf("		> %d[%d]", population.tours[i].nodes[j].items[h].id, population.tours[i].nodes[j].items[h].pickup);
