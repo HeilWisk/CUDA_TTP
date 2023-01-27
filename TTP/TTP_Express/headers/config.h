@@ -22,11 +22,15 @@
 //#define DEBUG
 #ifdef DEBUG
 #define SHOW printf
+#define THREAD_TOURNAMENT 3
+#define THREAD_EVOLUTION 57
 #else
 #define SHOW // macros
+#define THREAD_TOURNAMENT // macros
+#define THREAD_EVOLUTION // macros
 #endif // DEBUG
 
-#define GPU true
+#define GPU false
 #define CPU true
 #define CUDA true
 #define NO_CUDA false

@@ -45,6 +45,11 @@ __device__ void tournamentSelectionDevice(population* population, tour* parents,
 			tournamentFitness = population->tours[random_number].fitness;
 			fittestPosition = random_number;
 		}
+
+		/*if (thread_id == THREAD_TOURNAMENT)
+		{
+			SHOW("Thread %d - random_number %d\n", thread_id, random_number);
+		}*/
 	}
 
 	// Evaluate the fittest tour on the tournament
@@ -137,12 +142,18 @@ __device__ void orderedCrossoverDevice(tour* parents, int parentIndexOne, int pa
 
 __device__ void onePointCrossoverDevice(tour* parents, int parentIndexOne, int parentIndexTwo, tour& childTour, curandState* state, int thread)
 {
-	SHOW("Thread: %d - ChildTourOriginal = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup,childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
+	/*if (thread == THREAD_EVOLUTION)
+	{
+		SHOW("Thread: %d - ChildTourOriginal = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
+	}*/
 	
 	// Choose a random position for cutting the picking plans of the parents
 	int cuttingPosition = (curand(state) % (ITEMS));
 
-	SHOW("Thread: %d - Parent 1 = %d|%d|%d|%d - Parent 2 = %d|%d|%d|%d - Cutting = %d\n", thread, parents[parentIndexOne].item_picks[0].pickup, parents[parentIndexOne].item_picks[1].pickup, parents[parentIndexOne].item_picks[2].pickup, parents[parentIndexOne].item_picks[3].pickup, parents[parentIndexTwo].item_picks[0].pickup, parents[parentIndexTwo].item_picks[1].pickup, parents[parentIndexTwo].item_picks[2].pickup, parents[parentIndexTwo].item_picks[3].pickup, cuttingPosition);
+	/*if (thread == THREAD_EVOLUTION)
+	{
+		SHOW("Thread: %d - Parent 1 = %d|%d|%d|%d - Parent 2 = %d|%d|%d|%d - Cutting = %d\n", thread, parents[parentIndexOne].item_picks[0].pickup, parents[parentIndexOne].item_picks[1].pickup, parents[parentIndexOne].item_picks[2].pickup, parents[parentIndexOne].item_picks[3].pickup, parents[parentIndexTwo].item_picks[0].pickup, parents[parentIndexTwo].item_picks[1].pickup, parents[parentIndexTwo].item_picks[2].pickup, parents[parentIndexTwo].item_picks[3].pickup, cuttingPosition);
+	}*/
 
 	for (int i = 0; i < cuttingPosition; ++i)
 	{
@@ -182,7 +193,10 @@ __device__ void onePointCrossoverDevice(tour* parents, int parentIndexOne, int p
 		}
 	}
 
-	SHOW("Thread: %d - ChildTourNew = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
+	/*if (thread == THREAD_EVOLUTION)
+	{
+		SHOW("Thread: %d - ChildTourNew = %d,%d[%d/%d],%d[%d/%d],%d[%d/%d],%d[%d/%d],%d - pickup = %d|%d|%d|%d \n", thread, childTour.nodes[0].id, childTour.nodes[1].id, childTour.nodes[1].items[0].id, childTour.nodes[1].items[0].pickup, childTour.nodes[2].id, childTour.nodes[2].items[0].id, childTour.nodes[2].items[0].pickup, childTour.nodes[3].id, childTour.nodes[3].items[0].id, childTour.nodes[3].items[0].pickup, childTour.nodes[4].id, childTour.nodes[4].items[0].id, childTour.nodes[4].items[0].pickup, childTour.nodes[5].id, childTour.item_picks[0].pickup, childTour.item_picks[1].pickup, childTour.item_picks[2].pickup, childTour.item_picks[3].pickup);
+	}*/
 }
 
 __device__ void flipDevice(tour& pickingPlan, curandState* state)
@@ -608,7 +622,7 @@ __host__ void crossover(population& population, tour* parents, parameters params
 			onePointCrossover(parents, parentIndexOne, parentIndexTwo, childs[o].item_picks, childs[o]);
 
 			// Evaluate the new child
-			evaluateTour(childs[o], params);
+			evaluateTour(childs[o], &params);
 
 			for (int f = 0; f < TOURS; ++f)
 			{
@@ -636,15 +650,15 @@ __host__ void localSearch(population& currentPopulation, parameters params)
 		{
 			tour testTour2Opt = currentPopulation.tours[i];
 			twoOptSwap(testTour2Opt);
-			evaluateTour(testTour2Opt, params);
+			evaluateTour(testTour2Opt, &params);
 
 			tour testTourFlip = currentPopulation.tours[i];
 			flip(testTourFlip);
-			evaluateTour(testTourFlip, params);
+			evaluateTour(testTourFlip, &params);
 
 			tour testTourEx = currentPopulation.tours[i];
 			exchange(testTourEx);
-			evaluateTour(testTourEx, params);
+			evaluateTour(testTourEx, &params);
 
 			if (testTour2Opt.fitness >= currentPopulation.tours[i].fitness && testTour2Opt.fitness >= testTourFlip.fitness && testTour2Opt.fitness >= testTourEx.fitness)
 			{
@@ -690,7 +704,7 @@ __global__ void selectionKernel(population* population, tour* parents, curandSta
 	tournamentSelectionDevice(population, parents, &local_state, thread_global_index);
 }
 
-__global__ void crossoverKernel(population* population, tour* parents, tour* offspring, parameters params, curandState* state)
+__global__ void crossoverKernel(population* population, tour* parents, tour* offspring, parameters* params, curandState* state)
 {
 	// Calculate global index of the threads for the 2D GRID
 	// Global index of every block on the grid
@@ -747,7 +761,7 @@ __global__ void crossoverKernel(population* population, tour* parents, tour* off
 	population->tours[thread_global_index] = offspring[thread_global_index];
 }
 
-__global__ void localSearchKernel(population* currentPopulation, parameters params, curandState* state)
+__global__ void localSearchKernel(population* currentPopulation, parameters* params, curandState* state)
 {
 	// Calculate global index of the threads for the 2D GRID
 	// Global index of every block on the grid
@@ -769,7 +783,10 @@ __global__ void localSearchKernel(population* currentPopulation, parameters para
 	// Generate random probability
 	double probability = curand_uniform_double(&local_state);
 
-	SHOW("Thread %d - PROBABILITY = %f\n", thread_global_index, probability);
+	/*if (thread_global_index == THREAD_EVOLUTION)
+	{
+		SHOW("Thread %d - PROBABILITY = %f\n", thread_global_index, probability);
+	}*/
 
 	if (probability < LOCAL_SEARCH_PROBABILITY)
 	{
@@ -777,21 +794,29 @@ __global__ void localSearchKernel(population* currentPopulation, parameters para
 		twoOptSwapDevice(&currentPopulation->tours[thread_global_index], testTour2Opt, &local_state, thread_global_index);
 		evaluateTour(testTour2Opt, params);
 
-		SHOW("Thread %d - Tour2Opt = %f - Tour = %f\n", thread_global_index, testTour2Opt.fitness, currentPopulation->tours[thread_global_index].fitness);
+		/*if (thread_global_index == THREAD_EVOLUTION)
+		{
+			SHOW("Thread %d - Tour2Opt = %f - Tour = %f\n", thread_global_index, testTour2Opt.fitness, currentPopulation->tours[thread_global_index].fitness);
+		}*/
 
 		tour testTourFlip = currentPopulation->tours[thread_global_index];
 		flipDevice(testTourFlip, &local_state);
 		evaluateTour(testTourFlip, params);
 
-		SHOW("Thread %d - TourFlip = %f - Tour = %f\n", thread_global_index, testTourFlip.fitness, currentPopulation->tours[thread_global_index].fitness);
+		/*if (thread_global_index == THREAD_EVOLUTION)
+		{
+			SHOW("Thread %d - TourFlip = %f - Tour = %f\n", thread_global_index, testTourFlip.fitness, currentPopulation->tours[thread_global_index].fitness);
+		}*/
 
 		tour testTourEx = currentPopulation->tours[thread_global_index];
 		exchangeDevice(testTourEx, &local_state);
 		evaluateTour(testTourEx, params);
 
-		SHOW("Thread %d - TourEx = %f - Tour = %f\n", thread_global_index, testTourEx.fitness, currentPopulation->tours[thread_global_index].fitness);
-
-		SHOW("Thread %d - Tour2Opt = %f - TourFlip = %f - TourEx = %f - Tour = %f\n", thread_global_index, testTour2Opt.fitness, testTourFlip.fitness, testTourEx.fitness, currentPopulation->tours[thread_global_index].fitness);
+		/*if (thread_global_index == THREAD_EVOLUTION)
+		{
+			SHOW("Thread %d - TourEx = %f - Tour = %f\n", thread_global_index, testTourEx.fitness, currentPopulation->tours[thread_global_index].fitness);
+			SHOW("Thread %d - Tour2Opt = %f - TourFlip = %f - TourEx = %f - Tour = %f\n", thread_global_index, testTour2Opt.fitness, testTourFlip.fitness, testTourEx.fitness, currentPopulation->tours[thread_global_index].fitness);
+		}*/
 
 		if (testTour2Opt.fitness >= currentPopulation->tours[thread_global_index].fitness && testTour2Opt.fitness >= testTourFlip.fitness && testTour2Opt.fitness >= testTourEx.fitness)
 		{

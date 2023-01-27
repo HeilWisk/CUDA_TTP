@@ -3,8 +3,8 @@
 //DEFINES: Item Data Type
 struct item {
 	int id;
-	double weight;
-	double value;
+	int weight;
+	int value;
 	int node;
 	int pickup;
 
@@ -17,7 +17,7 @@ struct item {
 		pickup = 0;
 	}
 
-	__host__ __device__ item(int id_item, float w, float v, int node_id)
+	__host__ __device__ item(int id_item, int w, int v, int node_id)
 	{
 		id = id_item;
 		weight = w;
@@ -52,8 +52,8 @@ struct item {
 void extractItems(int** matrix, int rows, item* i) {
 	for (int s = 0; s < rows; s++) {
 		i[s].id = matrix[s][0];
-		i[s].value = (float)matrix[s][1];
-		i[s].weight = (float)matrix[s][2];
+		i[s].value = matrix[s][1];
+		i[s].weight = matrix[s][2];
 		i[s].node = matrix[s][3];
 	}
 }
@@ -69,7 +69,7 @@ void displayItems(item* c, int size) {
 	printf("****************************************************************************************\n");
 	printf("ID	X		Y		LOC\n");
 	for (int i = 0; i < size; i++) {
-		printf("%d	%f	%f	%d\n", c[i].id, c[i].value, c[i].weight, c[i].node);
+		printf("%d	%d	%d	%d\n", c[i].id, c[i].value, c[i].weight, c[i].node);
 	}
 	printf("****************************************************************************************\n");
 	printf("\n");

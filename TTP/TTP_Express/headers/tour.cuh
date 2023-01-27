@@ -118,7 +118,7 @@ __host__ __device__ void evaluateTour(tour& tour, const distance* distance_table
 /// <param name="distance_table"></param>
 /// <param name="problem_params"></param>
 /// <returns></returns>
-__host__ __device__ void evaluateTour(tour& individual, parameters problem_params)
+__host__ __device__ void evaluateTour(tour& individual, parameters* problem_params)
 {
 	//tour result = individual;
 	double carrying = 0.0;
@@ -148,7 +148,7 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 		}
 	}
 
-	if (total_weight > problem_params.knapsack_capacity)
+	if (total_weight > problem_params->knapsack_capacity)
 	{
 		time += total_weight;
 	}
@@ -166,14 +166,14 @@ __host__ __device__ void evaluateTour(tour& individual, parameters problem_param
 			}
 		}
 
-		velocity = problem_params.max_speed - carrying * (problem_params.max_speed - problem_params.min_speed) / problem_params.knapsack_capacity;
+		velocity = problem_params->max_speed - carrying * (problem_params->max_speed - problem_params->min_speed) / problem_params->knapsack_capacity;
 		if (y + 1 == CITIES)
 			distance = distanceBetweenNodes(individual.nodes[y], individual.nodes[0]);
 		else
 			distance = distanceBetweenNodes(individual.nodes[y], individual.nodes[y + 1]);
 
 		time += distance / velocity;
-		revenue = profit - (problem_params.renting_ratio * time);
+		revenue = profit - (problem_params->renting_ratio * time);
 		distance += distance;
 	}
 

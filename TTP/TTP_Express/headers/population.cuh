@@ -51,20 +51,22 @@ void initializePopulation(population& initialPopulation, tour& initialTour, para
 		randomPickup(initialTour.nodes[i].items);
 	}
 	initialPopulation.tours[0] = initialTour;	
-	evaluateTour(initialPopulation.tours[0], problem_params);
+	evaluateTour(initialPopulation.tours[0], &problem_params);
+
+	tour local_tour = initialTour;
 
 	for (int i = 1; i < TOURS; ++i)
 	{
 		for (int j = 1; j < CITIES; ++j)
 		{
-			randomPickup(initialTour.nodes[j].items);
+			randomPickup(local_tour.nodes[j].items);
 			int randPos = 1 + (rand() % (CITIES - 1));
-			node tempNode = initialTour.nodes[j];
-			initialTour.nodes[j] = initialTour.nodes[randPos];
-			initialTour.nodes[randPos] = tempNode;			
+			node tempNode = local_tour.nodes[j];
+			local_tour.nodes[j] = local_tour.nodes[randPos];
+			local_tour.nodes[randPos] = tempNode;
 		}
-		initialPopulation.tours[i] = initialTour;
-		evaluateTour(initialPopulation.tours[i], problem_params);
+		initialPopulation.tours[i] = local_tour;
+		evaluateTour(initialPopulation.tours[i], &problem_params);
 	}
 }
 
@@ -74,7 +76,7 @@ void initializePopulation(population& initialPopulation, tour& initialTour, para
 /// <param name="initialPopulation"></param>
 /// <param name="initialTour"></param>
 /// <param name="problem_params"></param>
-__global__ void initializePopulationCuda(population* initialPopulation, tour initialTour, parameters problem_params, curandState* state)
+__global__ void initializePopulationCuda(population* initialPopulation, tour* initialTour, parameters* problem_params, curandState* state)
 {
 	// Calculate global index of the threads for the 2D GRID
 	// Global index of every block on the grid
@@ -89,19 +91,22 @@ __global__ void initializePopulationCuda(population* initialPopulation, tour ini
 	if (thread_global_index >= TOURS)
 		return;
 
-	curandState local_state = state[thread_global_index];
+	curandState local_state = state[thread_global_index];	
+
+	// Instanciate a local tour to operate
+	tour local_tour = *initialTour;
 
 	// Generate random pickup for the items in each node of the tour
 	for (int i = 1; i < CITIES; ++i)
 	{
-		randomPickup(initialTour.nodes[i].items, &local_state);
+		randomPickup(local_tour.nodes[i].items, &local_state);
 		int randPos = 1 + (curand(&local_state) % (CITIES - 1));
-		node tempNode = initialTour.nodes[i];
-		initialTour.nodes[i] = initialTour.nodes[randPos];
-		initialTour.nodes[randPos] = tempNode;
+		node tempNode = local_tour.nodes[i];
+		local_tour.nodes[i] = local_tour.nodes[randPos];
+		local_tour.nodes[randPos] = tempNode;
 	}
 
-	initialPopulation->tours[thread_global_index] = initialTour;
+	initialPopulation->tours[thread_global_index] = local_tour; //initialPopulation->tours[thread_global_index] = initialTour;
 	evaluateTour(initialPopulation->tours[thread_global_index], problem_params);
 }
 
