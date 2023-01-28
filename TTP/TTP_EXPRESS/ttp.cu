@@ -982,7 +982,7 @@ int main()
 		// GPU Genetic Algorithm
 		if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 		{
-			printf("Iteration %d\n", i);
+			printf("ITERATION %d\n", i);
 			
 			// Select Parents For The Next Generation
 			selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_states);
@@ -1011,11 +1011,6 @@ int main()
 				exit(0);
 			}
 			checkCudaErrors(cudaDeviceSynchronize());
-
-			// Copy Device Information to Host
-			//checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
-			//checkCudaErrors(cudaDeviceSynchronize());
-			//saveOffspring(problem.name, initial_population_gpu, problem, 666, CUDA);
 
 			// Perform local search (mutation)
 			localSearchKernel << <BLOCKS, THREADS >> > (device_population, device_parameters, device_states);

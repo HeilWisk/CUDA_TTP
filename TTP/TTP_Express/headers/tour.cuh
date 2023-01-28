@@ -63,10 +63,18 @@ struct tour
 	{
 		for (int i = 0; i < CITIES + 1; ++i)
 		{
-			if (nodes[i].x != t.nodes[i].x || nodes[i].y != t.nodes[i].y || nodes[i].items != t.nodes[i].items)
+			if (nodes[i].x != t.nodes[i].x || nodes[i].y != t.nodes[i].y)
 			{
 				return false;
 			}
+
+			for (int o = 0; o < ITEMS_PER_CITY; ++o)
+			{
+				if (nodes[i].items[o].id != t.nodes[i].items[o].id || nodes[i].items[o].pickup != t.nodes[i].items[o].pickup || nodes[i].items[o].node != t.nodes[i].items[o].node || nodes[i].items[o].value != t.nodes[i].items[o].value || nodes[i].items[o].weight != t.nodes[i].items[o].weight)
+				{
+					return false;
+				}
+			}			
 		}
 		return true;
 	}
