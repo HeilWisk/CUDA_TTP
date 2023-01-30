@@ -17,7 +17,7 @@
 #define ITEMS 4
 #define TOURS 100
 #define ITEMS_PER_CITY 1
-#define NUMBER_EXECUTIONS 1
+#define NUMBER_EXECUTIONS 4
 
 // Other
 //#define DEBUG
@@ -31,9 +31,15 @@
 #define THREAD_EVOLUTION // macros
 #endif // DEBUG
 
-#define GPU true
+#define GPU false
 #define CPU true
 #define CUDA true
 #define NO_CUDA false
 #define WRITE_BUFFER 500
 #define NAME_BUFFER 500
+
+// OUTPUT VARIABLES
+#define STATISTICS_FILE_NAME_CPU ".\\output\\STATISTICS_CPU_%s.txt"
+#define STATISTICS_FILE_NAME_GPU ".\\output\\STATISTICS_GPU_%s.txt"
+#define RESULTS_FILE_NAME_CPU ".\\output\\EXECUTION_%d_%s_CPU.txt"
+#define RESULTS_FILE_NAME_GPU ".\\output\\EXECUTION_%d_%s_GPU.txt"

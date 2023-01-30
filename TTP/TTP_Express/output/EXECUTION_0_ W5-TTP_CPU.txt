@@ -1,11 +1,130 @@
+PROBLEM NAME:  W5-TTP
+SOLUTIONS PER GENERATION: 100
+CITIES: 5
+ITEMS: 4
+ITEMS PER CITY: 1
+EVOLUTIONS: 100
+TOURNAMENT SIZE: 50
+PARENTS PER GENERATIONS: 4
+LOCAL SEARCH PROBABILITY: 0.200000
+
+
+INITIAL POPULATION FOR  W5-TTP
+RUNTIME: 0.000348 ms
+Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
+Individual 1: 1, 3[0], 5[1], 2[1], 4[0], 1 Profit: -108.317858 - Revenue: 70.000000 - Time: 71.327143 - Distance: 34.058773
+Individual 2: 1, 5[1], 3[1], 2[1], 4[0], 1 Profit: -261.062323 - Revenue: 370.000000 - Time: 252.424929 - Distance: 34.058773
+Individual 3: 1, 4[1], 3[0], 2[0], 5[1], 1 Profit: -123.092562 - Revenue: 80.000000 - Time: 81.237025 - Distance: 17.204651
+Individual 4: 1, 4[1], 2[0], 3[1], 5[1], 1 Profit: -16380.000000 - Revenue: -380.000000 - Time: 6400.000000 - Distance: 640.000000
+Individual 5: 1, 5[1], 2[0], 4[1], 3[1], 1 Profit: -16380.000000 - Revenue: -380.000000 - Time: 6400.000000 - Distance: 640.000000
+Individual 6: 1, 2[1], 3[1], 5[1], 4[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 7: 1, 3[1], 5[1], 2[1], 4[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 8: 1, 4[1], 2[1], 3[0], 5[0], 1 Profit: -137.146972 - Revenue: 90.000000 - Time: 90.858789 - Distance: 17.204651
+Individual 9: 1, 4[0], 3[0], 5[0], 2[0], 1 Profit: -126.083789 - Revenue: 0.000000 - Time: 50.433515 - Distance: 15.620499
+Individual 10: 1, 4[1], 3[0], 5[0], 2[0], 1 Profit: -123.058345 - Revenue: 50.000000 - Time: 69.223338 - Distance: 15.620499
+Individual 11: 1, 5[1], 4[0], 3[0], 2[0], 1 Profit: -94.158760 - Revenue: 30.000000 - Time: 49.663504 - Distance: 15.620499
+Individual 12: 1, 2[0], 5[1], 4[0], 3[0], 1 Profit: -101.811801 - Revenue: 30.000000 - Time: 52.724721 - Distance: 29.732137
+Individual 13: 1, 3[0], 4[0], 2[1], 5[0], 1 Profit: -112.028014 - Revenue: 40.000000 - Time: 60.811206 - Distance: 17.204651
+Individual 14: 1, 3[0], 5[0], 2[1], 4[1], 1 Profit: -103.559795 - Revenue: 90.000000 - Time: 77.423918 - Distance: 34.058773
+Individual 15: 1, 4[1], 5[0], 2[0], 3[1], 1 Profit: -15350.000000 - Revenue: -350.000000 - Time: 6000.000000 - Distance: 600.000000
+Individual 16: 1, 5[1], 2[0], 4[0], 3[1], 1 Profit: 29.396777 - Revenue: 330.000000 - Time: 120.241289 - Distance: 29.732137
+Individual 17: 1, 5[1], 2[1], 3[1], 4[0], 1 Profit: -25.999862 - Revenue: 370.000000 - Time: 158.399945 - Distance: 34.058773
+Individual 18: 1, 4[0], 3[1], 2[1], 5[1], 1 Profit: -4.389073 - Revenue: 370.000000 - Time: 149.755629 - Distance: 17.204651
+Individual 19: 1, 5[1], 2[1], 3[0], 4[1], 1 Profit: -61.752041 - Revenue: 120.000000 - Time: 72.700816 - Distance: 34.058773
+Individual 20: 1, 4[1], 3[0], 2[0], 5[0], 1 Profit: -148.833048 - Revenue: 50.000000 - Time: 79.533219 - Distance: 17.204651
+Individual 21: 1, 4[1], 3[1], 2[0], 5[0], 1 Profit: -15350.000000 - Revenue: -350.000000 - Time: 6000.000000 - Distance: 600.000000
+Individual 22: 1, 2[0], 3[0], 5[0], 4[0], 1 Profit: -133.975391 - Revenue: 0.000000 - Time: 53.590156 - Distance: 34.058773
+Individual 23: 1, 3[0], 4[0], 2[0], 5[0], 1 Profit: -151.859538 - Revenue: 0.000000 - Time: 60.743815 - Distance: 17.204651
+Individual 24: 1, 5[0], 2[1], 3[1], 4[0], 1 Profit: 29.930406 - Revenue: 340.000000 - Time: 124.027837 - Distance: 34.058773
+Individual 25: 1, 5[1], 3[1], 2[1], 4[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 26: 1, 2[0], 3[1], 4[1], 5[1], 1 Profit: -16380.000000 - Revenue: -380.000000 - Time: 6400.000000 - Distance: 640.000000
+Individual 27: 1, 3[1], 2[1], 4[1], 5[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 28: 1, 4[0], 3[1], 2[0], 5[1], 1 Profit: -41.399344 - Revenue: 330.000000 - Time: 148.559738 - Distance: 17.204651
+Individual 29: 1, 4[0], 5[1], 2[1], 3[0], 1 Profit: -96.846755 - Revenue: 70.000000 - Time: 66.738702 - Distance: 29.732137
+Individual 30: 1, 5[0], 4[0], 3[0], 2[1], 1 Profit: -76.838294 - Revenue: 40.000000 - Time: 46.735318 - Distance: 15.620499
+Individual 31: 1, 4[1], 2[1], 3[0], 5[0], 1 Profit: -137.146972 - Revenue: 90.000000 - Time: 90.858789 - Distance: 17.204651
+Individual 32: 1, 5[0], 4[1], 2[0], 3[0], 1 Profit: -174.936254 - Revenue: 50.000000 - Time: 89.974502 - Distance: 29.732137
+Individual 33: 1, 4[0], 2[0], 5[1], 3[0], 1 Profit: -143.308444 - Revenue: 30.000000 - Time: 69.323378 - Distance: 29.732137
+Individual 34: 1, 4[1], 5[0], 3[0], 2[1], 1 Profit: -95.561557 - Revenue: 90.000000 - Time: 74.224623 - Distance: 15.620499
+Individual 35: 1, 4[1], 2[1], 3[0], 5[1], 1 Profit: -111.457904 - Revenue: 120.000000 - Time: 92.583162 - Distance: 17.204651
+Individual 36: 1, 5[1], 3[0], 4[0], 2[0], 1 Profit: -104.748796 - Revenue: 30.000000 - Time: 53.899518 - Distance: 15.620499
+Individual 37: 1, 5[0], 2[1], 4[1], 3[0], 1 Profit: -95.465985 - Revenue: 90.000000 - Time: 74.186394 - Distance: 29.732137
+Individual 38: 1, 5[0], 4[0], 3[0], 2[1], 1 Profit: -76.838294 - Revenue: 40.000000 - Time: 46.735318 - Distance: 15.620499
+Individual 39: 1, 4[1], 3[0], 5[1], 2[1], 1 Profit: -62.121203 - Revenue: 120.000000 - Time: 72.848481 - Distance: 15.620499
+Individual 40: 1, 4[1], 2[0], 3[1], 5[1], 1 Profit: -16380.000000 - Revenue: -380.000000 - Time: 6400.000000 - Distance: 640.000000
+Individual 41: 1, 2[1], 3[0], 4[0], 5[1], 1 Profit: -48.800189 - Revenue: 70.000000 - Time: 47.520075 - Distance: 17.204651
+Individual 42: 1, 4[0], 3[0], 5[1], 2[0], 1 Profit: -99.548037 - Revenue: 30.000000 - Time: 51.819215 - Distance: 15.620499
+Individual 43: 1, 5[0], 4[0], 2[0], 3[1], 1 Profit: 44.681275 - Revenue: 300.000000 - Time: 102.127490 - Distance: 29.732137
+Individual 44: 1, 3[1], 2[0], 4[0], 5[1], 1 Profit: -171.559059 - Revenue: 330.000000 - Time: 200.623623 - Distance: 17.204651
+Individual 45: 1, 4[0], 2[1], 5[1], 3[1], 1 Profit: 54.750322 - Revenue: 370.000000 - Time: 126.099871 - Distance: 29.732137
+Individual 46: 1, 5[1], 4[0], 2[0], 3[1], 1 Profit: 20.892895 - Revenue: 330.000000 - Time: 123.642842 - Distance: 29.732137
+Individual 47: 1, 4[0], 5[0], 3[0], 2[0], 1 Profit: -133.975391 - Revenue: 0.000000 - Time: 53.590156 - Distance: 15.620499
+Individual 48: 1, 5[0], 3[0], 4[1], 2[0], 1 Profit: -113.849383 - Revenue: 50.000000 - Time: 65.539753 - Distance: 15.620499
+Individual 49: 1, 5[0], 4[1], 3[1], 2[0], 1 Profit: -15350.000000 - Revenue: -350.000000 - Time: 6000.000000 - Distance: 600.000000
+Individual 50: 1, 2[1], 5[0], 3[1], 4[1], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 51: 1, 2[0], 5[0], 4[1], 3[0], 1 Profit: -108.456589 - Revenue: 50.000000 - Time: 63.382635 - Distance: 29.732137
+Individual 52: 1, 4[1], 3[1], 2[1], 5[0], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 53: 1, 4[1], 3[1], 2[0], 5[0], 1 Profit: -15350.000000 - Revenue: -350.000000 - Time: 6000.000000 - Distance: 600.000000
+Individual 54: 1, 4[1], 2[0], 5[1], 3[0], 1 Profit: -171.047065 - Revenue: 80.000000 - Time: 100.418826 - Distance: 29.732137
+Individual 55: 1, 4[1], 2[1], 5[1], 3[0], 1 Profit: -131.883008 - Revenue: 120.000000 - Time: 100.753203 - Distance: 29.732137
+Individual 56: 1, 2[1], 3[1], 5[1], 4[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 57: 1, 5[1], 4[0], 3[1], 2[0], 1 Profit: 13.586926 - Revenue: 330.000000 - Time: 126.565229 - Distance: 15.620499
+Individual 58: 1, 3[1], 5[1], 4[0], 2[0], 1 Profit: -195.579394 - Revenue: 330.000000 - Time: 210.231758 - Distance: 15.620499
+Individual 59: 1, 4[0], 5[0], 2[0], 3[0], 1 Profit: -159.239628 - Revenue: 0.000000 - Time: 63.695851 - Distance: 29.732137
+Individual 60: 1, 2[0], 5[0], 4[0], 3[1], 1 Profit: 78.896241 - Revenue: 300.000000 - Time: 88.441504 - Distance: 29.732137
+Individual 61: 1, 5[1], 3[1], 4[0], 2[1], 1 Profit: -93.120222 - Revenue: 370.000000 - Time: 185.248089 - Distance: 15.620499
+Individual 62: 1, 3[1], 2[1], 4[0], 5[1], 1 Profit: -136.592712 - Revenue: 370.000000 - Time: 202.637085 - Distance: 17.204651
+Individual 63: 1, 2[0], 3[0], 4[0], 5[1], 1 Profit: -88.436302 - Revenue: 30.000000 - Time: 47.374521 - Distance: 17.204651
+Individual 64: 1, 4[0], 5[1], 3[1], 2[0], 1 Profit: -1.586353 - Revenue: 330.000000 - Time: 132.634541 - Distance: 15.620499
+Individual 65: 1, 2[0], 3[0], 4[0], 5[0], 1 Profit: -116.767748 - Revenue: 0.000000 - Time: 46.707099 - Distance: 17.204651
+Individual 66: 1, 4[1], 5[0], 2[1], 3[1], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 67: 1, 5[1], 4[1], 2[1], 3[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 68: 1, 3[1], 5[0], 4[1], 2[1], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 69: 1, 2[0], 5[1], 4[1], 3[1], 1 Profit: -16380.000000 - Revenue: -380.000000 - Time: 6400.000000 - Distance: 640.000000
+Individual 70: 1, 5[1], 4[1], 3[1], 2[0], 1 Profit: -16380.000000 - Revenue: -380.000000 - Time: 6400.000000 - Distance: 640.000000
+Individual 71: 1, 5[1], 2[1], 4[1], 3[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 72: 1, 4[1], 5[1], 2[1], 3[0], 1 Profit: -124.319684 - Revenue: 120.000000 - Time: 97.727874 - Distance: 29.732137
+Individual 73: 1, 5[0], 3[1], 2[1], 4[1], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 74: 1, 2[1], 5[0], 3[1], 4[1], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 75: 1, 3[1], 2[1], 4[1], 5[1], 1 Profit: -16470.000000 - Revenue: -420.000000 - Time: 6420.000000 - Distance: 642.000000
+Individual 76: 1, 2[1], 4[1], 3[0], 5[1], 1 Profit: -45.564310 - Revenue: 120.000000 - Time: 66.225724 - Distance: 17.204651
+Individual 77: 1, 3[0], 4[1], 5[1], 2[1], 1 Profit: -52.292716 - Revenue: 120.000000 - Time: 68.917086 - Distance: 15.620499
+Individual 78: 1, 2[1], 3[0], 4[1], 5[0], 1 Profit: -52.023223 - Revenue: 90.000000 - Time: 56.809289 - Distance: 17.204651
+Individual 79: 1, 3[0], 2[1], 4[0], 5[0], 1 Profit: -120.078372 - Revenue: 40.000000 - Time: 64.031349 - Distance: 17.204651
+Individual 80: 1, 4[0], 2[0], 5[0], 3[0], 1 Profit: -169.067181 - Revenue: 0.000000 - Time: 67.626872 - Distance: 29.732137
+Individual 81: 1, 2[1], 5[0], 4[1], 3[0], 1 Profit: -69.145445 - Revenue: 90.000000 - Time: 63.658178 - Distance: 29.732137
+Individual 82: 1, 5[0], 2[1], 4[1], 3[0], 1 Profit: -95.465985 - Revenue: 90.000000 - Time: 74.186394 - Distance: 29.732137
+Individual 83: 1, 5[1], 4[1], 3[0], 2[1], 1 Profit: -54.167919 - Revenue: 120.000000 - Time: 69.667168 - Distance: 15.620499
+Individual 84: 1, 2[1], 5[1], 4[0], 3[0], 1 Profit: -62.242020 - Revenue: 70.000000 - Time: 52.896808 - Distance: 29.732137
+Individual 85: 1, 4[1], 5[0], 2[1], 3[1], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 86: 1, 4[1], 3[1], 2[1], 5[0], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 87: 1, 3[1], 2[0], 5[0], 4[0], 1 Profit: -173.145372 - Revenue: 300.000000 - Time: 189.258149 - Distance: 34.058773
+Individual 88: 1, 2[1], 3[0], 4[0], 5[1], 1 Profit: -48.800189 - Revenue: 70.000000 - Time: 47.520075 - Distance: 17.204651
+Individual 89: 1, 5[1], 2[1], 3[0], 4[0], 1 Profit: -82.375912 - Revenue: 70.000000 - Time: 60.950365 - Distance: 34.058773
+Individual 90: 1, 2[1], 5[1], 3[0], 4[0], 1 Profit: -62.834420 - Revenue: 70.000000 - Time: 53.133768 - Distance: 34.058773
+Individual 91: 1, 5[0], 3[0], 2[1], 4[1], 1 Profit: -94.791368 - Revenue: 90.000000 - Time: 73.916547 - Distance: 34.058773
+Individual 92: 1, 3[1], 4[1], 2[1], 5[0], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 93: 1, 4[1], 5[0], 3[1], 2[0], 1 Profit: -15350.000000 - Revenue: -350.000000 - Time: 6000.000000 - Distance: 600.000000
+Individual 94: 1, 2[1], 5[0], 4[1], 3[1], 1 Profit: -15440.000000 - Revenue: -390.000000 - Time: 6020.000000 - Distance: 602.000000
+Individual 95: 1, 2[0], 3[1], 4[1], 5[0], 1 Profit: -15350.000000 - Revenue: -350.000000 - Time: 6000.000000 - Distance: 600.000000
+Individual 96: 1, 5[0], 4[0], 3[1], 2[0], 1 Profit: 50.697621 - Revenue: 300.000000 - Time: 99.720951 - Distance: 15.620499
+Individual 97: 1, 3[1], 5[1], 4[0], 2[0], 1 Profit: -195.579394 - Revenue: 330.000000 - Time: 210.231758 - Distance: 15.620499
+Individual 98: 1, 3[0], 5[1], 4[0], 2[0], 1 Profit: -120.128704 - Revenue: 30.000000 - Time: 60.051482 - Distance: 15.620499
+Individual 99: 1, 5[0], 4[0], 3[0], 2[1], 1 Profit: -76.838294 - Revenue: 40.000000 - Time: 46.735318 - Distance: 15.620499
+
+FITTEST OF GENERATION 0
+Fittest: 1, 2[0], 5[0], 4[0], 3[1], 1 Profit: 78.896241 - Revenue: 300.000000 - Time: 88.441504 - Distance: 29.732137
 
 PARENTS FOR GENERATION 1
+RUNTIME: 0.000329 ms
 Parent 0: 1, 5[0], 4[0], 3[1], 2[0], 1 Profit: 50.697621 - Revenue: 300.000000 - Time: 99.720951 - Distance: 15.620499
 Parent 1: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Parent 2: 1, 4[0], 2[1], 5[1], 3[1], 1 Profit: 54.750322 - Revenue: 370.000000 - Time: 126.099871 - Distance: 29.732137
 Parent 3: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 
 POPULATION FOR GENERATION 1
+CROSSOVER RUNTIME: 0.000381 ms
+LOCAL SEARCH RUNTIME: 0.000164 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 5[1], 3[1], 1 Profit: 54.750322 - Revenue: 370.000000 - Time: 126.099871 - Distance: 29.732137
 Individual 2: 1, 4[0], 3[1], 5[0], 2[1], 1 Profit: 53.192858 - Revenue: 340.000000 - Time: 114.722857 - Distance: 15.620499
@@ -111,12 +230,15 @@ FITTEST OF GENERATION 1
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 2
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 
 POPULATION FOR GENERATION 2
+CROSSOVER RUNTIME: 0.000375 ms
+LOCAL SEARCH RUNTIME: 0.000156 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 5[1], 3[1], 1 Profit: 54.750322 - Revenue: 370.000000 - Time: 126.099871 - Distance: 29.732137
 Individual 2: 1, 4[0], 3[1], 5[0], 2[1], 1 Profit: 53.192858 - Revenue: 340.000000 - Time: 114.722857 - Distance: 15.620499
@@ -222,12 +344,15 @@ FITTEST OF GENERATION 2
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 3
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 3
+CROSSOVER RUNTIME: 0.000310 ms
+LOCAL SEARCH RUNTIME: 0.000164 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 3[1], 5[0], 2[1], 1 Profit: 53.192858 - Revenue: 340.000000 - Time: 114.722857 - Distance: 15.620499
@@ -333,12 +458,15 @@ FITTEST OF GENERATION 3
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 4
+RUNTIME: 0.000196 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 4
+CROSSOVER RUNTIME: 0.000340 ms
+LOCAL SEARCH RUNTIME: 0.000176 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 3[1], 5[0], 2[1], 1 Profit: 53.192858 - Revenue: 340.000000 - Time: 114.722857 - Distance: 15.620499
@@ -444,12 +572,15 @@ FITTEST OF GENERATION 4
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 5
+RUNTIME: 0.000042 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 5
+CROSSOVER RUNTIME: 0.000349 ms
+LOCAL SEARCH RUNTIME: 0.000145 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -555,12 +686,15 @@ FITTEST OF GENERATION 5
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 6
+RUNTIME: 0.000051 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 6
+CROSSOVER RUNTIME: 0.000483 ms
+LOCAL SEARCH RUNTIME: 0.000149 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -666,12 +800,15 @@ FITTEST OF GENERATION 6
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 7
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 7
+CROSSOVER RUNTIME: 0.000371 ms
+LOCAL SEARCH RUNTIME: 0.000188 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -777,12 +914,15 @@ FITTEST OF GENERATION 7
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 8
+RUNTIME: 0.000051 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 8
+CROSSOVER RUNTIME: 0.000356 ms
+LOCAL SEARCH RUNTIME: 0.000134 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -888,12 +1028,15 @@ FITTEST OF GENERATION 8
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 9
+RUNTIME: 0.000208 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 9
+CROSSOVER RUNTIME: 0.000308 ms
+LOCAL SEARCH RUNTIME: 0.000193 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -999,12 +1142,15 @@ FITTEST OF GENERATION 9
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 10
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 10
+CROSSOVER RUNTIME: 0.000327 ms
+LOCAL SEARCH RUNTIME: 0.000160 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1110,12 +1256,15 @@ FITTEST OF GENERATION 10
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 11
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 11
+CROSSOVER RUNTIME: 0.000333 ms
+LOCAL SEARCH RUNTIME: 0.000124 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1221,12 +1370,15 @@ FITTEST OF GENERATION 11
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 12
+RUNTIME: 0.000049 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 12
+CROSSOVER RUNTIME: 0.000312 ms
+LOCAL SEARCH RUNTIME: 0.000125 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1332,12 +1484,15 @@ FITTEST OF GENERATION 12
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 13
+RUNTIME: 0.000049 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 13
+CROSSOVER RUNTIME: 0.000634 ms
+LOCAL SEARCH RUNTIME: 0.000190 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1443,12 +1598,15 @@ FITTEST OF GENERATION 13
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 14
+RUNTIME: 0.000760 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 14
+CROSSOVER RUNTIME: 0.000320 ms
+LOCAL SEARCH RUNTIME: 0.000081 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1554,12 +1712,15 @@ FITTEST OF GENERATION 14
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 15
+RUNTIME: 0.000163 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 15
+CROSSOVER RUNTIME: 0.000344 ms
+LOCAL SEARCH RUNTIME: 0.000139 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1665,12 +1826,15 @@ FITTEST OF GENERATION 15
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 16
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 16
+CROSSOVER RUNTIME: 0.000350 ms
+LOCAL SEARCH RUNTIME: 0.000123 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1776,12 +1940,15 @@ FITTEST OF GENERATION 16
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 17
+RUNTIME: 0.000058 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 17
+CROSSOVER RUNTIME: 0.000315 ms
+LOCAL SEARCH RUNTIME: 0.000175 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1887,12 +2054,15 @@ FITTEST OF GENERATION 17
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 18
+RUNTIME: 0.000074 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 18
+CROSSOVER RUNTIME: 0.000338 ms
+LOCAL SEARCH RUNTIME: 0.000163 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -1998,12 +2168,15 @@ FITTEST OF GENERATION 18
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 19
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 19
+CROSSOVER RUNTIME: 0.000326 ms
+LOCAL SEARCH RUNTIME: 0.000137 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2109,12 +2282,15 @@ FITTEST OF GENERATION 19
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 20
+RUNTIME: 0.000050 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 20
+CROSSOVER RUNTIME: 0.000366 ms
+LOCAL SEARCH RUNTIME: 0.000118 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2220,12 +2396,15 @@ FITTEST OF GENERATION 20
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 21
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 21
+CROSSOVER RUNTIME: 0.000674 ms
+LOCAL SEARCH RUNTIME: 0.000198 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2331,12 +2510,15 @@ FITTEST OF GENERATION 21
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 22
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 22
+CROSSOVER RUNTIME: 0.000320 ms
+LOCAL SEARCH RUNTIME: 0.000201 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2442,12 +2624,15 @@ FITTEST OF GENERATION 22
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 23
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 23
+CROSSOVER RUNTIME: 0.000325 ms
+LOCAL SEARCH RUNTIME: 0.000110 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2553,12 +2738,15 @@ FITTEST OF GENERATION 23
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 24
+RUNTIME: 0.000219 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 24
+CROSSOVER RUNTIME: 0.000364 ms
+LOCAL SEARCH RUNTIME: 0.000137 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2664,12 +2852,15 @@ FITTEST OF GENERATION 24
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 25
+RUNTIME: 0.000199 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 25
+CROSSOVER RUNTIME: 0.000342 ms
+LOCAL SEARCH RUNTIME: 0.000166 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2775,12 +2966,15 @@ FITTEST OF GENERATION 25
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 26
+RUNTIME: 0.000209 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 26
+CROSSOVER RUNTIME: 0.000556 ms
+LOCAL SEARCH RUNTIME: 0.000157 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2886,12 +3080,15 @@ FITTEST OF GENERATION 26
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 27
+RUNTIME: 0.000211 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 27
+CROSSOVER RUNTIME: 0.000326 ms
+LOCAL SEARCH RUNTIME: 0.000110 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -2997,12 +3194,15 @@ FITTEST OF GENERATION 27
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 28
+RUNTIME: 0.000044 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 28
+CROSSOVER RUNTIME: 0.000240 ms
+LOCAL SEARCH RUNTIME: 0.000084 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3108,12 +3308,15 @@ FITTEST OF GENERATION 28
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 29
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 29
+CROSSOVER RUNTIME: 0.000255 ms
+LOCAL SEARCH RUNTIME: 0.000122 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3219,12 +3422,15 @@ FITTEST OF GENERATION 29
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 30
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 30
+CROSSOVER RUNTIME: 0.000246 ms
+LOCAL SEARCH RUNTIME: 0.000098 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3330,12 +3536,15 @@ FITTEST OF GENERATION 30
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 31
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 31
+CROSSOVER RUNTIME: 0.000345 ms
+LOCAL SEARCH RUNTIME: 0.000157 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3441,12 +3650,15 @@ FITTEST OF GENERATION 31
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 32
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 32
+CROSSOVER RUNTIME: 0.000261 ms
+LOCAL SEARCH RUNTIME: 0.000101 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3552,12 +3764,15 @@ FITTEST OF GENERATION 32
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 33
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 33
+CROSSOVER RUNTIME: 0.000363 ms
+LOCAL SEARCH RUNTIME: 0.000114 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3663,12 +3878,15 @@ FITTEST OF GENERATION 33
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 34
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 34
+CROSSOVER RUNTIME: 0.000271 ms
+LOCAL SEARCH RUNTIME: 0.000093 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3774,12 +3992,15 @@ FITTEST OF GENERATION 34
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 35
+RUNTIME: 0.000050 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 35
+CROSSOVER RUNTIME: 0.000243 ms
+LOCAL SEARCH RUNTIME: 0.000107 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3885,12 +4106,15 @@ FITTEST OF GENERATION 35
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 36
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 36
+CROSSOVER RUNTIME: 0.000341 ms
+LOCAL SEARCH RUNTIME: 0.000116 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 4[0], 2[1], 3[1], 5[1], 1 Profit: 80.062998 - Revenue: 370.000000 - Time: 115.974801 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -3996,12 +4220,15 @@ FITTEST OF GENERATION 36
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 37
+RUNTIME: 0.000168 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 37
+CROSSOVER RUNTIME: 0.000305 ms
+LOCAL SEARCH RUNTIME: 0.000109 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4107,12 +4334,15 @@ FITTEST OF GENERATION 37
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 38
+RUNTIME: 0.000035 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 38
+CROSSOVER RUNTIME: 0.000323 ms
+LOCAL SEARCH RUNTIME: 0.000184 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4218,12 +4448,15 @@ FITTEST OF GENERATION 38
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 39
+RUNTIME: 0.000052 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 39
+CROSSOVER RUNTIME: 0.000304 ms
+LOCAL SEARCH RUNTIME: 0.000105 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4329,12 +4562,15 @@ FITTEST OF GENERATION 39
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 40
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 40
+CROSSOVER RUNTIME: 0.000320 ms
+LOCAL SEARCH RUNTIME: 0.000117 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4440,12 +4676,15 @@ FITTEST OF GENERATION 40
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 41
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 41
+CROSSOVER RUNTIME: 0.000253 ms
+LOCAL SEARCH RUNTIME: 0.000135 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4551,12 +4790,15 @@ FITTEST OF GENERATION 41
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 42
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 42
+CROSSOVER RUNTIME: 0.000333 ms
+LOCAL SEARCH RUNTIME: 0.000171 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4662,12 +4904,15 @@ FITTEST OF GENERATION 42
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 43
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 43
+CROSSOVER RUNTIME: 0.000340 ms
+LOCAL SEARCH RUNTIME: 0.000183 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4773,12 +5018,15 @@ FITTEST OF GENERATION 43
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 44
+RUNTIME: 0.000033 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 44
+CROSSOVER RUNTIME: 0.000249 ms
+LOCAL SEARCH RUNTIME: 0.000098 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4884,12 +5132,15 @@ FITTEST OF GENERATION 44
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 45
+RUNTIME: 0.000038 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 45
+CROSSOVER RUNTIME: 0.000307 ms
+LOCAL SEARCH RUNTIME: 0.000169 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -4995,12 +5246,15 @@ FITTEST OF GENERATION 45
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 46
+RUNTIME: 0.000053 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 46
+CROSSOVER RUNTIME: 0.000314 ms
+LOCAL SEARCH RUNTIME: 0.000189 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5106,12 +5360,15 @@ FITTEST OF GENERATION 46
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 47
+RUNTIME: 0.000078 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 47
+CROSSOVER RUNTIME: 0.000375 ms
+LOCAL SEARCH RUNTIME: 0.000171 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5217,12 +5474,15 @@ FITTEST OF GENERATION 47
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 48
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 48
+CROSSOVER RUNTIME: 0.000361 ms
+LOCAL SEARCH RUNTIME: 0.000130 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5328,12 +5588,15 @@ FITTEST OF GENERATION 48
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 49
+RUNTIME: 0.000203 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 49
+CROSSOVER RUNTIME: 0.000336 ms
+LOCAL SEARCH RUNTIME: 0.000143 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5439,12 +5702,15 @@ FITTEST OF GENERATION 49
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 50
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 50
+CROSSOVER RUNTIME: 0.000273 ms
+LOCAL SEARCH RUNTIME: 0.000110 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5550,12 +5816,15 @@ FITTEST OF GENERATION 50
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 51
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 51
+CROSSOVER RUNTIME: 0.000266 ms
+LOCAL SEARCH RUNTIME: 0.000106 ms
 Individual 0: 1, 2[1], 3[1], 4[0], 5[0], 1 Profit: 52.357184 - Revenue: 340.000000 - Time: 115.057127 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5661,12 +5930,15 @@ FITTEST OF GENERATION 51
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 52
+RUNTIME: 0.000032 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 52
+CROSSOVER RUNTIME: 0.000320 ms
+LOCAL SEARCH RUNTIME: 0.000168 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5772,12 +6044,15 @@ FITTEST OF GENERATION 52
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 53
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 53
+CROSSOVER RUNTIME: 0.000246 ms
+LOCAL SEARCH RUNTIME: 0.000073 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5883,12 +6158,15 @@ FITTEST OF GENERATION 53
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 54
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 54
+CROSSOVER RUNTIME: 0.000346 ms
+LOCAL SEARCH RUNTIME: 0.000089 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -5994,12 +6272,15 @@ FITTEST OF GENERATION 54
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 55
+RUNTIME: 0.000041 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 55
+CROSSOVER RUNTIME: 0.000319 ms
+LOCAL SEARCH RUNTIME: 0.000196 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6105,12 +6386,15 @@ FITTEST OF GENERATION 55
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 56
+RUNTIME: 0.000049 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 56
+CROSSOVER RUNTIME: 0.000353 ms
+LOCAL SEARCH RUNTIME: 0.000189 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6216,12 +6500,15 @@ FITTEST OF GENERATION 56
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 57
+RUNTIME: 0.000200 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 57
+CROSSOVER RUNTIME: 0.000338 ms
+LOCAL SEARCH RUNTIME: 0.000161 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6327,12 +6614,15 @@ FITTEST OF GENERATION 57
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 58
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 58
+CROSSOVER RUNTIME: 0.000352 ms
+LOCAL SEARCH RUNTIME: 0.000146 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6438,12 +6728,15 @@ FITTEST OF GENERATION 58
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 59
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 59
+CROSSOVER RUNTIME: 0.000314 ms
+LOCAL SEARCH RUNTIME: 0.000310 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6549,12 +6842,15 @@ FITTEST OF GENERATION 59
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 60
+RUNTIME: 0.000204 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 60
+CROSSOVER RUNTIME: 0.000344 ms
+LOCAL SEARCH RUNTIME: 0.000154 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6660,12 +6956,15 @@ FITTEST OF GENERATION 60
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 61
+RUNTIME: 0.000204 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 61
+CROSSOVER RUNTIME: 0.000348 ms
+LOCAL SEARCH RUNTIME: 0.000135 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6771,12 +7070,15 @@ FITTEST OF GENERATION 61
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 62
+RUNTIME: 0.000049 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 62
+CROSSOVER RUNTIME: 0.000342 ms
+LOCAL SEARCH RUNTIME: 0.000142 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6882,12 +7184,15 @@ FITTEST OF GENERATION 62
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 63
+RUNTIME: 0.000032 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 63
+CROSSOVER RUNTIME: 0.000349 ms
+LOCAL SEARCH RUNTIME: 0.000099 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -6993,12 +7298,15 @@ FITTEST OF GENERATION 63
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 64
+RUNTIME: 0.000044 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 64
+CROSSOVER RUNTIME: 0.000394 ms
+LOCAL SEARCH RUNTIME: 0.000159 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7104,12 +7412,15 @@ FITTEST OF GENERATION 64
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 65
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 65
+CROSSOVER RUNTIME: 0.000344 ms
+LOCAL SEARCH RUNTIME: 0.000164 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7215,12 +7526,15 @@ FITTEST OF GENERATION 65
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 66
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 66
+CROSSOVER RUNTIME: 0.000352 ms
+LOCAL SEARCH RUNTIME: 0.000170 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7326,12 +7640,15 @@ FITTEST OF GENERATION 66
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 67
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 67
+CROSSOVER RUNTIME: 0.000353 ms
+LOCAL SEARCH RUNTIME: 0.000236 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7437,12 +7754,15 @@ FITTEST OF GENERATION 67
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 68
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 68
+CROSSOVER RUNTIME: 0.000371 ms
+LOCAL SEARCH RUNTIME: 0.000149 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7548,12 +7868,15 @@ FITTEST OF GENERATION 68
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 69
+RUNTIME: 0.000048 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 69
+CROSSOVER RUNTIME: 0.000313 ms
+LOCAL SEARCH RUNTIME: 0.000142 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7659,12 +7982,15 @@ FITTEST OF GENERATION 69
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 70
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 70
+CROSSOVER RUNTIME: 0.000331 ms
+LOCAL SEARCH RUNTIME: 0.000171 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7770,12 +8096,15 @@ FITTEST OF GENERATION 70
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 71
+RUNTIME: 0.000043 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 71
+CROSSOVER RUNTIME: 0.000352 ms
+LOCAL SEARCH RUNTIME: 0.000182 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7881,12 +8210,15 @@ FITTEST OF GENERATION 71
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 72
+RUNTIME: 0.000033 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 72
+CROSSOVER RUNTIME: 0.000343 ms
+LOCAL SEARCH RUNTIME: 0.000145 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -7992,12 +8324,15 @@ FITTEST OF GENERATION 72
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 73
+RUNTIME: 0.000038 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 73
+CROSSOVER RUNTIME: 0.000333 ms
+LOCAL SEARCH RUNTIME: 0.000124 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8103,12 +8438,15 @@ FITTEST OF GENERATION 73
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 74
+RUNTIME: 0.000044 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 74
+CROSSOVER RUNTIME: 0.000331 ms
+LOCAL SEARCH RUNTIME: 0.000225 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8214,12 +8552,15 @@ FITTEST OF GENERATION 74
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 75
+RUNTIME: 0.000043 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 75
+CROSSOVER RUNTIME: 0.000249 ms
+LOCAL SEARCH RUNTIME: 0.000093 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8325,12 +8666,15 @@ FITTEST OF GENERATION 75
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 76
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 76
+CROSSOVER RUNTIME: 0.000339 ms
+LOCAL SEARCH RUNTIME: 0.000203 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8436,12 +8780,15 @@ FITTEST OF GENERATION 76
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 77
+RUNTIME: 0.000040 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 77
+CROSSOVER RUNTIME: 0.000347 ms
+LOCAL SEARCH RUNTIME: 0.000097 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[0], 1 Profit: 111.043710 - Revenue: 340.000000 - Time: 91.582516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8547,12 +8894,15 @@ FITTEST OF GENERATION 77
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 78
+RUNTIME: 0.000044 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 78
+CROSSOVER RUNTIME: 0.000374 ms
+LOCAL SEARCH RUNTIME: 0.000154 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8658,12 +9008,15 @@ FITTEST OF GENERATION 78
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 79
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 79
+CROSSOVER RUNTIME: 0.000251 ms
+LOCAL SEARCH RUNTIME: 0.000096 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8769,12 +9122,15 @@ FITTEST OF GENERATION 79
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 80
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 80
+CROSSOVER RUNTIME: 0.000241 ms
+LOCAL SEARCH RUNTIME: 0.000124 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8880,12 +9236,15 @@ FITTEST OF GENERATION 80
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 81
+RUNTIME: 0.000041 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 81
+CROSSOVER RUNTIME: 0.000344 ms
+LOCAL SEARCH RUNTIME: 0.000105 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -8991,12 +9350,15 @@ FITTEST OF GENERATION 81
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 82
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 82
+CROSSOVER RUNTIME: 0.000275 ms
+LOCAL SEARCH RUNTIME: 0.000114 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9102,12 +9464,15 @@ FITTEST OF GENERATION 82
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 83
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 83
+CROSSOVER RUNTIME: 0.000356 ms
+LOCAL SEARCH RUNTIME: 0.000100 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9213,12 +9578,15 @@ FITTEST OF GENERATION 83
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 84
+RUNTIME: 0.000040 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 84
+CROSSOVER RUNTIME: 0.000322 ms
+LOCAL SEARCH RUNTIME: 0.000137 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9324,12 +9692,15 @@ FITTEST OF GENERATION 84
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 85
+RUNTIME: 0.000039 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 85
+CROSSOVER RUNTIME: 0.000329 ms
+LOCAL SEARCH RUNTIME: 0.000158 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9435,12 +9806,15 @@ FITTEST OF GENERATION 85
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 86
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 86
+CROSSOVER RUNTIME: 0.000342 ms
+LOCAL SEARCH RUNTIME: 0.000120 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9546,12 +9920,15 @@ FITTEST OF GENERATION 86
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 87
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 87
+CROSSOVER RUNTIME: 0.000374 ms
+LOCAL SEARCH RUNTIME: 0.000178 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9657,12 +10034,15 @@ FITTEST OF GENERATION 87
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 88
+RUNTIME: 0.000045 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 88
+CROSSOVER RUNTIME: 0.000350 ms
+LOCAL SEARCH RUNTIME: 0.000208 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9768,12 +10148,15 @@ FITTEST OF GENERATION 88
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 89
+RUNTIME: 0.000042 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 89
+CROSSOVER RUNTIME: 0.000297 ms
+LOCAL SEARCH RUNTIME: 0.000115 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9879,12 +10262,15 @@ FITTEST OF GENERATION 89
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 90
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 90
+CROSSOVER RUNTIME: 0.000243 ms
+LOCAL SEARCH RUNTIME: 0.000119 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -9990,12 +10376,15 @@ FITTEST OF GENERATION 90
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 91
+RUNTIME: 0.000032 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 91
+CROSSOVER RUNTIME: 0.000300 ms
+LOCAL SEARCH RUNTIME: 0.000120 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -10101,12 +10490,15 @@ FITTEST OF GENERATION 91
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 92
+RUNTIME: 0.000042 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 92
+CROSSOVER RUNTIME: 0.000351 ms
+LOCAL SEARCH RUNTIME: 0.000156 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -10212,12 +10604,15 @@ FITTEST OF GENERATION 92
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 93
+RUNTIME: 0.000046 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 93
+CROSSOVER RUNTIME: 0.000281 ms
+LOCAL SEARCH RUNTIME: 0.000092 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -10323,12 +10718,15 @@ FITTEST OF GENERATION 93
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 94
+RUNTIME: 0.000044 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 94
+CROSSOVER RUNTIME: 0.000360 ms
+LOCAL SEARCH RUNTIME: 0.000120 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -10434,12 +10832,15 @@ FITTEST OF GENERATION 94
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 95
+RUNTIME: 0.000219 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 95
+CROSSOVER RUNTIME: 0.000920 ms
+LOCAL SEARCH RUNTIME: 0.000147 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 4[0], 5[0], 3[1], 2[1], 1 Profit: 72.581716 - Revenue: 340.000000 - Time: 106.967314 - Distance: 15.620499
@@ -10545,12 +10946,15 @@ FITTEST OF GENERATION 95
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 96
+RUNTIME: 0.000084 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 96
+CROSSOVER RUNTIME: 0.000374 ms
+LOCAL SEARCH RUNTIME: 0.000154 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 5[0], 4[0], 3[1], 2[1], 1 Profit: 89.789359 - Revenue: 340.000000 - Time: 100.084256 - Distance: 15.620499
@@ -10656,12 +11060,15 @@ FITTEST OF GENERATION 96
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 97
+RUNTIME: 0.000040 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 97
+CROSSOVER RUNTIME: 0.000317 ms
+LOCAL SEARCH RUNTIME: 0.000099 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 5[0], 4[0], 3[1], 2[1], 1 Profit: 89.789359 - Revenue: 340.000000 - Time: 100.084256 - Distance: 15.620499
@@ -10767,12 +11174,15 @@ FITTEST OF GENERATION 97
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 98
+RUNTIME: 0.000044 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 98
+CROSSOVER RUNTIME: 0.000347 ms
+LOCAL SEARCH RUNTIME: 0.000144 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 5[0], 4[0], 3[1], 2[1], 1 Profit: 89.789359 - Revenue: 340.000000 - Time: 100.084256 - Distance: 15.620499
@@ -10878,12 +11288,15 @@ FITTEST OF GENERATION 98
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 99
+RUNTIME: 0.000047 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 99
+CROSSOVER RUNTIME: 0.000351 ms
+LOCAL SEARCH RUNTIME: 0.000139 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 5[0], 4[0], 3[1], 2[1], 1 Profit: 89.789359 - Revenue: 340.000000 - Time: 100.084256 - Distance: 15.620499
@@ -10989,12 +11402,15 @@ FITTEST OF GENERATION 99
 Fittest: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 PARENTS FOR GENERATION 100
+RUNTIME: 0.000204 ms
 Parent 0: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 1: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 2: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 Parent 3: 1, 2[1], 5[0], 4[0], 3[1], 1 Profit: 116.918711 - Revenue: 340.000000 - Time: 89.232516 - Distance: 29.732137
 
 POPULATION FOR GENERATION 100
+CROSSOVER RUNTIME: 0.000329 ms
+LOCAL SEARCH RUNTIME: 0.000119 ms
 Individual 0: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 1: 1, 2[1], 4[0], 3[1], 5[1], 1 Profit: 113.636209 - Revenue: 370.000000 - Time: 102.545516 - Distance: 17.204651
 Individual 2: 1, 5[0], 4[0], 3[1], 2[1], 1 Profit: 89.789359 - Revenue: 340.000000 - Time: 100.084256 - Distance: 15.620499

@@ -322,8 +322,8 @@ __global__ void populationTest(population* population)
 						{
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].id: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].id);
 							printf(" > population[%d].tours[%d].nodes[%d].items[%d].node: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].node);
-							printf(" > population[%d].tours[%d].nodes[%d].items[%d].value: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].value);
-							printf(" > population[%d].tours[%d].nodes[%d].items[%d].weight: %f\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].weight);
+							printf(" > population[%d].tours[%d].nodes[%d].items[%d].value: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].value);
+							printf(" > population[%d].tours[%d].nodes[%d].items[%d].weight: %d\n", p, t, n, i, population[p].tours[t].nodes[n].items[i].weight);
 						}
 					}
 				}
@@ -506,6 +506,67 @@ __global__ void evaluatePopulation(population* population, parameters* problem_p
 int main()
 {
 	/****************************************************************************************************
+	* DECLARE VARIABLES
+	****************************************************************************************************/
+
+	// File variables
+	char file_name[255];
+	char str[255];
+	char sub[255];
+	FILE* file_open;
+	size_t position;
+	const char openMode[] = "r";
+
+	// Problem params
+	parameters problem;
+	int** matrix;
+	char edge_weight_type[255];
+
+	unsigned int population_size = POPULATION_SIZE;
+	unsigned int tour_size = TOURS;
+
+	tour initial_tour;
+	population initial_population_cpu;
+	population initial_population_gpu;
+	tour fittestOnEarth;
+
+	tour host_parents[SELECTED_PARENTS];
+	tour host_tournament[TOURNAMENT_SIZE];
+
+	int deviceCount = 0;
+	cudaDeviceProp properties;
+	cudaError_t deviceErr;
+	cudaError_t err = cudaSuccess;
+
+	// Device Variables
+	population* device_population;
+	tour* device_initial_tour;
+	tour* device_parents;
+	tour* device_offspring;
+	parameters* device_parameters;
+	curandState* device_states;
+	//node* device_node_matrix;
+	//node* device_node_t_matrix;
+	//distance* device_distance;
+
+	// Counters
+	struct timespec startMethod;
+	struct timespec stopMethod;
+
+	struct timespec startCPU;
+	struct timespec stopCPU;
+
+	double elapsedTimeInitialPopulationCPU[NUMBER_EXECUTIONS];
+	double elapsedTimeCPU[NUMBER_EXECUTIONS];
+	double elapsedSelectionTotalCPU[NUMBER_EXECUTIONS];
+	double elapsedCrossoverTotalCPU[NUMBER_EXECUTIONS];
+	double elapsedLocalSearchTotalCPU[NUMBER_EXECUTIONS];
+
+	double elapsedSelectionCPU[NUM_EVOLUTIONS];
+	double elapsedCrossoverCPU[NUM_EVOLUTIONS];
+	double elapsedLocalSearchCPU[NUM_EVOLUTIONS];
+
+	/****************************************************************************************************
 	* PRINT SIZE OF STRUCTS
 	****************************************************************************************************/
 	printf("****************************************************************************************\n");
@@ -517,33 +578,13 @@ int main()
 	printf("POPULATION:			%lld\n", sizeof(population));
 	printf("PARAMETERS:			%lld\n", sizeof(parameters));
 	printf("****************************************************************************************\n");
-
-	/****************************************************************************************************
-	* DECLARE VARIABLES
-	****************************************************************************************************/
-
-	// File variables
-	char file_name[255], str[255], sub[255];
-	FILE* fp;
-	size_t position;
-	const char openMode[] = "r";
-
-	// Problem params
-	parameters problem;
-	int** matrix;
-	char edge_weight_type[1000];
-
-	unsigned int population_size = POPULATION_SIZE;
-	unsigned int tour_size = TOURS;
-
+	
 #pragma region PRINT GRAPHICAL PROCESSING UNIT PROPERTIES
 
 	/****************************************************************************************************
 	* PRINT START OF THE PROGRAM
 	****************************************************************************************************/
-	int deviceCount = 0;
-	cudaDeviceProp properties;
-	cudaError_t deviceErr = cudaGetDeviceCount(&deviceCount);
+	deviceErr = cudaGetDeviceCount(&deviceCount);
 	if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 	{
 		printf("****************************************************************************************\n");
@@ -577,10 +618,10 @@ int main()
 	printf("\n");
 
 	// Open the file in read mode
-	fp = fopen(file_name, openMode);
+	file_open = fopen(file_name, openMode);
 
 	// Validates for errors on file opening
-	if (fp == NULL)
+	if (file_open == NULL)
 	{
 		perror("Error while opening the file.\n");
 		exit(EXIT_FAILURE);
@@ -593,7 +634,7 @@ int main()
 	printf("The quantity of lines in the file are:	%d\n", countFileLines(file_name));
 
 	// Obtain general data from file
-	while (fgets(str, 100, fp) != NULL) {
+	while (fgets(str, 100, file_open) != NULL) {
 		position = findCharacterPosition(str, ':');
 		// Extract problem name
 		if (strncmp(str, NAME, strlen(NAME)) == 0)
@@ -655,7 +696,7 @@ int main()
 	}
 
 	// Close file
-	fclose(fp);
+	fclose(file_open);
 	printf("****************************************************************************************\n");
 	printf("\n");
 
@@ -679,13 +720,12 @@ int main()
 	* POPULATION INITIALIZATION ON HOST (CPU)
 	*************************************************************************************************/
 
-	tour initial_tour;
-	population initial_population_cpu;
-	population initial_population_gpu;
-
 	// Obtain the items
 	// Calculate amount of rows
 	unsigned int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
+
+	// Calculate amount of columns
+	unsigned int item_columns = 4;
 
 	// Validate file consistency
 	if (item_rows != problem.items_amount)
@@ -693,9 +733,6 @@ int main()
 		perror("The file information is not consistent. Number of items Inconsistency.\n");
 		exit(EXIT_FAILURE);
 	}
-
-	// Calculate amount of columns
-	unsigned int item_columns = 4;
 
 	// Get matrix
 	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, problem.items_amount, item_columns);
@@ -745,11 +782,21 @@ int main()
 	// Print node information
 	displayNodes(cpu_node, problem.cities_amount);
 
+	// Create File For Statistics
+	createStatisticsFile(problem.name, GPU, CPU);
+
 	for (int clockCounter = 0; clockCounter < NUMBER_EXECUTIONS; ++clockCounter)
 	{
-		createFile(problem.name, clockCounter);
-		// Assign nodes to tour
-		defineInitialTour(initial_tour, &problem, cpu_node, cpu_item);
+		// Create Results File 
+		createOutputFile(problem.name, GPU, CPU, clockCounter);
+
+		if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
+		{
+			printf("Error in calling timespec_get\n");
+			exit(EXIT_FAILURE);
+		}
+		// Assign nodes to tour		
+		defineInitialTour(initial_tour, &problem, cpu_node, cpu_item);		
 
 		// Calculate distance matrix in CPU
 		//int distance_matrix_size = problem.cities_amount * problem.cities_amount;
@@ -765,11 +812,26 @@ int main()
 		//displayDistance(d, distance_matrix_size);
 
 		// Initialize population by generating POPULATION_SIZE number of permutations of the initial tour, all starting at the same city
+		if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
+		{
+			printf("Error in calling timespec_get\n");
+			exit(EXIT_FAILURE);
+		}
 		initializePopulation(initial_population_cpu, initial_tour, problem);
-
-		saveInitialPopulation(problem.name, initial_population_cpu, problem, NO_CUDA, clockCounter);
-
-		printPopulation(initial_population_cpu);
+		if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+		{
+			printf("Error in calling timespec_get\n");
+			exit(EXIT_FAILURE);
+		}
+		elapsedTimeInitialPopulationCPU[clockCounter] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
+		saveInitialPopulation(problem.name, initial_population_cpu, problem, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter]);
+		//printPopulation(initial_population_cpu);
+		if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
+		{
+			printf("Error in calling timespec_get\n");
+			exit(EXIT_FAILURE);
+		}
+		elapsedTimeCPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
 
 #pragma endregion
 
@@ -777,22 +839,7 @@ int main()
 
 		/*************************************************************************************************
 		* POPULATION INITIALIZATION ON DEVICE (GPU)
-		*************************************************************************************************/
-
-		// Device Variables
-		population* device_population;
-		tour* device_initial_tour;
-		tour* device_parents;
-		tour* device_offspring;
-		parameters* device_parameters;
-		curandState* device_states;
-
-		//node* device_node_matrix;
-		//node* device_node_t_matrix;
-		//distance* device_distance;
-
-	//	float milliseconds = 0;
-	//	cudaEvent_t start, stop;
+		*************************************************************************************************/		
 
 		if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 		{
@@ -873,7 +920,7 @@ int main()
 			* OUTPUT
 			*************************************************************************************************/
 			printPopulation(initial_population_gpu);
-			saveInitialPopulation(problem.name, initial_population_gpu, problem, CUDA, clockCounter);
+			saveInitialPopulation(problem.name, initial_population_gpu, problem, CUDA, clockCounter, 0.0);
 		}
 #pragma endregion
 
@@ -917,9 +964,6 @@ int main()
 	/*************************************************************************************************
 	* EVOLVE POPULATION
 	*************************************************************************************************/
-
-		tour fittestOnEarth;
-
 		if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 		{
 			// Figure out fitness and distance for each individual in population
@@ -950,14 +994,15 @@ int main()
 			}
 			printf("\n\n");
 		}
-
-		cudaError_t err = cudaSuccess;
-
-		tour host_parents[SELECTED_PARENTS];
-		tour host_tournament[TOURNAMENT_SIZE];
-
+		
 		if (CPU)
 		{
+			if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
+			{
+				printf("Error in calling timespec_get\n");
+				exit(EXIT_FAILURE);
+			}
+
 			fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
 			saveFittest(problem.name, fittestOnEarth, problem, 0, NO_CUDA, clockCounter);
 			printf("FITTEST TOUR OF INITIAL POPULATION: \n");
@@ -977,6 +1022,13 @@ int main()
 				}
 			}
 			printf("\n\n");
+
+			if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
+			{
+				printf("Error in calling timespec_get\n");
+				exit(EXIT_FAILURE);
+			}
+			elapsedTimeCPU[clockCounter] += (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
 		}
 
 		for (int i = 0; i < NUM_EVOLUTIONS; ++i)
@@ -1001,7 +1053,7 @@ int main()
 				checkCudaErrors(cudaDeviceSynchronize());
 
 				// Save Parents Information To File
-				saveParents(problem.name, host_parents, problem, i + 1, CUDA, clockCounter);
+				saveParents(problem.name, host_parents, problem, i + 1, CUDA, clockCounter, 0.0);
 
 				// Breed the population performing crossover (Combination of Ordered Crossover 
 				// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
@@ -1028,7 +1080,7 @@ int main()
 				checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
 				checkCudaErrors(cudaDeviceSynchronize());
 
-				saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA, clockCounter + 1);
+				saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA, clockCounter, 0, 0);
 
 				// Get Fittest tour of the generation
 				fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
@@ -1055,24 +1107,62 @@ int main()
 			// CPU Genetic Algorithm
 			if (CPU)
 			{
-				// Select the best parents of the current generation
-				selection(initial_population_cpu, host_parents);
+				if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
 
-				saveParents(problem.name, host_parents, problem, i + 1, NO_CUDA, clockCounter + 1);
+				// Select the best parents of the current generation
+				if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+				selection(initial_population_cpu, host_parents);
+				if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+				elapsedSelectionCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
+				saveParents(problem.name, host_parents, problem, i + 1, NO_CUDA, clockCounter, elapsedSelectionCPU[i]);
 
 				// Breed the population performing crossover (Combination of Ordered Crossover 
 				// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
+				if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
 				crossover(initial_population_cpu, host_parents, problem);
+				if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+				elapsedCrossoverCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
 
 				//saveOffspring(problem.name, initial_population_cpu, problem, 666, NO_CUDA);
 
+				if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
 				localSearch(initial_population_cpu, problem);
+				if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+				elapsedLocalSearchCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
 
-				saveOffspring(problem.name, initial_population_cpu, problem, i + 1, NO_CUDA, clockCounter + 1);
+				saveOffspring(problem.name, initial_population_cpu, problem, i + 1, NO_CUDA, clockCounter, elapsedCrossoverCPU[i], elapsedLocalSearchCPU[i]);
 
 				// Get Fittest tour of the generation
 				fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
-				saveFittest(problem.name, fittestOnEarth, problem, i + 1, NO_CUDA, clockCounter + 1);
+				saveFittest(problem.name, fittestOnEarth, problem, i + 1, NO_CUDA, clockCounter);
 				printf("FITTEST TOUR OF GENERATION %d: \n", i + 1);
 				printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
 				printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
@@ -1090,6 +1180,13 @@ int main()
 					}
 				}
 				printf("\n\n");
+
+				if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+				elapsedTimeCPU[clockCounter] += (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
 			}
 		}
 
@@ -1112,6 +1209,61 @@ int main()
 			//cudaFree(device_node_t_matrix);
 			//cudaFree(device_distance);
 		}
+
+		double sumSelection = 0.0;
+		double sumCrossover = 0.0;
+		double sumLocalSearch = 0.0;
+		
+		double averageSelection;
+		double averageCrossover;
+		double averageLocalSearch;
+		double averageInitializePopulation;
+
+		for (int count = 0; count < NUM_EVOLUTIONS; ++count)
+		{
+			sumSelection += elapsedSelectionCPU[count];
+			sumCrossover += elapsedCrossoverCPU[count];
+			sumLocalSearch += elapsedLocalSearchCPU[count];
+		}
+		averageSelection = sumSelection / NUM_EVOLUTIONS;
+		averageCrossover = sumCrossover / NUM_EVOLUTIONS;
+		averageLocalSearch = sumLocalSearch / NUM_EVOLUTIONS;
+
+		saveStatistics(problem.name, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter], averageSelection, averageCrossover, averageLocalSearch, elapsedTimeCPU[clockCounter]);
+
+		elapsedSelectionTotalCPU[clockCounter] = sumSelection;
+		elapsedCrossoverTotalCPU[clockCounter] = sumCrossover;
+		elapsedLocalSearchTotalCPU[clockCounter] = sumLocalSearch;
 	}
+
+	double sumGlobalSelection = 0.0;
+	double sumGlobalCrossover = 0.0;
+	double sumGlobalLocalSearch = 0.0;
+	double sumGlobalInitializePopulation = 0.0;
+	double sumGlobalTotalTime = 0.0;
+
+	double averageGlobalSelection;
+	double averageGlobalCrossover;
+	double averageGlobalLocalSearch;
+	double averageGlobalInitializePopulation;
+	double averageGlobalExecutionTime;
+
+	for (int x = 0; x < NUMBER_EXECUTIONS; ++x)
+	{
+		sumGlobalInitializePopulation += elapsedTimeInitialPopulationCPU[x];
+		sumGlobalSelection += elapsedSelectionCPU[x];
+		sumGlobalCrossover += elapsedCrossoverCPU[x];
+		sumGlobalLocalSearch += elapsedLocalSearchCPU[x];
+		sumGlobalTotalTime += elapsedTimeCPU[x];
+	}
+
+	averageGlobalInitializePopulation = sumGlobalInitializePopulation / NUMBER_EXECUTIONS;
+	averageGlobalSelection = sumGlobalSelection / NUMBER_EXECUTIONS;
+	averageGlobalCrossover = sumGlobalCrossover / NUMBER_EXECUTIONS;
+	averageGlobalLocalSearch = sumGlobalLocalSearch / NUMBER_EXECUTIONS;
+	averageGlobalExecutionTime = sumGlobalTotalTime / NUMBER_EXECUTIONS;
+
+	saveGlobalStatistics(problem.name, NO_CUDA, averageGlobalInitializePopulation, averageGlobalSelection, averageGlobalCrossover, averageGlobalLocalSearch, averageGlobalExecutionTime);
+
 	return 0;
 }

@@ -24,7 +24,7 @@ int createFile(char* name, int fileNumber)
 	return 1;
 }
 
-int saveInitialPopulation(char* name, population& pop, parameters& problem, bool isCuda, int fileNumber)
+int saveInitialPopulation(char* name, population& pop, parameters& problem, bool isCuda, int fileNumber, double runtime)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -32,9 +32,9 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 	int bufferPos;
 
 	if(isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_GPU, fileNumber, name);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_CPU, fileNumber, name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -45,6 +45,8 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 
 	fprintf(fp, "\n");
 	fprintf(fp, "INITIAL POPULATION FOR %s", name);
+	fprintf(fp, "\n");
+	fprintf(fp, "RUNTIME: %f ms", runtime);
 	fprintf(fp, "\n");
 
 	for (int i = 0; i < TOURS; ++i)
@@ -81,7 +83,7 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 	return 1;
 }
 
-int saveOffspring(char* name, population& pop, parameters& problem, int generation, bool isCuda, int fileNumber)
+int saveOffspring(char* name, population& pop, parameters& problem, int generation, bool isCuda, int fileNumber, double crossoverRuntime, double localSearchRuntime)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -89,9 +91,9 @@ int saveOffspring(char* name, population& pop, parameters& problem, int generati
 	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_GPU, fileNumber, name);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_CPU, fileNumber, name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -101,7 +103,12 @@ int saveOffspring(char* name, population& pop, parameters& problem, int generati
 	}
 
 	fprintf(fp, "\n");
-	fprintf(fp, "POPULATION FOR GENERATION %d\n", generation);
+	fprintf(fp, "POPULATION FOR GENERATION %d", generation);
+	fprintf(fp, "\n");
+	fprintf(fp, "CROSSOVER RUNTIME: %f ms", crossoverRuntime);
+	fprintf(fp, "\n");
+	fprintf(fp, "LOCAL SEARCH RUNTIME: %f ms", localSearchRuntime);
+	fprintf(fp, "\n");
 
 	for (int i = 0; i < TOURS; ++i)
 	{
@@ -137,7 +144,7 @@ int saveOffspring(char* name, population& pop, parameters& problem, int generati
 	return 1;
 }
 
-int saveParents(char* name, tour* parents, parameters& problem, int generation, bool isCuda, int fileNumber)
+int saveParents(char* name, tour* parents, parameters& problem, int generation, bool isCuda, int fileNumber, double runtime)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -145,9 +152,9 @@ int saveParents(char* name, tour* parents, parameters& problem, int generation, 
 	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_GPU, fileNumber, name);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_CPU, fileNumber, name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -157,7 +164,10 @@ int saveParents(char* name, tour* parents, parameters& problem, int generation, 
 	}
 
 	fprintf(fp, "\n");
-	fprintf(fp, "PARENTS FOR GENERATION %d\n", generation);
+	fprintf(fp, "PARENTS FOR GENERATION %d", generation);
+	fprintf(fp, "\n");
+	fprintf(fp, "RUNTIME: %f ms", runtime);
+	fprintf(fp, "\n");
 
 	for (int i = 0; i < SELECTED_PARENTS; ++i)
 	{
@@ -201,9 +211,9 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_GPU, fileNumber, name);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_CPU, fileNumber, name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -245,16 +255,15 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 	return 1;
 }
 
-int saveRuntime(char* name, bool isCuda, int fileNumber, const char* kernelName, float runtime, int generation)
+int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitialize, double runtimeSelection, double runtimeCrossover, double runtimeLocalSearch, double runtimeExecution)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
-	char bufferWrite[WRITE_BUFFER];
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_STATISTICS_CUDA_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_STATISTICS_%s_%d.txt", name, fileNumber);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -262,12 +271,174 @@ int saveRuntime(char* name, bool isCuda, int fileNumber, const char* kernelName,
 		printf("No fue posible abrir el archivo");
 		return 0;
 	}
-
 	fprintf(fp, "\n");
-	snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "Runtime of Kernel %s in generation %d: %f ms", kernelName, generation, runtime);
-	fprintf(fp, "%s\n", bufferWrite);
+	fprintf(fp, "EXECUTION %d", fileNumber);
+	fprintf(fp, "\n");
+	fprintf(fp, "INITIALIZE POPULATION: %f ms", runtimeInitialize);
+	fprintf(fp, "\n");
+	fprintf(fp, "SELECTION AVERAGE: %f ms", runtimeSelection);
+	fprintf(fp, "\n");
+	fprintf(fp, "CROSSOVER AVERAGE: %f ms", runtimeCrossover);
+	fprintf(fp, "\n");
+	fprintf(fp, "LOCAL SEARCH AVERAGE: %f ms", runtimeLocalSearch);
+	fprintf(fp, "\n");
+	fprintf(fp, "TOTAL RUNTIME: %f ms", runtimeExecution);
+	fprintf(fp, "\n");
 
 	fclose(fp);
+	return 1;
+}
+
+int saveGlobalStatistics(char* name, bool isCuda, double runtimeInitialize, double runtimeSelection, double runtimeCrossover, double runtimeLocalSearch, double runtimeExecution)
+{
+	FILE* fp;
+	char bufferName[NAME_BUFFER];
+
+	if (isCuda)
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name);
+	else
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name);
+
+	fp = fopen(bufferName, "a");
+	if (fp == NULL)
+	{
+		printf("No fue posible abrir el archivo");
+		return 0;
+	}
+	fprintf(fp, "\n");
+	fprintf(fp, "\n");
+	fprintf(fp, "GLOBAL STATISTICS");
+	fprintf(fp, "\n");
+	fprintf(fp, "INITIALIZE POPULATION AVERAGE: %f ms", runtimeInitialize);
+	fprintf(fp, "\n");
+	fprintf(fp, "SELECTION AVERAGE: %f ms", runtimeSelection);
+	fprintf(fp, "\n");
+	fprintf(fp, "CROSSOVER AVERAGE: %f ms", runtimeCrossover);
+	fprintf(fp, "\n");
+	fprintf(fp, "LOCAL SEARCH AVERAGE: %f ms", runtimeLocalSearch);
+	fprintf(fp, "\n");
+	fprintf(fp, "TOTAL RUNTIME AVERAGE: %f ms", runtimeExecution);
+	fprintf(fp, "\n");
+
+	fclose(fp);
+	return 1;
+}
+
+int createStatisticsFile(char* name, bool generateGPUFile, bool generateCPUFile)
+{
+	FILE* fp_cpu;
+	FILE* fp_gpu;
+	char bufferName[NAME_BUFFER];
+
+	if (generateCPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name);
+
+		fp_cpu = fopen(bufferName, "w");
+		if (fp_cpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_cpu, "PROBLEM NAME: %s\n", name);
+		fprintf(fp_cpu, "EXECUTIONS: %d\n", NUMBER_EXECUTIONS);
+		fprintf(fp_cpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
+		fprintf(fp_cpu, "CITIES: %d\n", CITIES);
+		fprintf(fp_cpu, "ITEMS: %d\n", ITEMS);
+		fprintf(fp_cpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
+		fprintf(fp_cpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
+		fprintf(fp_cpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
+		fprintf(fp_cpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
+		fprintf(fp_cpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
+		fprintf(fp_cpu, "\n");
+
+		fclose(fp_cpu);
+	}
+
+	if (generateGPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name);
+
+		fp_gpu = fopen(bufferName, "w");
+		if (fp_gpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_gpu, "PROBLEM NAME: %s\n", name);
+		fprintf(fp_gpu, "EXECUTIONS: %d\n", NUMBER_EXECUTIONS);
+		fprintf(fp_gpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
+		fprintf(fp_gpu, "CITIES: %d\n", CITIES);
+		fprintf(fp_gpu, "ITEMS: %d\n", ITEMS);
+		fprintf(fp_gpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
+		fprintf(fp_gpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
+		fprintf(fp_gpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
+		fprintf(fp_gpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
+		fprintf(fp_gpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
+		fprintf(fp_gpu, "\n");
+
+		fclose(fp_gpu);
+	}
+	return 1;
+}
+
+int createOutputFile(char* name, bool generateGPUFile, bool generateCPUFile, int fileNumber)
+{
+	FILE* fp_cpu;
+	FILE* fp_gpu;
+	char bufferName[NAME_BUFFER];
+
+	if (generateCPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_CPU, fileNumber, name);
+
+		fp_cpu = fopen(bufferName, "w");
+		if (fp_cpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_cpu, "PROBLEM NAME: %s\n", name);
+		fprintf(fp_cpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
+		fprintf(fp_cpu, "CITIES: %d\n", CITIES);
+		fprintf(fp_cpu, "ITEMS: %d\n", ITEMS);
+		fprintf(fp_cpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
+		fprintf(fp_cpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
+		fprintf(fp_cpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
+		fprintf(fp_cpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
+		fprintf(fp_cpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
+		fprintf(fp_cpu, "\n");
+
+		fclose(fp_cpu);
+	}
+
+	if (generateGPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, RESULTS_FILE_NAME_GPU, fileNumber, name);
+
+		fp_gpu = fopen(bufferName, "w");
+		if (fp_gpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_gpu, "PROBLEM NAME: %s\n", name);
+		fprintf(fp_gpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
+		fprintf(fp_gpu, "CITIES: %d\n", CITIES);
+		fprintf(fp_gpu, "ITEMS: %d\n", ITEMS);
+		fprintf(fp_gpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
+		fprintf(fp_gpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
+		fprintf(fp_gpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
+		fprintf(fp_gpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
+		fprintf(fp_gpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
+		fprintf(fp_gpu, "\n");
+
+		fclose(fp_gpu);
+	}
 	return 1;
 }
 
