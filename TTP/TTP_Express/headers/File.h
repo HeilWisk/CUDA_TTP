@@ -6,12 +6,12 @@
 /// </summary>
 /// <param name="name">Name of the problem</param>
 /// <returns></returns>
-int createFile(char* name)
+int createFile(char* name, int fileNumber)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
 
-	snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+	snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
 
 	fp = fopen(bufferName, "w");
 	if (fp == NULL)
@@ -20,12 +20,11 @@ int createFile(char* name)
 		return 0;
 	}
 
-	fprintf(fp, "INITIAL POPULATION FOR %s", name);
 	fclose(fp);
 	return 1;
 }
 
-int saveInitialPopulation(char* name, population& pop, parameters& problem, bool isCuda)
+int saveInitialPopulation(char* name, population& pop, parameters& problem, bool isCuda, int fileNumber)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -33,9 +32,9 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 	int bufferPos;
 
 	if(isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -44,6 +43,8 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 		return 0;
 	}
 
+	fprintf(fp, "\n");
+	fprintf(fp, "INITIAL POPULATION FOR %s", name);
 	fprintf(fp, "\n");
 
 	for (int i = 0; i < TOURS; ++i)
@@ -80,7 +81,7 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 	return 1;
 }
 
-int saveOffspring(char* name, population& pop, parameters& problem, int generation, bool isCuda)
+int saveOffspring(char* name, population& pop, parameters& problem, int generation, bool isCuda, int fileNumber)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -88,9 +89,9 @@ int saveOffspring(char* name, population& pop, parameters& problem, int generati
 	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -136,7 +137,7 @@ int saveOffspring(char* name, population& pop, parameters& problem, int generati
 	return 1;
 }
 
-int saveParents(char* name, tour* parents, parameters& problem, int generation, bool isCuda)
+int saveParents(char* name, tour* parents, parameters& problem, int generation, bool isCuda, int fileNumber)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -144,9 +145,9 @@ int saveParents(char* name, tour* parents, parameters& problem, int generation, 
 	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -192,7 +193,7 @@ int saveParents(char* name, tour* parents, parameters& problem, int generation, 
 	return 1;
 }
 
-int saveFittest(char* name, tour fittest, parameters& problem, int generation, bool isCuda)
+int saveFittest(char* name, tour fittest, parameters& problem, int generation, bool isCuda, int fileNumber)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -200,9 +201,9 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_CUDA_%s_%d.txt", name, fileNumber);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s.txt", name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_%s_%d.txt", name, fileNumber);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -238,6 +239,32 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 		}
 	}
 	bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", fittest.fitness, fittest.profit, fittest.time, fittest.total_distance);
+	fprintf(fp, "%s\n", bufferWrite);
+
+	fclose(fp);
+	return 1;
+}
+
+int saveRuntime(char* name, bool isCuda, int fileNumber, const char* kernelName, float runtime, int generation)
+{
+	FILE* fp;
+	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
+
+	if (isCuda)
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_STATISTICS_CUDA_%s_%d.txt", name, fileNumber);
+	else
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, ".\\output\\output_STATISTICS_%s_%d.txt", name, fileNumber);
+
+	fp = fopen(bufferName, "a");
+	if (fp == NULL)
+	{
+		printf("No fue posible abrir el archivo");
+		return 0;
+	}
+
+	fprintf(fp, "\n");
+	snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "Runtime of Kernel %s in generation %d: %f ms", kernelName, generation, runtime);
 	fprintf(fp, "%s\n", bufferWrite);
 
 	fclose(fp);

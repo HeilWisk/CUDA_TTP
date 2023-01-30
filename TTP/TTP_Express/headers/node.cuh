@@ -120,8 +120,8 @@ void extractNodes(int** matrix, int rows, node* c) {
 void extractItems(int** matrix, int rows, node& node) {
 	for (int s = 0; s < rows; ++s) {
 		node.items[s].id = matrix[s][0];
-		node.items[s].value = (double)matrix[s][1];
-		node.items[s].weight = (double)matrix[s][2];
+		node.items[s].value = matrix[s][1];
+		node.items[s].weight = matrix[s][2];
 		node.items[s].node = matrix[s][3];
 	}
 }
