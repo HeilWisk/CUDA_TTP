@@ -255,7 +255,7 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 	return 1;
 }
 
-int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitialize, double meanSelection, double meanCrossover, double meanLocalSearch, double runtimeExecution)
+int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitialize, double meanSelection, double meanCrossover, double meanLocalSearch, double medianSelection, double medianCrossover, double medianLocalSearch, double modeSelection, double modeCrossover, double modeLocalSearch, double sdSelection, double sdCrossover, double sdLocalSearch, double runtimeExecution)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -276,11 +276,13 @@ int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitia
 	fprintf(fp, "\n");
 	fprintf(fp, "INITIALIZE POPULATION: %f ms", runtimeInitialize);
 	fprintf(fp, "\n");
-	fprintf(fp, "SELECTION AVERAGE: %f ms", meanSelection);
+	fprintf(fp, "MEAN: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms", meanSelection, meanCrossover, meanLocalSearch);
 	fprintf(fp, "\n");
-	fprintf(fp, "CROSSOVER AVERAGE: %f ms", meanCrossover);
+	fprintf(fp, "MEDIAN: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms", medianSelection, medianCrossover, medianLocalSearch);
 	fprintf(fp, "\n");
-	fprintf(fp, "LOCAL SEARCH AVERAGE: %f ms", meanLocalSearch);
+	fprintf(fp, "MODE: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms", modeSelection, modeCrossover, modeLocalSearch);
+	fprintf(fp, "\n");
+	fprintf(fp, "STANDARD DEVIATION: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms", sdSelection, sdCrossover, sdLocalSearch);
 	fprintf(fp, "\n");
 	fprintf(fp, "TOTAL RUNTIME: %f ms", runtimeExecution);
 	fprintf(fp, "\n");
@@ -289,7 +291,7 @@ int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitia
 	return 1;
 }
 
-int saveGlobalStatistics(char* name, bool isCuda, double runtimeInitialize, double runtimeSelection, double runtimeCrossover, double runtimeLocalSearch, double runtimeExecution)
+int saveGlobalStatistics(char* name, bool isCuda, double meanInitialize, double meanSelection, double meanCrossover, double meanLocalSearch, double meanTotalRuntime, double medianInitialize, double medianSelection, double medianCrossover, double medianLocalSearch, double medianTotalRuntime, double modeInitialize, double modeSelection, double modeCrossover, double modeLocalSearch, double modeTotalRuntime, double sdInitialize, double sdSelection, double sdCrossover, double sdLocalSearch, double sdTotalRuntime)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -309,15 +311,13 @@ int saveGlobalStatistics(char* name, bool isCuda, double runtimeInitialize, doub
 	fprintf(fp, "\n");
 	fprintf(fp, "GLOBAL STATISTICS");
 	fprintf(fp, "\n");
-	fprintf(fp, "INITIALIZE POPULATION AVERAGE: %f ms", runtimeInitialize);
+	fprintf(fp, "MEAN: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - TOTAL RUNTIME %f ms", meanInitialize, meanSelection, meanCrossover, meanLocalSearch, meanTotalRuntime);
 	fprintf(fp, "\n");
-	fprintf(fp, "SELECTION AVERAGE: %f ms", runtimeSelection);
+	fprintf(fp, "MEDIAN: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - TOTAL RUNTIME %f ms", medianInitialize, medianSelection, medianCrossover, medianLocalSearch, medianTotalRuntime);
 	fprintf(fp, "\n");
-	fprintf(fp, "CROSSOVER AVERAGE: %f ms", runtimeCrossover);
+	fprintf(fp, "MODE: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - TOTAL RUNTIME %f ms", modeInitialize, modeSelection, modeCrossover, modeLocalSearch, modeTotalRuntime);
 	fprintf(fp, "\n");
-	fprintf(fp, "LOCAL SEARCH AVERAGE: %f ms", runtimeLocalSearch);
-	fprintf(fp, "\n");
-	fprintf(fp, "TOTAL RUNTIME AVERAGE: %f ms", runtimeExecution);
+	fprintf(fp, "STANDARD DEVIATION: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - TOTAL RUNTIME %f ms", sdInitialize, sdSelection, sdCrossover, sdLocalSearch, sdTotalRuntime);
 	fprintf(fp, "\n");
 
 	fclose(fp);

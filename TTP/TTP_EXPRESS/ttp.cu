@@ -51,7 +51,7 @@ float mean(double array[], int n)
 	{
 		sum = sum + array[i];
 	}
-	return (sum / n);
+	return (float)(sum / n);
 }
 
 float median(float array[], int n)
@@ -59,7 +59,7 @@ float median(float array[], int n)
 	float temp;
 	for (int i = n - 1; i >= 0; --i)
 	{
-		for (int j = 0; j <= i; ++j)
+		for (int j = 0; j < i; ++j)
 		{
 			if (array[j] >= array[j + 1])
 			{
@@ -84,7 +84,7 @@ float median(double array[], int n)
 	double temp;
 	for (int i = n - 1; i >= 0; --i)
 	{
-		for (int j = 0; j <= i; ++j)
+		for (int j = 0; j < i; ++j)
 		{
 			if (array[j] >= array[j + 1])
 			{
@@ -96,11 +96,11 @@ float median(double array[], int n)
 	}
 	if (n % 2 == 0)
 	{
-		return (array[n / 2] + array[n / 2 - 1]) / 2;
+		return (float)(array[n / 2] + array[n / 2 - 1]) / 2;
 	}
 	else
 	{
-		return array[n / 2];
+		return (float)array[n / 2];
 	}
 }
 
@@ -120,7 +120,7 @@ double standardDeviation(float array[], int n)
 	meanThis = mean(array, n);
 	sum = 0;
 	int j;
-	for (j = 0; j <= n; ++j)
+	for (j = 0; j < n; ++j)
 	{
 		max[j] = pow((array[j] - meanThis), 2);
 		sum += max[j];
@@ -135,7 +135,7 @@ double standardDeviation(double array[], int n)
 	meanThis = mean(array, n);
 	sum = 0;
 	int j;
-	for (j = 0; j <= n; ++j)
+	for (j = 0; j < n; ++j)
 	{
 		max[j] = pow((array[j] - meanThis), 2);
 		sum += max[j];
@@ -154,7 +154,7 @@ double sumArray(double array[], int n)
 	return sum;
 }
 
-double sumArray(float array[], int n)
+float sumArray(float array[], int n)
 {
 	float sum = 0;
 	for (int i = 0; i < n; i++)
@@ -713,19 +713,37 @@ int main()
 	double medianSelection;
 	double medianCrossover;
 	double medianLocalSearch;
-	double dsSelection;
-	double dsCrossover;
-	double dsLocalSearch;
+	double modeSelection;
+	double modeCrossover;
+	double modeLocalSearch;
+	double sdSelection;
+	double sdCrossover;
+	double sdLocalSearch;
 
-	double meanGSelection;
-	double meanGCrossover;
-	double meanGLocalSearch;
-	double medianGSelection;
-	double medianGCrossover;
-	double medianGLocalSearch;
-	double dsGSelection;
-	double dsGCrossover;
-	double dsGLocalSearch;
+	double meanGlobalSelection;
+	double meanGlobalCrossover;
+	double meanGlobalLocalSearch;
+	double meanGlobalInitializePopulation;
+	double meanGlobalExecutionTime;
+
+	double medianGlobalSelection;
+	double medianGlobalCrossover;
+	double medianGlobalLocalSearch;
+	double medianGlobalInitializePopulation;
+	double medianGlobalExecutionTime;
+	
+	double modeGlobalSelection;
+	double modeGlobalCrossover;
+	double modeGlobalLocalSearch;
+	double modeGlobalInitializePopulation;
+	double modeGlobalExecutionTime;
+	
+	double sdGlobalSelection;
+	double sdGlobalCrossover;
+	double sdGlobalLocalSearch;
+	double sdGlobalInitializePopulation;
+	double sdGlobalExecutionTime;
+	
 
 #pragma endregion
 
@@ -1059,22 +1077,35 @@ int main()
 					}
 				}
 				printf("\n\n");
-
-				if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
-				{
-					printf("Error in calling timespec_get\n");
-					exit(EXIT_FAILURE);
-				}
-
-				elapsedTimeCPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
+				
 				//(double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
 			}
+
+			if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
+			{
+				printf("Error in calling timespec_get\n");
+				exit(EXIT_FAILURE);
+			}
+
+			elapsedTimeCPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
 
 			meanSelection = mean(elapsedSelectionCPU, NUM_EVOLUTIONS);
 			meanCrossover = mean(elapsedCrossoverCPU, NUM_EVOLUTIONS);
 			meanLocalSearch = mean(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
 
-			saveStatistics(problem.name, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, elapsedTimeCPU[clockCounter]);
+			medianSelection = median(elapsedSelectionCPU, NUM_EVOLUTIONS);
+			medianCrossover = median(elapsedCrossoverCPU, NUM_EVOLUTIONS);
+			medianLocalSearch = median(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+
+			modeSelection = mode(elapsedSelectionCPU, NUM_EVOLUTIONS);
+			modeCrossover = mode(elapsedCrossoverCPU, NUM_EVOLUTIONS);
+			modeLocalSearch = mode(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+
+			sdSelection = standardDeviation(elapsedSelectionCPU, NUM_EVOLUTIONS);
+			sdCrossover = standardDeviation(elapsedCrossoverCPU, NUM_EVOLUTIONS);
+			sdLocalSearch = standardDeviation(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+
+			saveStatistics(problem.name, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, medianSelection, medianCrossover, medianLocalSearch, modeSelection, modeCrossover, modeLocalSearch, sdSelection, sdCrossover, sdLocalSearch, elapsedTimeCPU[clockCounter]);
 
 			elapsedSelectionTotalCPU[clockCounter] = sumArray(elapsedSelectionCPU, NUM_EVOLUTIONS);
 			elapsedCrossoverTotalCPU[clockCounter] = sumArray(elapsedCrossoverCPU, NUM_EVOLUTIONS);
@@ -1127,7 +1158,7 @@ int main()
 				exit(EXIT_FAILURE);
 			}
 
-			elapsedTimeGPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
+			elapsedTimeGPU[clockCounter] = (float)(stopCPU.tv_sec - startCPU.tv_sec) + ((float)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
 
 			if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 			{
@@ -1333,35 +1364,27 @@ int main()
 				checkCudaErrors(cudaEventDestroy(stopGPU));
 			}
 
-			double sumSelection = 0.0;
-			double sumCrossover = 0.0;
-			double sumLocalSearch = 0.0;
+			meanSelection = mean(elapsedSelectionGPU, NUM_EVOLUTIONS);
+			meanCrossover = mean(elapsedCrossoverGPU, NUM_EVOLUTIONS);
+			meanLocalSearch = mean(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
 
-			for (int count = 0; count < NUM_EVOLUTIONS; ++count)
-			{
-				sumSelection += elapsedSelectionGPU[count];
-				sumCrossover += elapsedCrossoverGPU[count];
-				sumLocalSearch += elapsedLocalSearchGPU[count];
-			}
-			averageSelection = sumSelection / NUM_EVOLUTIONS;
-			averageCrossover = sumCrossover / NUM_EVOLUTIONS;
-			averageLocalSearch = sumLocalSearch / NUM_EVOLUTIONS;
+			medianSelection = median(elapsedSelectionGPU, NUM_EVOLUTIONS);
+			medianCrossover = median(elapsedCrossoverGPU, NUM_EVOLUTIONS);
+			medianLocalSearch = median(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
 
-			float meanSelection = mean(elapsedSelectionGPU, NUM_EVOLUTIONS);
-			float meanCrossover = mean(elapsedCrossoverGPU, NUM_EVOLUTIONS);
-			float meanLocalSearch = mean(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
-			float medianSelection = 1;
-			float medianCrossover = 1;
-			float medianLocalSearch = 1;
-			float dsSelection = 1;
-			float dsCrossover = 1;
-			float dsLocalSearch = 1;
+			modeSelection = mode(elapsedSelectionGPU, NUM_EVOLUTIONS);
+			modeCrossover = mode(elapsedCrossoverGPU, NUM_EVOLUTIONS);
+			modeLocalSearch = mode(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
 
-			saveStatistics(problem.name, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter], averageSelection, averageCrossover, averageLocalSearch, elapsedTimeGPU[clockCounter]);
+			sdSelection = standardDeviation(elapsedSelectionGPU, NUM_EVOLUTIONS);
+			sdCrossover = standardDeviation(elapsedCrossoverGPU, NUM_EVOLUTIONS);
+			sdLocalSearch = standardDeviation(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
 
-			elapsedSelectionTotalGPU[clockCounter] = sumSelection;
-			elapsedCrossoverTotalGPU[clockCounter] = sumCrossover;
-			elapsedLocalSearchTotalGPU[clockCounter] = sumLocalSearch;
+			saveStatistics(problem.name, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, medianSelection, medianCrossover, medianLocalSearch, modeSelection, modeCrossover, modeLocalSearch, sdSelection, sdCrossover, sdLocalSearch, elapsedTimeGPU[clockCounter]);
+
+			elapsedSelectionTotalGPU[clockCounter] = sumArray(elapsedSelectionGPU, NUM_EVOLUTIONS);
+			elapsedCrossoverTotalGPU[clockCounter] = sumArray(elapsedCrossoverGPU, NUM_EVOLUTIONS);
+			elapsedLocalSearchTotalGPU[clockCounter] = sumArray(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
 		}
 #pragma endregion
 
@@ -1416,61 +1439,62 @@ int main()
 #pragma endregion		
 	}
 
-	double sumGlobalSelection = 0.0;
-	double sumGlobalCrossover = 0.0;
-	double sumGlobalLocalSearch = 0.0;
-	double sumGlobalInitializePopulation = 0.0;
-	double sumGlobalTotalTime = 0.0;
-
-	double averageGlobalSelection;
-	double averageGlobalCrossover;
-	double averageGlobalLocalSearch;
-	double averageGlobalInitializePopulation;
-	double averageGlobalExecutionTime;
 	if (CPU)
 	{
-		for (int x = 0; x < NUMBER_EXECUTIONS; ++x)
-		{
-			sumGlobalInitializePopulation += elapsedTimeInitialPopulationCPU[x];
-			sumGlobalSelection += elapsedSelectionCPU[x];
-			sumGlobalCrossover += elapsedCrossoverCPU[x];
-			sumGlobalLocalSearch += elapsedLocalSearchCPU[x];
-			sumGlobalTotalTime += elapsedTimeCPU[x];
-		}
+		meanGlobalInitializePopulation = mean(elapsedTimeInitialPopulationCPU, NUMBER_EXECUTIONS);
+		meanGlobalSelection = mean(elapsedSelectionTotalCPU, NUMBER_EXECUTIONS);
+		meanGlobalCrossover = mean(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
+		meanGlobalLocalSearch = mean(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
+		meanGlobalExecutionTime = mean(elapsedTimeCPU, NUMBER_EXECUTIONS);
 
-		averageGlobalInitializePopulation = sumGlobalInitializePopulation / NUMBER_EXECUTIONS;
-		averageGlobalSelection = sumGlobalSelection / NUMBER_EXECUTIONS;
-		averageGlobalCrossover = sumGlobalCrossover / NUMBER_EXECUTIONS;
-		averageGlobalLocalSearch = sumGlobalLocalSearch / NUMBER_EXECUTIONS;
-		averageGlobalExecutionTime = sumGlobalTotalTime / NUMBER_EXECUTIONS;
+		medianGlobalInitializePopulation = median(elapsedTimeInitialPopulationCPU, NUMBER_EXECUTIONS);
+		medianGlobalSelection = median(elapsedSelectionTotalCPU, NUMBER_EXECUTIONS);
+		medianGlobalCrossover = median(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
+		medianGlobalLocalSearch = median(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
+		medianGlobalExecutionTime = median(elapsedTimeCPU, NUMBER_EXECUTIONS);
 
-		saveGlobalStatistics(problem.name, NO_CUDA, averageGlobalInitializePopulation, averageGlobalSelection, averageGlobalCrossover, averageGlobalLocalSearch, averageGlobalExecutionTime);
+		modeGlobalInitializePopulation = mode(elapsedTimeInitialPopulationCPU, NUMBER_EXECUTIONS);
+		modeGlobalSelection = mode(elapsedSelectionTotalCPU, NUMBER_EXECUTIONS);
+		modeGlobalCrossover = mode(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
+		modeGlobalLocalSearch = mode(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
+		modeGlobalExecutionTime = mode(elapsedTimeCPU, NUMBER_EXECUTIONS);
+
+		sdGlobalInitializePopulation = standardDeviation(elapsedTimeInitialPopulationCPU, NUMBER_EXECUTIONS);
+		sdGlobalSelection = standardDeviation(elapsedSelectionTotalCPU, NUMBER_EXECUTIONS);
+		sdGlobalCrossover = standardDeviation(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
+		sdGlobalLocalSearch = standardDeviation(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
+		sdGlobalExecutionTime = standardDeviation(elapsedTimeCPU, NUMBER_EXECUTIONS);
+
+		saveGlobalStatistics(problem.name, NO_CUDA, meanGlobalInitializePopulation, meanGlobalSelection, meanGlobalCrossover, meanGlobalLocalSearch, meanGlobalExecutionTime, medianGlobalInitializePopulation, medianGlobalSelection, medianGlobalCrossover, medianGlobalLocalSearch, medianGlobalExecutionTime, modeGlobalInitializePopulation, modeGlobalSelection, modeGlobalCrossover, modeGlobalLocalSearch, modeGlobalExecutionTime, sdGlobalInitializePopulation, sdGlobalSelection, sdGlobalCrossover, sdGlobalLocalSearch, sdGlobalExecutionTime);
 	}
 
 	if (GPU)
 	{
-		sumGlobalSelection = 0.0;
-		sumGlobalCrossover = 0.0;
-		sumGlobalLocalSearch = 0.0;
-		sumGlobalInitializePopulation = 0.0;
-		sumGlobalTotalTime = 0.0;
+		meanGlobalInitializePopulation = mean(elapsedTimeInitialPopulationGPU, NUMBER_EXECUTIONS);
+		meanGlobalSelection = mean(elapsedSelectionTotalGPU, NUMBER_EXECUTIONS);
+		meanGlobalCrossover = mean(elapsedCrossoverTotalGPU, NUMBER_EXECUTIONS);
+		meanGlobalLocalSearch = mean(elapsedLocalSearchTotalGPU, NUMBER_EXECUTIONS);
+		meanGlobalExecutionTime = mean(elapsedTimeGPU, NUMBER_EXECUTIONS);
 
-		for (int x = 0; x < NUMBER_EXECUTIONS; ++x)
-		{
-			sumGlobalInitializePopulation += elapsedTimeInitialPopulationGPU[x];
-			sumGlobalSelection += elapsedSelectionGPU[x];
-			sumGlobalCrossover += elapsedCrossoverGPU[x];
-			sumGlobalLocalSearch += elapsedLocalSearchGPU[x];
-			sumGlobalTotalTime += elapsedTimeGPU[x];
-		}
+		medianGlobalInitializePopulation = median(elapsedTimeInitialPopulationGPU, NUMBER_EXECUTIONS);
+		medianGlobalSelection = median(elapsedSelectionTotalGPU, NUMBER_EXECUTIONS);
+		medianGlobalCrossover = median(elapsedCrossoverTotalGPU, NUMBER_EXECUTIONS);
+		medianGlobalLocalSearch = median(elapsedLocalSearchTotalGPU, NUMBER_EXECUTIONS);
+		medianGlobalExecutionTime = median(elapsedTimeGPU, NUMBER_EXECUTIONS);
 
-		averageGlobalInitializePopulation = sumGlobalInitializePopulation / NUMBER_EXECUTIONS;
-		averageGlobalSelection = sumGlobalSelection / NUMBER_EXECUTIONS;
-		averageGlobalCrossover = sumGlobalCrossover / NUMBER_EXECUTIONS;
-		averageGlobalLocalSearch = sumGlobalLocalSearch / NUMBER_EXECUTIONS;
-		averageGlobalExecutionTime = sumGlobalTotalTime / NUMBER_EXECUTIONS;
+		modeGlobalInitializePopulation = mode(elapsedTimeInitialPopulationGPU, NUMBER_EXECUTIONS);
+		modeGlobalSelection = mode(elapsedSelectionTotalGPU, NUMBER_EXECUTIONS);
+		modeGlobalCrossover = mode(elapsedCrossoverTotalGPU, NUMBER_EXECUTIONS);
+		modeGlobalLocalSearch = mode(elapsedLocalSearchTotalGPU, NUMBER_EXECUTIONS);
+		modeGlobalExecutionTime = mode(elapsedTimeGPU, NUMBER_EXECUTIONS);
 
-		saveGlobalStatistics(problem.name, CUDA, averageGlobalInitializePopulation, averageGlobalSelection, averageGlobalCrossover, averageGlobalLocalSearch, averageGlobalExecutionTime);
+		sdGlobalInitializePopulation = standardDeviation(elapsedTimeInitialPopulationGPU, NUMBER_EXECUTIONS);
+		sdGlobalSelection = standardDeviation(elapsedSelectionTotalGPU, NUMBER_EXECUTIONS);
+		sdGlobalCrossover = standardDeviation(elapsedCrossoverTotalGPU, NUMBER_EXECUTIONS);
+		sdGlobalLocalSearch = standardDeviation(elapsedLocalSearchTotalGPU, NUMBER_EXECUTIONS);
+		sdGlobalExecutionTime = standardDeviation(elapsedTimeGPU, NUMBER_EXECUTIONS);
+
+		saveGlobalStatistics(problem.name, CUDA, meanGlobalInitializePopulation, meanGlobalSelection, meanGlobalCrossover, meanGlobalLocalSearch, meanGlobalExecutionTime, medianGlobalInitializePopulation, medianGlobalSelection, medianGlobalCrossover, medianGlobalLocalSearch, medianGlobalExecutionTime, modeGlobalInitializePopulation, modeGlobalSelection, modeGlobalCrossover, modeGlobalLocalSearch, modeGlobalExecutionTime, sdGlobalInitializePopulation, sdGlobalSelection, sdGlobalCrossover, sdGlobalLocalSearch, sdGlobalExecutionTime);
 	}
 	return 0;
 }
