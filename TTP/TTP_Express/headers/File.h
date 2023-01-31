@@ -255,7 +255,7 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 	return 1;
 }
 
-int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitialize, double runtimeSelection, double runtimeCrossover, double runtimeLocalSearch, double runtimeExecution)
+int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitialize, double meanSelection, double meanCrossover, double meanLocalSearch, double runtimeExecution)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
@@ -276,11 +276,11 @@ int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitia
 	fprintf(fp, "\n");
 	fprintf(fp, "INITIALIZE POPULATION: %f ms", runtimeInitialize);
 	fprintf(fp, "\n");
-	fprintf(fp, "SELECTION AVERAGE: %f ms", runtimeSelection);
+	fprintf(fp, "SELECTION AVERAGE: %f ms", meanSelection);
 	fprintf(fp, "\n");
-	fprintf(fp, "CROSSOVER AVERAGE: %f ms", runtimeCrossover);
+	fprintf(fp, "CROSSOVER AVERAGE: %f ms", meanCrossover);
 	fprintf(fp, "\n");
-	fprintf(fp, "LOCAL SEARCH AVERAGE: %f ms", runtimeLocalSearch);
+	fprintf(fp, "LOCAL SEARCH AVERAGE: %f ms", meanLocalSearch);
 	fprintf(fp, "\n");
 	fprintf(fp, "TOTAL RUNTIME: %f ms", runtimeExecution);
 	fprintf(fp, "\n");

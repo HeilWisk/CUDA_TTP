@@ -100,6 +100,11 @@ __global__ void initializePopulationCuda(population* initialPopulation, tour* in
 	for (int i = 1; i < CITIES; ++i)
 	{
 		randomPickup(local_tour.nodes[i].items, &local_state);
+	}
+
+	// Shuffle solution
+	for (int i = 1; i < CITIES; ++i)
+	{
 		int randPos = 1 + (curand(&local_state) % (CITIES - 1));
 		node tempNode = local_tour.nodes[i];
 		local_tour.nodes[i] = local_tour.nodes[randPos];

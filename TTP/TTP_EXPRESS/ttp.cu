@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <vector>
+#include <time.h>
 
 #include "headers/helper_functions.h"
 #include "headers/helper_cuda.h"
@@ -33,15 +34,135 @@
 #define NODE_COORD_SECTION "NODE_COORD_SECTION	(INDEX, X, Y):"
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
 
-static void HandleError(cudaError_t err, const char* file, int line)
+float mean(float array[], int n)
 {
-	if (err != cudaSuccess) {
-		printf("%s in %s at line %d\n", cudaGetErrorString(err), file, line);
-		getchar();
-		exit(EXIT_FAILURE);
+	float sum = 0;
+	for (int i = 0; i < n; i++)
+	{
+		sum = sum + array[i];
+	}
+	return (sum / n);
+}
+
+float mean(double array[], int n)
+{
+	double sum = 0;
+	for (int i = 0; i < n; i++)
+	{
+		sum = sum + array[i];
+	}
+	return (sum / n);
+}
+
+float median(float array[], int n)
+{
+	float temp;
+	for (int i = n - 1; i >= 0; --i)
+	{
+		for (int j = 0; j <= i; ++j)
+		{
+			if (array[j] >= array[j + 1])
+			{
+				temp = array[j];
+				array[j] = array[j + 1];
+				array[j + 1] = temp;
+			}
+		}
+	}
+	if (n % 2 == 0)
+	{
+		return (array[n / 2] + array[n / 2 - 1]) / 2;
+	}
+	else
+	{
+		return array[n / 2];
 	}
 }
-#define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
+
+float median(double array[], int n)
+{
+	double temp;
+	for (int i = n - 1; i >= 0; --i)
+	{
+		for (int j = 0; j <= i; ++j)
+		{
+			if (array[j] >= array[j + 1])
+			{
+				temp = array[j];
+				array[j] = array[j + 1];
+				array[j + 1] = temp;
+			}
+		}
+	}
+	if (n % 2 == 0)
+	{
+		return (array[n / 2] + array[n / 2 - 1]) / 2;
+	}
+	else
+	{
+		return array[n / 2];
+	}
+}
+
+float mode(float array[], int n)
+{
+	return (3 * median(array, n) - 2 * mean(array, n));
+}
+
+float mode(double array[], int n)
+{
+	return (3 * median(array, n) - 2 * mean(array, n));
+}
+
+double standardDeviation(float array[], int n)
+{
+	double max[NUMBER_EXECUTIONS], sum, variance, meanThis;
+	meanThis = mean(array, n);
+	sum = 0;
+	int j;
+	for (j = 0; j <= n; ++j)
+	{
+		max[j] = pow((array[j] - meanThis), 2);
+		sum += max[j];
+	}
+	variance = sum / (j - 1);
+	return sqrt(variance);
+}
+
+double standardDeviation(double array[], int n)
+{
+	double max[100], sum, variance, meanThis;
+	meanThis = mean(array, n);
+	sum = 0;
+	int j;
+	for (j = 0; j <= n; ++j)
+	{
+		max[j] = pow((array[j] - meanThis), 2);
+		sum += max[j];
+	}
+	variance = sum / (j - 1);
+	return sqrt(variance);
+}
+
+double sumArray(double array[], int n)
+{
+	double sum = 0;
+	for (int i = 0; i < n; i++)
+	{
+		sum = sum + array[i];
+	}
+	return sum;
+}
+
+double sumArray(float array[], int n)
+{
+	float sum = 0;
+	for (int i = 0; i < n; i++)
+	{
+		sum = sum + array[i];
+	}
+	return sum;
+}
 
 /// <summary>
 /// Function to count the amount of lines in a file
@@ -558,31 +679,53 @@ int main()
 	struct timespec startCPU;
 	struct timespec stopCPU;
 
+	float gpuExecutionTime = 0.0;
+
 	double elapsedTimeInitialPopulationCPU[NUMBER_EXECUTIONS];
 	double elapsedTimeCPU[NUMBER_EXECUTIONS];
 	double elapsedSelectionTotalCPU[NUMBER_EXECUTIONS];
 	double elapsedCrossoverTotalCPU[NUMBER_EXECUTIONS];
 	double elapsedLocalSearchTotalCPU[NUMBER_EXECUTIONS];
 
-	cudaEvent_t startKernel;
-	cudaEvent_t stopKernel;
-
-	cudaEvent_t startGPU;
-	cudaEvent_t stopGPU;
-
 	double elapsedSelectionCPU[NUM_EVOLUTIONS];
 	double elapsedCrossoverCPU[NUM_EVOLUTIONS];
 	double elapsedLocalSearchCPU[NUM_EVOLUTIONS];
 
-	double elapsedTimeInitialPopulationGPU[NUMBER_EXECUTIONS];
-	double elapsedTimeGPU[NUMBER_EXECUTIONS];
-	double elapsedSelectionTotalGPU[NUMBER_EXECUTIONS];
-	double elapsedCrossoverTotalGPU[NUMBER_EXECUTIONS];
-	double elapsedLocalSearchTotalGPU[NUMBER_EXECUTIONS];
+	cudaEvent_t startKernel;
+	cudaEvent_t stopKernel;
 
-	double elapsedSelectionGPU[NUM_EVOLUTIONS];
-	double elapsedCrossoverGPU[NUM_EVOLUTIONS];
-	double elapsedLocalSearchGPU[NUM_EVOLUTIONS];
+	cudaEvent_t startGPU;
+	cudaEvent_t stopGPU;	
+
+	float elapsedTimeInitialPopulationGPU[NUMBER_EXECUTIONS];
+	float elapsedTimeGPU[NUMBER_EXECUTIONS];
+	float elapsedSelectionTotalGPU[NUMBER_EXECUTIONS];
+	float elapsedCrossoverTotalGPU[NUMBER_EXECUTIONS];
+	float elapsedLocalSearchTotalGPU[NUMBER_EXECUTIONS];
+
+	float elapsedSelectionGPU[NUM_EVOLUTIONS];
+	float elapsedCrossoverGPU[NUM_EVOLUTIONS];
+	float elapsedLocalSearchGPU[NUM_EVOLUTIONS];
+
+	double meanSelection;
+	double meanCrossover;
+	double meanLocalSearch;
+	double medianSelection;
+	double medianCrossover;
+	double medianLocalSearch;
+	double dsSelection;
+	double dsCrossover;
+	double dsLocalSearch;
+
+	double meanGSelection;
+	double meanGCrossover;
+	double meanGLocalSearch;
+	double medianGSelection;
+	double medianGCrossover;
+	double medianGLocalSearch;
+	double dsGSelection;
+	double dsGCrossover;
+	double dsGLocalSearch;
 
 #pragma endregion
 
@@ -819,26 +962,12 @@ int main()
 				exit(EXIT_FAILURE);
 			}
 			
-			elapsedTimeInitialPopulationCPU[clockCounter] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
+			elapsedTimeInitialPopulationCPU[clockCounter] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
 			// Save the initial population to fil
 			saveInitialPopulation(problem.name, initial_population_cpu, problem, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter]);
 
-			//printPopulation(initial_population_cpu);
-
-			if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
-
-			elapsedTimeCPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
-
-			if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
+			//printPopulation(initial_population_cpu);			
 
 			fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
 			saveFittest(problem.name, fittestOnEarth, problem, 0, NO_CUDA, clockCounter);
@@ -860,21 +989,8 @@ int main()
 			}
 			printf("\n\n");
 
-			if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
-			elapsedTimeCPU[clockCounter] += (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
-
 			for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 			{
-				if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
-				{
-					printf("Error in calling timespec_get\n");
-					exit(EXIT_FAILURE);
-				}
-
 				// Select the best parents of the current generation
 				if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
 				{
@@ -887,7 +1003,7 @@ int main()
 					printf("Error in calling timespec_get\n");
 					exit(EXIT_FAILURE);
 				}
-				elapsedSelectionCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
+				elapsedSelectionCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 				saveParents(problem.name, host_parents, problem, i + 1, NO_CUDA, clockCounter, elapsedSelectionCPU[i]);
 
 				// Breed the population performing crossover (Combination of Ordered Crossover 
@@ -903,7 +1019,7 @@ int main()
 					printf("Error in calling timespec_get\n");
 					exit(EXIT_FAILURE);
 				}
-				elapsedCrossoverCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
+				elapsedCrossoverCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
 				//saveOffspring(problem.name, initial_population_cpu, problem, 666, NO_CUDA);
 
@@ -918,7 +1034,8 @@ int main()
 					printf("Error in calling timespec_get\n");
 					exit(EXIT_FAILURE);
 				}
-				elapsedLocalSearchCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
+				elapsedLocalSearchCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
+				//(double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
 
 				saveOffspring(problem.name, initial_population_cpu, problem, i + 1, NO_CUDA, clockCounter, elapsedCrossoverCPU[i], elapsedLocalSearchCPU[i]);
 
@@ -948,8 +1065,20 @@ int main()
 					printf("Error in calling timespec_get\n");
 					exit(EXIT_FAILURE);
 				}
-				elapsedTimeCPU[clockCounter] += (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
+
+				elapsedTimeCPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
+				//(double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
 			}
+
+			meanSelection = mean(elapsedSelectionCPU, NUM_EVOLUTIONS);
+			meanCrossover = mean(elapsedCrossoverCPU, NUM_EVOLUTIONS);
+			meanLocalSearch = mean(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+
+			saveStatistics(problem.name, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, elapsedTimeCPU[clockCounter]);
+
+			elapsedSelectionTotalCPU[clockCounter] = sumArray(elapsedSelectionCPU, NUM_EVOLUTIONS);
+			elapsedCrossoverTotalCPU[clockCounter] = sumArray(elapsedCrossoverCPU, NUM_EVOLUTIONS);
+			elapsedLocalSearchTotalCPU[clockCounter] = sumArray(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
 		}
 #pragma endregion
 #pragma region GRAPHICAL PROCESS UNIT
@@ -966,7 +1095,7 @@ int main()
 				printf("****************************************************************************************\n");
 				for (int i = 0; i < deviceCount; i++)
 				{
-					HANDLE_ERROR(cudaGetDeviceProperties(&properties, i));
+					checkCudaErrors(cudaGetDeviceProperties(&properties, i));
 					printf("GPU:					%s\n", properties.name);
 					printf("Warp Size:				%d\n", properties.warpSize);
 					printf("Total Global Memory:			%zd\n", properties.totalGlobalMem);
@@ -998,10 +1127,13 @@ int main()
 				exit(EXIT_FAILURE);
 			}
 
-			elapsedTimeGPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
+			elapsedTimeGPU[clockCounter] = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
 
 			if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
 			{
+				checkCudaErrors(cudaEventCreate(&startGPU));
+				checkCudaErrors(cudaEventCreate(&stopGPU));
+				checkCudaErrors(cudaEventRecord(startGPU, 0));
 				/*************************************************************************************************
 				* ALLOCATE MEMORY FOR STRUCTS ON DEVICE
 				*************************************************************************************************/
@@ -1044,17 +1176,21 @@ int main()
 
 				/*************************************************************************************************
 				* INITIALIZE RANDOM VALUES
-				*************************************************************************************************/
-				
-				initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));
+				*************************************************************************************************/				
+				initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));				
 				checkCudaErrors(cudaDeviceSynchronize());
 
 				/*************************************************************************************************
 				* POPULATION INITIALIZATION ON DEVICE (GPU)
 				*************************************************************************************************/
-
+				checkCudaErrors(cudaEventCreate(&startKernel));
+				checkCudaErrors(cudaEventCreate(&stopKernel));
+				checkCudaErrors(cudaEventRecord(startKernel, 0));
 				initializePopulationCuda << <BLOCKS, THREADS >> > (device_population, device_initial_tour, device_parameters, device_states);
-				checkCudaErrors(cudaDeviceSynchronize());
+				checkCudaErrors(cudaEventRecord(stopKernel, 0));
+				checkCudaErrors(cudaEventSynchronize(stopKernel));
+				checkCudaErrors(cudaEventElapsedTime(&elapsedTimeInitialPopulationGPU[clockCounter], startKernel, stopKernel));
+				//checkCudaErrors(cudaDeviceSynchronize());
 
 				/*************************************************************************************************
 				* COPY RESULTS TO HOST
@@ -1066,11 +1202,7 @@ int main()
 				* OUTPUT
 				*************************************************************************************************/
 				//printPopulation(initial_population_gpu);
-				saveInitialPopulation(problem.name, initial_population_gpu, problem, CUDA, clockCounter, 0.0);
-
-				// Figure out fitness and distance for each individual in population
-				evaluatePopulation << <BLOCKS, THREADS >> > (device_population, device_parameters);
-				checkCudaErrors(cudaDeviceSynchronize());
+				saveInitialPopulation(problem.name, initial_population_gpu, problem, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter]);
 
 				// Copy Device Information to Host
 				checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
@@ -1101,6 +1233,7 @@ int main()
 					printf("ITERATION %d\n", i);
 
 					// Select Parents For The Next Generation
+					checkCudaErrors(cudaEventRecord(startKernel, 0));
 					selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_states);
 					err = cudaGetLastError();
 					if (err != cudaSuccess)
@@ -1108,17 +1241,21 @@ int main()
 						fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
 						exit(0);
 					}
-					checkCudaErrors(cudaDeviceSynchronize());
+					checkCudaErrors(cudaEventRecord(stopKernel, 0));
+					checkCudaErrors(cudaEventSynchronize(stopKernel));
+					checkCudaErrors(cudaEventElapsedTime(&elapsedSelectionGPU[i], startKernel, stopKernel));
+					//checkCudaErrors(cudaDeviceSynchronize());
 
 					// Copy Device Information to Host
 					checkCudaErrors(cudaMemcpy(&host_parents, device_parents, sizeof(tour) * SELECTED_PARENTS, cudaMemcpyDeviceToHost));
 					checkCudaErrors(cudaDeviceSynchronize());
 
 					// Save Parents Information To File
-					saveParents(problem.name, host_parents, problem, i + 1, CUDA, clockCounter, 0.0);
+					saveParents(problem.name, host_parents, problem, i + 1, CUDA, clockCounter, elapsedSelectionGPU[i]);
 
 					// Breed the population performing crossover (Combination of Ordered Crossover 
 					// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
+					checkCudaErrors(cudaEventRecord(startKernel, 0));
 					crossoverKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_offspring, device_parameters, device_states);
 					err = cudaGetLastError();
 					if (err != cudaSuccess)
@@ -1126,9 +1263,13 @@ int main()
 						fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
 						exit(0);
 					}
-					checkCudaErrors(cudaDeviceSynchronize());
+					checkCudaErrors(cudaEventRecord(stopKernel, 0));
+					checkCudaErrors(cudaEventSynchronize(stopKernel));
+					checkCudaErrors(cudaEventElapsedTime(&elapsedCrossoverGPU[i], startKernel, stopKernel));
+					//checkCudaErrors(cudaDeviceSynchronize());
 
 					// Perform local search (mutation)
+					checkCudaErrors(cudaEventRecord(startKernel, 0));
 					localSearchKernel << <BLOCKS, THREADS >> > (device_population, device_parameters, device_states);
 						err = cudaGetLastError();
 					if (err != cudaSuccess)
@@ -1136,17 +1277,20 @@ int main()
 						fprintf(stderr, "Local Search Kernel: %s\n", cudaGetErrorString(err));
 						exit(0);
 					}
-					checkCudaErrors(cudaDeviceSynchronize());
+					checkCudaErrors(cudaEventRecord(stopKernel, 0));
+					checkCudaErrors(cudaEventSynchronize(stopKernel));
+					checkCudaErrors(cudaEventElapsedTime(&elapsedLocalSearchGPU[i], startKernel, stopKernel));
+					//checkCudaErrors(cudaDeviceSynchronize());
 
 					// Copy Device Information to Host
 					checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
 					checkCudaErrors(cudaDeviceSynchronize());
 
-					saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA, clockCounter, 0, 0);
+					saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA, clockCounter, elapsedCrossoverGPU[i], elapsedLocalSearchGPU[i]);
 
 					// Get Fittest tour of the generation
 					fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
-					saveFittest(problem.name, fittestOnEarth, problem, i + 1, CUDA, clockCounter + 1);
+					saveFittest(problem.name, fittestOnEarth, problem, i + 1, CUDA, clockCounter);
 					printf("FITTEST CUDA TOUR OF GENERATION %d: \n", i + 1);
 					printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
 					printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
@@ -1166,6 +1310,11 @@ int main()
 					printf("\n\n");
 				}
 
+				checkCudaErrors(cudaEventRecord(stopGPU, 0));
+				checkCudaErrors(cudaEventSynchronize(stopGPU));
+				checkCudaErrors(cudaEventElapsedTime(&gpuExecutionTime, startGPU, stopGPU));
+				elapsedTimeGPU[clockCounter] += gpuExecutionTime;
+
 				/*************************************************************************************************
 				* RELEASE CUDA MEMORY
 				*************************************************************************************************/
@@ -1178,7 +1327,41 @@ int main()
 				//cudaFree(device_node_matrix);
 				//cudaFree(device_node_t_matrix);
 				//cudaFree(device_distance);
+				checkCudaErrors(cudaEventDestroy(startGPU));
+				checkCudaErrors(cudaEventDestroy(startKernel));
+				checkCudaErrors(cudaEventDestroy(stopKernel));
+				checkCudaErrors(cudaEventDestroy(stopGPU));
 			}
+
+			double sumSelection = 0.0;
+			double sumCrossover = 0.0;
+			double sumLocalSearch = 0.0;
+
+			for (int count = 0; count < NUM_EVOLUTIONS; ++count)
+			{
+				sumSelection += elapsedSelectionGPU[count];
+				sumCrossover += elapsedCrossoverGPU[count];
+				sumLocalSearch += elapsedLocalSearchGPU[count];
+			}
+			averageSelection = sumSelection / NUM_EVOLUTIONS;
+			averageCrossover = sumCrossover / NUM_EVOLUTIONS;
+			averageLocalSearch = sumLocalSearch / NUM_EVOLUTIONS;
+
+			float meanSelection = mean(elapsedSelectionGPU, NUM_EVOLUTIONS);
+			float meanCrossover = mean(elapsedCrossoverGPU, NUM_EVOLUTIONS);
+			float meanLocalSearch = mean(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
+			float medianSelection = 1;
+			float medianCrossover = 1;
+			float medianLocalSearch = 1;
+			float dsSelection = 1;
+			float dsCrossover = 1;
+			float dsLocalSearch = 1;
+
+			saveStatistics(problem.name, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter], averageSelection, averageCrossover, averageLocalSearch, elapsedTimeGPU[clockCounter]);
+
+			elapsedSelectionTotalGPU[clockCounter] = sumSelection;
+			elapsedCrossoverTotalGPU[clockCounter] = sumCrossover;
+			elapsedLocalSearchTotalGPU[clockCounter] = sumLocalSearch;
 		}
 #pragma endregion
 
@@ -1230,32 +1413,7 @@ int main()
 			// Show Data
 			//displayDistance(h_distance, CITIES * CITIES);
 		//}
-#pragma endregion
-
-		double sumSelection = 0.0;
-		double sumCrossover = 0.0;
-		double sumLocalSearch = 0.0;
-		
-		double averageSelection;
-		double averageCrossover;
-		double averageLocalSearch;
-		double averageInitializePopulation;
-
-		for (int count = 0; count < NUM_EVOLUTIONS; ++count)
-		{
-			sumSelection += elapsedSelectionCPU[count];
-			sumCrossover += elapsedCrossoverCPU[count];
-			sumLocalSearch += elapsedLocalSearchCPU[count];
-		}
-		averageSelection = sumSelection / NUM_EVOLUTIONS;
-		averageCrossover = sumCrossover / NUM_EVOLUTIONS;
-		averageLocalSearch = sumLocalSearch / NUM_EVOLUTIONS;
-
-		saveStatistics(problem.name, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter], averageSelection, averageCrossover, averageLocalSearch, elapsedTimeCPU[clockCounter]);
-
-		elapsedSelectionTotalCPU[clockCounter] = sumSelection;
-		elapsedCrossoverTotalCPU[clockCounter] = sumCrossover;
-		elapsedLocalSearchTotalCPU[clockCounter] = sumLocalSearch;
+#pragma endregion		
 	}
 
 	double sumGlobalSelection = 0.0;
@@ -1269,23 +1427,50 @@ int main()
 	double averageGlobalLocalSearch;
 	double averageGlobalInitializePopulation;
 	double averageGlobalExecutionTime;
-
-	for (int x = 0; x < NUMBER_EXECUTIONS; ++x)
+	if (CPU)
 	{
-		sumGlobalInitializePopulation += elapsedTimeInitialPopulationCPU[x];
-		sumGlobalSelection += elapsedSelectionCPU[x];
-		sumGlobalCrossover += elapsedCrossoverCPU[x];
-		sumGlobalLocalSearch += elapsedLocalSearchCPU[x];
-		sumGlobalTotalTime += elapsedTimeCPU[x];
+		for (int x = 0; x < NUMBER_EXECUTIONS; ++x)
+		{
+			sumGlobalInitializePopulation += elapsedTimeInitialPopulationCPU[x];
+			sumGlobalSelection += elapsedSelectionCPU[x];
+			sumGlobalCrossover += elapsedCrossoverCPU[x];
+			sumGlobalLocalSearch += elapsedLocalSearchCPU[x];
+			sumGlobalTotalTime += elapsedTimeCPU[x];
+		}
+
+		averageGlobalInitializePopulation = sumGlobalInitializePopulation / NUMBER_EXECUTIONS;
+		averageGlobalSelection = sumGlobalSelection / NUMBER_EXECUTIONS;
+		averageGlobalCrossover = sumGlobalCrossover / NUMBER_EXECUTIONS;
+		averageGlobalLocalSearch = sumGlobalLocalSearch / NUMBER_EXECUTIONS;
+		averageGlobalExecutionTime = sumGlobalTotalTime / NUMBER_EXECUTIONS;
+
+		saveGlobalStatistics(problem.name, NO_CUDA, averageGlobalInitializePopulation, averageGlobalSelection, averageGlobalCrossover, averageGlobalLocalSearch, averageGlobalExecutionTime);
 	}
 
-	averageGlobalInitializePopulation = sumGlobalInitializePopulation / NUMBER_EXECUTIONS;
-	averageGlobalSelection = sumGlobalSelection / NUMBER_EXECUTIONS;
-	averageGlobalCrossover = sumGlobalCrossover / NUMBER_EXECUTIONS;
-	averageGlobalLocalSearch = sumGlobalLocalSearch / NUMBER_EXECUTIONS;
-	averageGlobalExecutionTime = sumGlobalTotalTime / NUMBER_EXECUTIONS;
+	if (GPU)
+	{
+		sumGlobalSelection = 0.0;
+		sumGlobalCrossover = 0.0;
+		sumGlobalLocalSearch = 0.0;
+		sumGlobalInitializePopulation = 0.0;
+		sumGlobalTotalTime = 0.0;
 
-	saveGlobalStatistics(problem.name, NO_CUDA, averageGlobalInitializePopulation, averageGlobalSelection, averageGlobalCrossover, averageGlobalLocalSearch, averageGlobalExecutionTime);
+		for (int x = 0; x < NUMBER_EXECUTIONS; ++x)
+		{
+			sumGlobalInitializePopulation += elapsedTimeInitialPopulationGPU[x];
+			sumGlobalSelection += elapsedSelectionGPU[x];
+			sumGlobalCrossover += elapsedCrossoverGPU[x];
+			sumGlobalLocalSearch += elapsedLocalSearchGPU[x];
+			sumGlobalTotalTime += elapsedTimeGPU[x];
+		}
 
+		averageGlobalInitializePopulation = sumGlobalInitializePopulation / NUMBER_EXECUTIONS;
+		averageGlobalSelection = sumGlobalSelection / NUMBER_EXECUTIONS;
+		averageGlobalCrossover = sumGlobalCrossover / NUMBER_EXECUTIONS;
+		averageGlobalLocalSearch = sumGlobalLocalSearch / NUMBER_EXECUTIONS;
+		averageGlobalExecutionTime = sumGlobalTotalTime / NUMBER_EXECUTIONS;
+
+		saveGlobalStatistics(problem.name, CUDA, averageGlobalInitializePopulation, averageGlobalSelection, averageGlobalCrossover, averageGlobalLocalSearch, averageGlobalExecutionTime);
+	}
 	return 0;
 }

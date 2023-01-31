@@ -17,7 +17,7 @@
 #define ITEMS 4
 #define TOURS 100
 #define ITEMS_PER_CITY 1
-#define NUMBER_EXECUTIONS 4
+#define NUMBER_EXECUTIONS 2
 
 // Other
 //#define DEBUG
