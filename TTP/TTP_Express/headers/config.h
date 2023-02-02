@@ -4,7 +4,7 @@
 #define BLOCK_SIZE 16 // Validate
 
 // Genetic Algorithm Config
-#define NUM_EVOLUTIONS 100
+#define NUM_EVOLUTIONS 10000
 #define TOURNAMENT_SIZE 50
 #define SELECTED_PARENTS 4
 #define ELITISM true
@@ -13,11 +13,11 @@
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
-#define CITIES 5
-#define ITEMS 4
+#define CITIES 52
+#define ITEMS 51
 #define TOURS 100
 #define ITEMS_PER_CITY 1
-#define NUMBER_EXECUTIONS 2
+#define NUMBER_EXECUTIONS 30
 
 // Other
 //#define DEBUG

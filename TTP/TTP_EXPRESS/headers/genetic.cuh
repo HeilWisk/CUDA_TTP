@@ -601,6 +601,8 @@ __host__ void crossover(population& population, tour* parents, parameters params
 			population.tours[o] = childs[o];
 		}
 	}
+
+	free(childs);
 }
 
 __host__ void localSearch(population& currentPopulation, parameters params)

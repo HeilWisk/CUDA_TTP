@@ -116,31 +116,44 @@ float mode(double array[], int n)
 
 double standardDeviation(float array[], int n)
 {
-	double max[NUMBER_EXECUTIONS], sum, variance, meanThis;
+	double* max = (double*)malloc(n * sizeof(double));
+	if (max == NULL)
+	{
+		fprintf(stderr, "Out of memory");
+	}
+	double sum, variance, meanThis;
 	meanThis = mean(array, n);
 	sum = 0;
 	int j;
-	for (j = 0; j < n; ++j)
+	for (j = 0; j < n; j++)
 	{
 		max[j] = pow((array[j] - meanThis), 2);
 		sum += max[j];
 	}
 	variance = sum / (j - 1);
+	free(max);
 	return sqrt(variance);
 }
 
 double standardDeviation(double array[], int n)
 {
-	double max[100], sum, variance, meanThis;
+	double* max = (double*)malloc(n * sizeof(double));
+	if (max == NULL)
+	{
+		fprintf(stderr, "Out of memory");
+	}
+	
+	double sum, variance, meanThis;
 	meanThis = mean(array, n);
 	sum = 0;
 	int j;
-	for (j = 0; j < n; ++j)
+	for (j = 0; j < n; j++)
 	{
 		max[j] = pow((array[j] - meanThis), 2);
 		sum += max[j];
 	}
 	variance = sum / (j - 1);
+	free(max);
 	return sqrt(variance);
 }
 
@@ -691,6 +704,9 @@ int main()
 	double elapsedCrossoverCPU[NUM_EVOLUTIONS];
 	double elapsedLocalSearchCPU[NUM_EVOLUTIONS];
 
+	double solutionQualityCPU[NUM_EVOLUTIONS + 1];
+	double solutionQualityTotalCPU[NUMBER_EXECUTIONS];
+
 	cudaEvent_t startKernel;
 	cudaEvent_t stopKernel;
 
@@ -710,40 +726,50 @@ int main()
 	double meanSelection;
 	double meanCrossover;
 	double meanLocalSearch;
+	double meanSolution;
+
 	double medianSelection;
 	double medianCrossover;
 	double medianLocalSearch;
+	double medianSolution;
+
 	double modeSelection;
 	double modeCrossover;
 	double modeLocalSearch;
+	double modeSolution;
+
 	double sdSelection;
 	double sdCrossover;
 	double sdLocalSearch;
+	double sdSolution;
 
 	double meanGlobalSelection;
 	double meanGlobalCrossover;
 	double meanGlobalLocalSearch;
 	double meanGlobalInitializePopulation;
 	double meanGlobalExecutionTime;
+	double meanGlobalSolution;
 
 	double medianGlobalSelection;
 	double medianGlobalCrossover;
 	double medianGlobalLocalSearch;
 	double medianGlobalInitializePopulation;
 	double medianGlobalExecutionTime;
+	double medianGlobalSolution;
 	
 	double modeGlobalSelection;
 	double modeGlobalCrossover;
 	double modeGlobalLocalSearch;
 	double modeGlobalInitializePopulation;
 	double modeGlobalExecutionTime;
+	double modeGlobalSolution;
 	
 	double sdGlobalSelection;
 	double sdGlobalCrossover;
 	double sdGlobalLocalSearch;
 	double sdGlobalInitializePopulation;
 	double sdGlobalExecutionTime;
-	
+	double sdGlobalSolution;
 
 #pragma endregion
 
@@ -983,12 +1009,13 @@ int main()
 			elapsedTimeInitialPopulationCPU[clockCounter] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
 			// Save the initial population to fil
-			saveInitialPopulation(problem.name, initial_population_cpu, problem, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter]);
-
+			// Optional
+			// saveInitialPopulation(problem.name, initial_population_cpu, problem, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter]);
 			//printPopulation(initial_population_cpu);			
 
 			fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
 			saveFittest(problem.name, fittestOnEarth, problem, 0, NO_CUDA, clockCounter);
+			solutionQualityCPU[0] = fittestOnEarth.fitness;
 			printf("FITTEST TOUR OF INITIAL POPULATION: \n");
 			printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
 			printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
@@ -1022,7 +1049,9 @@ int main()
 					exit(EXIT_FAILURE);
 				}
 				elapsedSelectionCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-				saveParents(problem.name, host_parents, problem, i + 1, NO_CUDA, clockCounter, elapsedSelectionCPU[i]);
+				
+				// Optional: Save data of parents to file
+				//saveParents(problem.name, host_parents, problem, i + 1, NO_CUDA, clockCounter, elapsedSelectionCPU[i]);
 
 				// Breed the population performing crossover (Combination of Ordered Crossover 
 				// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
@@ -1039,8 +1068,6 @@ int main()
 				}
 				elapsedCrossoverCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
-				//saveOffspring(problem.name, initial_population_cpu, problem, 666, NO_CUDA);
-
 				if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
 				{
 					printf("Error in calling timespec_get\n");
@@ -1053,13 +1080,14 @@ int main()
 					exit(EXIT_FAILURE);
 				}
 				elapsedLocalSearchCPU[i] = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-				//(double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) / 1000000000L);
 
-				saveOffspring(problem.name, initial_population_cpu, problem, i + 1, NO_CUDA, clockCounter, elapsedCrossoverCPU[i], elapsedLocalSearchCPU[i]);
+				//Optional: Save offspring data to file
+				//saveOffspring(problem.name, initial_population_cpu, problem, i + 1, NO_CUDA, clockCounter, elapsedCrossoverCPU[i], elapsedLocalSearchCPU[i]);
 
 				// Get Fittest tour of the generation
 				fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
 				saveFittest(problem.name, fittestOnEarth, problem, i + 1, NO_CUDA, clockCounter);
+				solutionQualityCPU[i + 1] = fittestOnEarth.fitness;
 				printf("FITTEST TOUR OF GENERATION %d: \n", i + 1);
 				printf("TIME: %f - FITNESS: %f - PROFIT: %f\n", fittestOnEarth.time, fittestOnEarth.fitness, fittestOnEarth.profit);
 				printf("ROUTE: %d", fittestOnEarth.nodes[0].id);
@@ -1077,8 +1105,6 @@ int main()
 					}
 				}
 				printf("\n\n");
-				
-				//(double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) / 1000000000L);
 			}
 
 			if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
@@ -1092,24 +1118,29 @@ int main()
 			meanSelection = mean(elapsedSelectionCPU, NUM_EVOLUTIONS);
 			meanCrossover = mean(elapsedCrossoverCPU, NUM_EVOLUTIONS);
 			meanLocalSearch = mean(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+			meanSolution = mean(solutionQualityCPU, NUM_EVOLUTIONS + 1);
 
 			medianSelection = median(elapsedSelectionCPU, NUM_EVOLUTIONS);
 			medianCrossover = median(elapsedCrossoverCPU, NUM_EVOLUTIONS);
 			medianLocalSearch = median(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+			medianSolution = median(solutionQualityCPU, NUM_EVOLUTIONS + 1);
 
 			modeSelection = mode(elapsedSelectionCPU, NUM_EVOLUTIONS);
 			modeCrossover = mode(elapsedCrossoverCPU, NUM_EVOLUTIONS);
 			modeLocalSearch = mode(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+			modeSolution = mode(solutionQualityCPU, NUM_EVOLUTIONS + 1);
 
 			sdSelection = standardDeviation(elapsedSelectionCPU, NUM_EVOLUTIONS);
 			sdCrossover = standardDeviation(elapsedCrossoverCPU, NUM_EVOLUTIONS);
 			sdLocalSearch = standardDeviation(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+			sdSolution = standardDeviation(solutionQualityCPU, NUM_EVOLUTIONS + 1);
 
-			saveStatistics(problem.name, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, medianSelection, medianCrossover, medianLocalSearch, modeSelection, modeCrossover, modeLocalSearch, sdSelection, sdCrossover, sdLocalSearch, elapsedTimeCPU[clockCounter]);
+			saveStatistics(problem.name, NO_CUDA, clockCounter, elapsedTimeInitialPopulationCPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, medianSelection, medianCrossover, medianLocalSearch, modeSelection, modeCrossover, modeLocalSearch, sdSelection, sdCrossover, sdLocalSearch, meanSolution, medianSolution, modeSolution, sdSolution, elapsedTimeCPU[clockCounter]);
 
 			elapsedSelectionTotalCPU[clockCounter] = sumArray(elapsedSelectionCPU, NUM_EVOLUTIONS);
 			elapsedCrossoverTotalCPU[clockCounter] = sumArray(elapsedCrossoverCPU, NUM_EVOLUTIONS);
 			elapsedLocalSearchTotalCPU[clockCounter] = sumArray(elapsedLocalSearchCPU, NUM_EVOLUTIONS);
+			solutionQualityTotalCPU[clockCounter] = sumArray(solutionQualityCPU, NUM_EVOLUTIONS + 1);
 		}
 #pragma endregion
 #pragma region GRAPHICAL PROCESS UNIT
@@ -1226,7 +1257,7 @@ int main()
 				/*************************************************************************************************
 				* COPY RESULTS TO HOST
 				*************************************************************************************************/
-				cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost);
+				checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
 				checkCudaErrors(cudaDeviceSynchronize());
 
 				/*************************************************************************************************
@@ -1380,7 +1411,7 @@ int main()
 			sdCrossover = standardDeviation(elapsedCrossoverGPU, NUM_EVOLUTIONS);
 			sdLocalSearch = standardDeviation(elapsedLocalSearchGPU, NUM_EVOLUTIONS);
 
-			saveStatistics(problem.name, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, medianSelection, medianCrossover, medianLocalSearch, modeSelection, modeCrossover, modeLocalSearch, sdSelection, sdCrossover, sdLocalSearch, elapsedTimeGPU[clockCounter]);
+			saveStatistics(problem.name, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter], meanSelection, meanCrossover, meanLocalSearch, medianSelection, medianCrossover, medianLocalSearch, modeSelection, modeCrossover, modeLocalSearch, sdSelection, sdCrossover, sdLocalSearch, 0, 0, 0, 0, elapsedTimeGPU[clockCounter]);
 
 			elapsedSelectionTotalGPU[clockCounter] = sumArray(elapsedSelectionGPU, NUM_EVOLUTIONS);
 			elapsedCrossoverTotalGPU[clockCounter] = sumArray(elapsedCrossoverGPU, NUM_EVOLUTIONS);
@@ -1446,26 +1477,30 @@ int main()
 		meanGlobalCrossover = mean(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
 		meanGlobalLocalSearch = mean(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
 		meanGlobalExecutionTime = mean(elapsedTimeCPU, NUMBER_EXECUTIONS);
+		meanGlobalSolution = mean(solutionQualityTotalCPU, NUMBER_EXECUTIONS);
 
 		medianGlobalInitializePopulation = median(elapsedTimeInitialPopulationCPU, NUMBER_EXECUTIONS);
 		medianGlobalSelection = median(elapsedSelectionTotalCPU, NUMBER_EXECUTIONS);
 		medianGlobalCrossover = median(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
 		medianGlobalLocalSearch = median(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
 		medianGlobalExecutionTime = median(elapsedTimeCPU, NUMBER_EXECUTIONS);
+		medianGlobalSolution = median(solutionQualityTotalCPU, NUMBER_EXECUTIONS);
 
 		modeGlobalInitializePopulation = mode(elapsedTimeInitialPopulationCPU, NUMBER_EXECUTIONS);
 		modeGlobalSelection = mode(elapsedSelectionTotalCPU, NUMBER_EXECUTIONS);
 		modeGlobalCrossover = mode(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
 		modeGlobalLocalSearch = mode(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
 		modeGlobalExecutionTime = mode(elapsedTimeCPU, NUMBER_EXECUTIONS);
+		modeGlobalSolution = mode(solutionQualityTotalCPU, NUMBER_EXECUTIONS);
 
 		sdGlobalInitializePopulation = standardDeviation(elapsedTimeInitialPopulationCPU, NUMBER_EXECUTIONS);
 		sdGlobalSelection = standardDeviation(elapsedSelectionTotalCPU, NUMBER_EXECUTIONS);
 		sdGlobalCrossover = standardDeviation(elapsedCrossoverTotalCPU, NUMBER_EXECUTIONS);
 		sdGlobalLocalSearch = standardDeviation(elapsedLocalSearchTotalCPU, NUMBER_EXECUTIONS);
 		sdGlobalExecutionTime = standardDeviation(elapsedTimeCPU, NUMBER_EXECUTIONS);
+		sdGlobalSolution = standardDeviation(solutionQualityTotalCPU, NUMBER_EXECUTIONS);
 
-		saveGlobalStatistics(problem.name, NO_CUDA, meanGlobalInitializePopulation, meanGlobalSelection, meanGlobalCrossover, meanGlobalLocalSearch, meanGlobalExecutionTime, medianGlobalInitializePopulation, medianGlobalSelection, medianGlobalCrossover, medianGlobalLocalSearch, medianGlobalExecutionTime, modeGlobalInitializePopulation, modeGlobalSelection, modeGlobalCrossover, modeGlobalLocalSearch, modeGlobalExecutionTime, sdGlobalInitializePopulation, sdGlobalSelection, sdGlobalCrossover, sdGlobalLocalSearch, sdGlobalExecutionTime);
+		saveGlobalStatistics(problem.name, NO_CUDA, meanGlobalInitializePopulation, meanGlobalSelection, meanGlobalCrossover, meanGlobalLocalSearch, meanGlobalExecutionTime, medianGlobalInitializePopulation, medianGlobalSelection, medianGlobalCrossover, medianGlobalLocalSearch, medianGlobalExecutionTime, modeGlobalInitializePopulation, modeGlobalSelection, modeGlobalCrossover, modeGlobalLocalSearch, modeGlobalExecutionTime, sdGlobalInitializePopulation, sdGlobalSelection, sdGlobalCrossover, sdGlobalLocalSearch, meanGlobalSolution, medianGlobalSolution, modeGlobalSolution, sdGlobalSolution, sdGlobalExecutionTime);
 	}
 
 	if (GPU)
@@ -1494,7 +1529,9 @@ int main()
 		sdGlobalLocalSearch = standardDeviation(elapsedLocalSearchTotalGPU, NUMBER_EXECUTIONS);
 		sdGlobalExecutionTime = standardDeviation(elapsedTimeGPU, NUMBER_EXECUTIONS);
 
-		saveGlobalStatistics(problem.name, CUDA, meanGlobalInitializePopulation, meanGlobalSelection, meanGlobalCrossover, meanGlobalLocalSearch, meanGlobalExecutionTime, medianGlobalInitializePopulation, medianGlobalSelection, medianGlobalCrossover, medianGlobalLocalSearch, medianGlobalExecutionTime, modeGlobalInitializePopulation, modeGlobalSelection, modeGlobalCrossover, modeGlobalLocalSearch, modeGlobalExecutionTime, sdGlobalInitializePopulation, sdGlobalSelection, sdGlobalCrossover, sdGlobalLocalSearch, sdGlobalExecutionTime);
+		saveGlobalStatistics(problem.name, CUDA, meanGlobalInitializePopulation, meanGlobalSelection, meanGlobalCrossover, meanGlobalLocalSearch, meanGlobalExecutionTime, medianGlobalInitializePopulation, medianGlobalSelection, medianGlobalCrossover, medianGlobalLocalSearch, medianGlobalExecutionTime, modeGlobalInitializePopulation, modeGlobalSelection, modeGlobalCrossover, modeGlobalLocalSearch, modeGlobalExecutionTime, sdGlobalInitializePopulation, sdGlobalSelection, sdGlobalCrossover, sdGlobalLocalSearch, 0,0,0,0, sdGlobalExecutionTime);
 	}
+	free(cpu_item);
+	free(cpu_node);
 	return 0;
 }
