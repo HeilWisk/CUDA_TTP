@@ -14,7 +14,7 @@ struct item {
 		weight = -1;
 		value = -1;
 		node = -1;
-		pickup = 0;
+		pickup = -1;
 	}
 
 	__host__ __device__ item(int id_item, int w, int v, int node_id)

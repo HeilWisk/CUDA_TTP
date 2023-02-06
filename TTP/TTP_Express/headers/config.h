@@ -1,6 +1,8 @@
 // Kernel Config
 #define BLOCKS 1
-#define THREADS 100
+#define THREADS 128 // Must be a multiple of 32 AND EQUAL OR GREATER THAN TOURS
+#define THREADS_X 8 // The result of multiply eith THREADS_Y must be a multiple of 32 
+#define THREADS_Y 4 // The result of multiply eith THREADS_X must be a multiple of 32
 #define BLOCK_SIZE 16 // Validate
 
 // Genetic Algorithm Config
@@ -13,11 +15,11 @@
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
-#define CITIES 52
-#define ITEMS 51
-#define TOURS 100
+#define CITIES 76
+#define ITEMS 75
+#define TOURS 128
 #define ITEMS_PER_CITY 1
-#define NUMBER_EXECUTIONS 30
+#define NUMBER_EXECUTIONS 30//30
 
 // Other
 //#define DEBUG
@@ -27,15 +29,15 @@
 #define SHOW // macros
 #endif // DEBUG
 
-#define GPU false
-#define CPU true
+#define GPU true
+#define CPU false
 #define CUDA true
 #define NO_CUDA false
 #define WRITE_BUFFER 500
 #define NAME_BUFFER 500
 
 // OUTPUT VARIABLES
-#define STATISTICS_FILE_NAME_CPU ".\\output\\STATISTICS_CPU_%s.txt"
-#define STATISTICS_FILE_NAME_GPU ".\\output\\STATISTICS_GPU_%s.txt"
-#define RESULTS_FILE_NAME_CPU ".\\output\\EXECUTION_%d_%s_CPU.txt"
-#define RESULTS_FILE_NAME_GPU ".\\output\\EXECUTION_%d_%s_GPU.txt"
+#define STATISTICS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_CPU_%s.txt"
+#define STATISTICS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_GPU_%s.txt"
+#define RESULTS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_CPU.txt"
+#define RESULTS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_GPU.txt"

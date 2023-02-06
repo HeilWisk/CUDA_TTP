@@ -263,7 +263,10 @@ void defineInitialTour(tour& initial_tour, parameters* params, node* nodes, item
 		//Load data on items
 		for (int i = 0; i < ITEMS_PER_CITY; i++)
 		{
-			initial_tour.nodes[n].items[i] = nodes[n].items[i];
+			if(n == 0)
+				initial_tour.nodes[n].items[i] = item();
+			else
+				initial_tour.nodes[n].items[i] = nodes[n].items[i];
 		}
 		params->cities[n] = initial_tour.nodes[n];
 	}

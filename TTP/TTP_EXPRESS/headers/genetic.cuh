@@ -586,6 +586,7 @@ __host__ void crossover(population& population, tour* parents, parameters params
 		// Select parents from the parents array
 		int parentIndexOne = rand() % SELECTED_PARENTS;
 		int parentIndexTwo = rand() % SELECTED_PARENTS;
+		childs[o] = tour();
 
 		// Generate child for the TSP Sub-Problem using ordered crossover
 		orderedCrossover(parents, parentIndexOne, parentIndexTwo, childs[o]);
