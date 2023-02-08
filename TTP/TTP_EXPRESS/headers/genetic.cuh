@@ -694,20 +694,25 @@ __global__ void crossoverKernel(population* population, tour* parents, tour* off
 	int parentIndexOne = curand(&local_state) % SELECTED_PARENTS;
 	int parentIndexTwo = curand(&local_state) % SELECTED_PARENTS;
 
-	offspring[thread_global_index] = tour();
+	//offspring[thread_global_index] = tour();
+	tour child = tour();
 
 	// Generate child for the TSP Sub-Problem using ordered crossover
-	orderedCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+	//orderedCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+	orderedCrossoverDevice(parents, parentIndexOne, parentIndexTwo, child, &local_state, thread_global_index);
 
 	// Generate child for the KP Sub-Problem using one point crossover
-	onePointCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+	//onePointCrossoverDevice(parents, parentIndexOne, parentIndexTwo, offspring[thread_global_index], &local_state, thread_global_index);
+	onePointCrossoverDevice(parents, parentIndexOne, parentIndexTwo, child, &local_state, thread_global_index);
 
 	// Evaluate the new child
-	evaluateTour(offspring[thread_global_index], params);
+	//evaluateTour(offspring[thread_global_index], params);
+	evaluateTour(child, params);
 	
 	if (population->tours[thread_global_index].fitness < 0)
 	{
-		population->tours[thread_global_index] = offspring[thread_global_index];
+		//population->tours[thread_global_index] = offspring[thread_global_index];
+		population->tours[thread_global_index] = child;
 	}
 
 	state[thread_global_index] = local_state;

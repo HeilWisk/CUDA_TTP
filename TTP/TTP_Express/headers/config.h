@@ -15,11 +15,11 @@
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
-#define CITIES 76
-#define ITEMS 75
+#define CITIES 51
+#define ITEMS 150
 #define TOURS 128
-#define ITEMS_PER_CITY 1
-#define NUMBER_EXECUTIONS 30//30
+#define ITEMS_PER_CITY 3
+#define NUMBER_EXECUTIONS 10//30
 
 // Other
 //#define DEBUG
@@ -33,7 +33,7 @@
 #define CPU false
 #define CUDA true
 #define NO_CUDA false
-#define WRITE_BUFFER 500
+#define WRITE_BUFFER 1500
 #define NAME_BUFFER 500
 
 // OUTPUT VARIABLES
