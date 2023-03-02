@@ -253,15 +253,17 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 	return 1;
 }
 
-int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitialize, double meanSelection, double meanCrossover, double meanLocalSearch, double medianSelection, double medianCrossover, double medianLocalSearch, double modeSelection, double modeCrossover, double modeLocalSearch, double sdSelection, double sdCrossover, double sdLocalSearch, double meanSolution, double medianSolution, double modeSolution, double sdSolution, double runtimeExecution)
+int saveStatistics(char* name, bool isCuda, int fileNumber, int iteration, double runtimeInitialize, double runtimeSelection, double runtimeCrossover, double runtimeLocalSearch)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
+	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name, fileNumber);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name, fileNumber);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -269,35 +271,26 @@ int saveStatistics(char* name, bool isCuda, int fileNumber, double runtimeInitia
 		printf("No fue posible abrir el archivo");
 		return 0;
 	}
-	fprintf(fp, "\n");
-	fprintf(fp, "EXECUTION %d", fileNumber);
-	fprintf(fp, "\n");
-	fprintf(fp, "INITIALIZE POPULATION: %f ms", runtimeInitialize);
-	fprintf(fp, "\n");
-	fprintf(fp, "MEAN: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f", meanSelection, meanCrossover, meanLocalSearch, meanSolution);
-	fprintf(fp, "\n");
-	fprintf(fp, "MEDIAN: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f", medianSelection, medianCrossover, medianLocalSearch, medianSolution);
-	fprintf(fp, "\n");
-	fprintf(fp, "MODE: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f", modeSelection, modeCrossover, modeLocalSearch, modeSolution);
-	fprintf(fp, "\n");
-	fprintf(fp, "STANDARD DEVIATION: SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f", sdSelection, sdCrossover, sdLocalSearch, sdSolution);
-	fprintf(fp, "\n");
-	fprintf(fp, "TOTAL RUNTIME: %f ms", runtimeExecution);
-	fprintf(fp, "\n");
+
+	bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "");	
+	bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d|%f|%f|%f|%f", iteration, runtimeInitialize, runtimeSelection, runtimeCrossover, runtimeLocalSearch);
+	fprintf(fp, "%s\n", bufferWrite);
 
 	fclose(fp);
 	return 1;
 }
 
-int saveGlobalStatistics(char* name, bool isCuda, double meanInitialize, double meanSelection, double meanCrossover, double meanLocalSearch, double meanTotalRuntime, double medianInitialize, double medianSelection, double medianCrossover, double medianLocalSearch, double medianTotalRuntime, double modeInitialize, double modeSelection, double modeCrossover, double modeLocalSearch, double modeTotalRuntime, double sdInitialize, double sdSelection, double sdCrossover, double sdLocalSearch, double meanSolution, double medianSolution, double modeSolution, double sdSolution, double sdTotalRuntime)
+int saveGlobalStatistics(char* name, bool isCuda, int fileNumber, double runtimeExecution)
 {
 	FILE* fp;
 	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
+	int bufferPos;
 
 	if (isCuda)
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBALSTATS_FILE_NAME_GPU, name);
 	else
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBALSTATS_FILE_NAME_CPU, name);
 
 	fp = fopen(bufferName, "a");
 	if (fp == NULL)
@@ -305,24 +298,16 @@ int saveGlobalStatistics(char* name, bool isCuda, double meanInitialize, double 
 		printf("No fue posible abrir el archivo");
 		return 0;
 	}
-	fprintf(fp, "\n");
-	fprintf(fp, "\n");
-	fprintf(fp, "GLOBAL STATISTICS");
-	fprintf(fp, "\n");
-	fprintf(fp, "MEAN: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f - TOTAL RUNTIME %f ms", meanInitialize, meanSelection, meanCrossover, meanLocalSearch, meanSolution, meanTotalRuntime);
-	fprintf(fp, "\n");
-	fprintf(fp, "MEDIAN: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f - TOTAL RUNTIME %f ms", medianInitialize, medianSelection, medianCrossover, medianLocalSearch, medianSolution,  medianTotalRuntime);
-	fprintf(fp, "\n");
-	fprintf(fp, "MODE: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f - TOTAL RUNTIME %f ms", modeInitialize, modeSelection, modeCrossover, modeLocalSearch, modeSolution, modeTotalRuntime);
-	fprintf(fp, "\n");
-	fprintf(fp, "STANDARD DEVIATION: INITIALIZE POPULATION %f ms - SELECTION %f ms - CROSSOVER %f ms - LOCAL SEARCH %f ms - SOLUTION %f - TOTAL RUNTIME %f ms", sdInitialize, sdSelection, sdCrossover, sdLocalSearch, sdSolution, sdTotalRuntime);
-	fprintf(fp, "\n");
+
+	bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "");
+	bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d|%f", fileNumber, runtimeExecution);
+	fprintf(fp, "%s\n", bufferWrite);
 
 	fclose(fp);
 	return 1;
 }
 
-int createStatisticsFile(char* name, bool generateGPUFile, bool generateCPUFile)
+int createStatisticsFile(char* name, bool generateGPUFile, bool generateCPUFile, int fileNumber)
 {
 	FILE* fp_cpu;
 	FILE* fp_gpu;
@@ -330,7 +315,7 @@ int createStatisticsFile(char* name, bool generateGPUFile, bool generateCPUFile)
 
 	if (generateCPUFile)
 	{
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_CPU, name, fileNumber);
 
 		fp_cpu = fopen(bufferName, "w");
 		if (fp_cpu == NULL)
@@ -339,24 +324,13 @@ int createStatisticsFile(char* name, bool generateGPUFile, bool generateCPUFile)
 			return 0;
 		}
 
-		fprintf(fp_cpu, "PROBLEM NAME: %s\n", name);
-		fprintf(fp_cpu, "EXECUTIONS: %d\n", NUMBER_EXECUTIONS);
-		fprintf(fp_cpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
-		fprintf(fp_cpu, "CITIES: %d\n", CITIES);
-		fprintf(fp_cpu, "ITEMS: %d\n", ITEMS);
-		fprintf(fp_cpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
-		fprintf(fp_cpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
-		fprintf(fp_cpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
-		fprintf(fp_cpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
-		fprintf(fp_cpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
-		fprintf(fp_cpu, "\n");
-
+		fprintf(fp_cpu, "EVOLUTION|INITIALPOP TIME|SELECTION TIME|CROSSOVER TIME|LOCALSEARCH TIME\n");
 		fclose(fp_cpu);
 	}
 
 	if (generateGPUFile)
 	{
-		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name);
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, STATISTICS_FILE_NAME_GPU, name, fileNumber);
 
 		fp_gpu = fopen(bufferName, "w");
 		if (fp_gpu == NULL)
@@ -365,18 +339,7 @@ int createStatisticsFile(char* name, bool generateGPUFile, bool generateCPUFile)
 			return 0;
 		}
 
-		fprintf(fp_gpu, "PROBLEM NAME: %s\n", name);
-		fprintf(fp_gpu, "EXECUTIONS: %d\n", NUMBER_EXECUTIONS);
-		fprintf(fp_gpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
-		fprintf(fp_gpu, "CITIES: %d\n", CITIES);
-		fprintf(fp_gpu, "ITEMS: %d\n", ITEMS);
-		fprintf(fp_gpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
-		fprintf(fp_gpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
-		fprintf(fp_gpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
-		fprintf(fp_gpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
-		fprintf(fp_gpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
-		fprintf(fp_gpu, "\n");
-
+		fprintf(fp_gpu, "EVOLUTION|INITIALPOP TIME|SELECTION TIME|CROSSOVER TIME|LOCALSEARCH TIME\n");
 		fclose(fp_gpu);
 	}
 	return 1;
@@ -400,7 +363,6 @@ int createOutputFile(char* name, bool generateGPUFile, bool generateCPUFile, int
 		}
 
 		fprintf(fp_cpu, "SOLUTION|PROFIT|REVENUE|TIME|DISTANCE|ITERATION\n");
-
 		fclose(fp_cpu);
 	}
 
@@ -416,7 +378,44 @@ int createOutputFile(char* name, bool generateGPUFile, bool generateCPUFile, int
 		}
 
 		fprintf(fp_gpu, "SOLUTION|PROFIT|REVENUE|TIME|DISTANCE|ITERATION\n");
+		fclose(fp_gpu);
+	}
+	return 1;
+}
 
+int createGlobalStatsFile(char* name, bool generateGPUFile, bool generateCPUFile)
+{
+	FILE* fp_cpu;
+	FILE* fp_gpu;
+	char bufferName[NAME_BUFFER];
+
+	if (generateCPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBALSTATS_FILE_NAME_CPU, name);
+
+		fp_cpu = fopen(bufferName, "w");
+		if (fp_cpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_cpu, "EXECUTION|TOTAL TIME\n");
+		fclose(fp_cpu);
+	}
+
+	if (generateGPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBALSTATS_FILE_NAME_GPU, name);
+
+		fp_gpu = fopen(bufferName, "w");
+		if (fp_gpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_gpu, "EXECUTION|TOTAL TIME\n");
 		fclose(fp_gpu);
 	}
 	return 1;
