@@ -75,7 +75,7 @@ int saveInitialPopulation(char* name, population& pop, parameters& problem, bool
 				}
 			}				
 		}
-		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time, pop.tours[i].total_distance);
+		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f | Revenue: %f | Time: %f | Distance: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time, pop.tours[i].total_distance);
 		fprintf(fp, "%s\n", bufferWrite);
 	}
 
@@ -136,7 +136,7 @@ int saveOffspring(char* name, population& pop, parameters& problem, int generati
 				}
 			}
 		}
-		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time, pop.tours[i].total_distance);
+		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f | Revenue: %f | Time: %f | Distance: %f", pop.tours[i].fitness, pop.tours[i].profit, pop.tours[i].time, pop.tours[i].total_distance);
 		fprintf(fp, "%s\n", bufferWrite);
 	}
 
@@ -195,7 +195,7 @@ int saveParents(char* name, tour* parents, parameters& problem, int generation, 
 				}
 			}
 		}
-		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", parents[i].fitness, parents[i].profit, parents[i].time, parents[i].total_distance);
+		bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f | Revenue: %f | Time: %f | Distance: %f", parents[i].fitness, parents[i].profit, parents[i].time, parents[i].total_distance);
 		fprintf(fp, "%s\n", bufferWrite);
 	}
 
@@ -222,9 +222,7 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 		return 0;
 	}
 
-	fprintf(fp, "\n");
-	fprintf(fp, "FITTEST OF GENERATION %d\n", generation);
-	bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "Fittest: ");
+	bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "");
 	for (int j = 0; j < problem.cities_amount + 1; ++j)
 	{
 		if (fittest.nodes[j].id > 0)
@@ -248,7 +246,7 @@ int saveFittest(char* name, tour fittest, parameters& problem, int generation, b
 			}
 		}
 	}
-	bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, " Profit: %f - Revenue: %f - Time: %f - Distance: %f", fittest.fitness, fittest.profit, fittest.time, fittest.total_distance);
+	bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "| %f | %f | %f | %f | %d", fittest.fitness, fittest.profit, fittest.time, fittest.total_distance, generation);
 	fprintf(fp, "%s\n", bufferWrite);
 
 	fclose(fp);
@@ -401,16 +399,7 @@ int createOutputFile(char* name, bool generateGPUFile, bool generateCPUFile, int
 			return 0;
 		}
 
-		fprintf(fp_cpu, "PROBLEM NAME: %s\n", name);
-		fprintf(fp_cpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
-		fprintf(fp_cpu, "CITIES: %d\n", CITIES);
-		fprintf(fp_cpu, "ITEMS: %d\n", ITEMS);
-		fprintf(fp_cpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
-		fprintf(fp_cpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
-		fprintf(fp_cpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
-		fprintf(fp_cpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
-		fprintf(fp_cpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
-		fprintf(fp_cpu, "\n");
+		fprintf(fp_cpu, "SOLUTION|PROFIT|REVENUE|TIME|DISTANCE|ITERATION\n");
 
 		fclose(fp_cpu);
 	}
@@ -426,16 +415,7 @@ int createOutputFile(char* name, bool generateGPUFile, bool generateCPUFile, int
 			return 0;
 		}
 
-		fprintf(fp_gpu, "PROBLEM NAME: %s\n", name);
-		fprintf(fp_gpu, "SOLUTIONS PER GENERATION: %d\n", TOURS);
-		fprintf(fp_gpu, "CITIES: %d\n", CITIES);
-		fprintf(fp_gpu, "ITEMS: %d\n", ITEMS);
-		fprintf(fp_gpu, "ITEMS PER CITY: %d\n", ITEMS_PER_CITY);
-		fprintf(fp_gpu, "EVOLUTIONS: %d\n", NUM_EVOLUTIONS);
-		fprintf(fp_gpu, "TOURNAMENT SIZE: %d\n", TOURNAMENT_SIZE);
-		fprintf(fp_gpu, "PARENTS PER GENERATIONS: %d\n", SELECTED_PARENTS);
-		fprintf(fp_gpu, "LOCAL SEARCH PROBABILITY: %f\n", LOCAL_SEARCH_PROBABILITY);
-		fprintf(fp_gpu, "\n");
+		fprintf(fp_gpu, "SOLUTION|PROFIT|REVENUE|TIME|DISTANCE|ITERATION\n");
 
 		fclose(fp_gpu);
 	}

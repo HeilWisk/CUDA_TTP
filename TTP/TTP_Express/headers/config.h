@@ -12,14 +12,15 @@
 #define ELITISM true
 #define MAX_COORD 250
 #define LOCAL_SEARCH_PROBABILITY 0.2
+#define EXECUTION_TIME 120
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
 #define CITIES 51
-#define ITEMS 150
+#define ITEMS 50
 #define TOURS 128
-#define ITEMS_PER_CITY 3
-#define NUMBER_EXECUTIONS 10//30
+#define ITEMS_PER_CITY 1
+#define NUMBER_EXECUTIONS 10
 
 // Other
 //#define DEBUG
@@ -33,8 +34,8 @@
 #define CPU false
 #define CUDA true
 #define NO_CUDA false
-#define WRITE_BUFFER 1500
-#define NAME_BUFFER 500
+#define WRITE_BUFFER 6000
+#define NAME_BUFFER 1000
 
 // OUTPUT VARIABLES
 #define STATISTICS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_CPU_%s.txt"
