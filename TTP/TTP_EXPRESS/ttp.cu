@@ -34,6 +34,18 @@
 #define NODE_COORD_SECTION "NODE_COORD_SECTION	(INDEX, X, Y):"
 #define ITEMS_SECTION "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):"
 
+#pragma region GLOBAL VARIABLES
+
+/// Declare structs Globally
+/// when the program is configured with big instances (I.E: Cities > 50) the stack pile generates error
+/// that's because when an array is declared locally , then it always initializes in the stack memory
+/// and generally, this memory has a size limit. When an array is declared globally then it stores in
+/// the data segment and it has no size limit.
+
+
+
+#pragma endregion
+
 /// <summary>
 /// Convert a char to uppercase
 /// </summary>

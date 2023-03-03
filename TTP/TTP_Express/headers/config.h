@@ -11,9 +11,9 @@
 #define SELECTED_PARENTS 4
 #define ELITISM true
 #define MAX_COORD 250
-#define LOCAL_SEARCH_PROBABILITY 1
+#define LOCAL_SEARCH_PROBABILITY 0.2
 #define EXECUTION_TIME 600
-#define TIME_RESTRICTED true
+#define TIME_RESTRICTED false
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
@@ -21,7 +21,7 @@
 #define ITEMS 50
 #define TOURS 128
 #define ITEMS_PER_CITY 1
-#define NUMBER_EXECUTIONS 30
+#define NUMBER_EXECUTIONS 10
 
 // Other
 //#define DEBUG

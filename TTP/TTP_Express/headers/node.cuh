@@ -71,7 +71,7 @@ __host__ __device__ double distanceBetweenNodes(const node& src_node, const node
 {
 	double x_distance = pow(dst_node.x - src_node.x, 2);
 	double y_distance = pow(dst_node.y - src_node.y, 2);
-	return sqrt(x_distance + y_distance);
+	return ceil(sqrt(x_distance + y_distance));
 }
 
 /// <summary>
