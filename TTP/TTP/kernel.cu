@@ -228,7 +228,7 @@ int** extractMatrix(const char fileName[], const char sectionName[], int col)
 /// <param name="rows">- Amount of columns</param>
 /// <param name="cols">- Amount of rows</param>
 /// <returns>- Double pointer matrix of floats</returns>
-float** extractMatrix(const char fileName[], const char sectionName[], int rows, int cols)
+int** extractMatrix(const char fileName[], const char sectionName[], int rows, int cols)
 {
 	FILE* filePtr;
 	char str[255], sub[255], * token;
@@ -238,7 +238,7 @@ float** extractMatrix(const char fileName[], const char sectionName[], int rows,
 	filePtr = fopen(fileName, openMode);
 
 	// Allocate memory for rows
-	float **matrixResult = (float**)malloc(rows * sizeof(float*));
+	int **matrixResult = (int**)malloc(rows * sizeof(int*));
 	if (matrixResult == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
@@ -246,7 +246,7 @@ float** extractMatrix(const char fileName[], const char sectionName[], int rows,
 
 	// Allocate memory for columns
 	for (int i = 0; i < rows; i++) {
-		matrixResult[i] = (float*)malloc(cols * sizeof(float));
+		matrixResult[i] = (int*)malloc(cols * sizeof(int));
 		if (matrixResult[i] == NULL) {
 			fprintf(stderr, "Out of Memory");
 			exit(0);
@@ -290,7 +290,7 @@ float** extractMatrix(const char fileName[], const char sectionName[], int rows,
 /// <param name="rows">- Amount of columns</param>
 /// <param name="cols">- Amount of rows</param>
 /// <returns>Matrix pointer</returns>
-float* extractMatrixFromFile(const char fileName[], const char sectionName[], int rows, int cols)
+int* extractMatrixFromFile(const char fileName[], const char sectionName[], int rows, int cols)
 {
 	FILE* file_ptr;
 	char str[255], sub[255], * token;
@@ -303,7 +303,7 @@ float* extractMatrixFromFile(const char fileName[], const char sectionName[], in
 	file_ptr = fopen(fileName, openMode);
 
 	// Allocate memory for the result
-	float* matrix_result = (float*)malloc(matrix_size * sizeof(float));
+	int* matrix_result = (int*)malloc(matrix_size * sizeof(int));
 	if (matrix_result == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
@@ -358,26 +358,10 @@ void display(int** matrix, int rows, int columns) {
 /// <param name="matrix">- Matrix to display</param>
 /// <param name="rows">- Amount of rows in the matrix</param>
 /// <param name="columns">- Amount of columns in the matrix</param>
-void display(float** matrix, int rows, int columns) {
+void display(int* matrix, int rows, int columns) {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
-			printf("%f ", matrix[i][j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
-
-/// <summary>
-/// Displays a matrix on screen
-/// </summary>
-/// <param name="matrix">- Matrix to display</param>
-/// <param name="rows">- Amount of rows in the matrix</param>
-/// <param name="columns">- Amount of columns in the matrix</param>
-void display(float* matrix, int rows, int columns) {
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			printf("%f	", matrix[i * columns + j]);
+			printf("%d	", matrix[i * columns + j]);
 		}
 		printf("\n");
 	}
@@ -392,13 +376,13 @@ void display(float* matrix, int rows, int columns) {
 /// <param name="out">- Result matrix with distances</param>
 /// <param name="rCount">- Row count</param>
 /// <param name="size">- Total size of the result matrix</param>
-void euclideanDistanceCPU(float** srcPoint, float** dstPoint, float** out, int rCount, int size) {
+void euclideanDistanceCPU(int** srcPoint, int** dstPoint, int** out, int rCount, int size) {
 	for (int s = 0; s < size; s++) {
 		for (int xSrc = 0; xSrc < rCount; xSrc++) {
 			for (int xDst = 0; xDst < rCount; xDst++) {
-				out[s][0] = (float)srcPoint[xSrc][0];
-				out[s][1] = (float)dstPoint[xDst][0];
-				out[s][2] = (float)sqrt(pow(dstPoint[xDst][1] - srcPoint[xSrc][1], 2) + pow(dstPoint[xDst][2] - srcPoint[xSrc][2], 2) * 1.0);
+				out[s][0] = (int)srcPoint[xSrc][0];
+				out[s][1] = (int)dstPoint[xDst][0];
+				out[s][2] = (int)sqrt(pow(dstPoint[xDst][1] - srcPoint[xSrc][1], 2) + pow(dstPoint[xDst][2] - srcPoint[xSrc][2], 2) * 1.0);
 				s++;
 			}
 		}
@@ -414,13 +398,13 @@ void euclideanDistanceCPU(float** srcPoint, float** dstPoint, float** out, int r
 /// <param name="srcSize">- Size of the source matrix</param>
 /// <param name="dstSize">- Size of the destination matrix</param>
 /// <param name="cols">- Amount of columns</param>
-void euclideanDistanceCPU(float* srcPoint, float* dstPoint, float* out, int srcSize, int dstSize, int cols) {
+void euclideanDistanceCPU(int* srcPoint, int* dstPoint, int* out, int srcSize, int dstSize, int cols) {
 	int s = 0;
 	for (int xSrc = 0; xSrc < srcSize; xSrc = xSrc + cols) {
 		for (int xDst = 0; xDst < dstSize; xDst = xDst + cols) {
 			out[s] = srcPoint[xSrc];
 			out[s + 1] = dstPoint[xDst];
-			out[s + 2] = sqrt(pow(dstPoint[xDst + 1] - srcPoint[xSrc + 1], 2) + pow(dstPoint[xDst + 2] - srcPoint[xSrc + 2], 2) * 1.0);
+			out[s + 2] = (int)sqrt(pow(dstPoint[xDst + 1] - srcPoint[xSrc + 1], 2) + pow(dstPoint[xDst + 2] - srcPoint[xSrc + 2], 2) * 1.0);
 			s = s + cols;
 		}
 	}
@@ -430,7 +414,7 @@ void euclideanDistanceCPU(float* srcPoint, float* dstPoint, float* out, int srcS
 /// Function to remove the first column from a matrix
 /// </summary>
 /// <param name="matrix">Input Matrix</param>
-void removeFirstColumn(float* matrix, float* out_matrix, int height, int width) {
+void removeFirstColumn(int* matrix, int* out_matrix, int height, int width) {
 	int width_out = width - 1;
 	int pos = 0;
 	int posM = 0;
@@ -554,7 +538,7 @@ __global__ void matrixTransposeCoalesced(float* m_dev, float* t_m_dev, int width
 	}
 
 	// Synchronise to ensure allwrites to block[][] have completed
-	__syncthreads();
+	//__syncthreads();
 
 	// Write the transposed matrix tile to global memory (t_m_dev) in linear order
 	colIdx = blockIdx.y * BLOCK_SIZE + threadIdx.x;
@@ -645,7 +629,7 @@ int main()
 	fclose(fp);
 	
 	// Obtain node matrix
-	float* node_matrix;
+	int* node_matrix;
 	// Calculate amount of rows
 	int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
 	// Calculate amount of columns
@@ -660,7 +644,7 @@ int main()
 	display(node_matrix, node_rows, node_columns);
 
 	// Obtain item matrix
-	float* item_matrix;
+	int* item_matrix;
 	// Calculate amount of rows
 	int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
 	// Calculate amount of coluns
@@ -673,9 +657,9 @@ int main()
 	display(item_matrix, item_rows, item_columns);
 
 	// Calculate Distance Matrix in CPU
-	float* distance_matrix;
+	int* distance_matrix;
 	int distance_matrix_size = node_rows * node_rows * node_columns;
-	distance_matrix = (float*)malloc(distance_matrix_size * sizeof(float));
+	distance_matrix = (int*)malloc(distance_matrix_size * sizeof(int));
 	if (distance_matrix == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
@@ -687,9 +671,9 @@ int main()
 
 	// Remove column
 	// Define new matrix
-	float* coordinate_matrix;
+	int* coordinate_matrix;
 	int coordinate_matrix_size = node_rows * (node_columns - 1);
-	coordinate_matrix = (float*)malloc(coordinate_matrix_size * sizeof(float));
+	coordinate_matrix = (int*)malloc(coordinate_matrix_size * sizeof(int));
 	if (coordinate_matrix == NULL) {
 		fprintf(stderr, "Out of Memory");
 		exit(0);
@@ -716,10 +700,10 @@ int main()
 
 	printf("Transponiendo la matrix de coordenadas de tamaño [%d][%d]\n", node_rows, node_columns-1);
 	matrixTranspose << <grid, threads >> > (d_coordinate_matrix, d_coordinate_t_matrix, node_columns-1, node_rows);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	//Copy results from device to host
-	float* h_coordinate_t_matrix = (float*)malloc(sizeof(float) * coordinate_matrix_size);
+	int* h_coordinate_t_matrix = (int*)malloc(sizeof(int) * coordinate_matrix_size);
 	cudaMemcpy(h_coordinate_t_matrix, d_coordinate_t_matrix, sizeof(float) * coordinate_matrix_size, cudaMemcpyDeviceToHost);
 
 	display(h_coordinate_t_matrix, node_columns-1, node_rows);
@@ -727,10 +711,10 @@ int main()
 	cudaMalloc(&d_distance_matrix, sizeof(float)* distance_matrix_size_gpu);
 	printf("Calculando la matriz de distancias\n");
 	matrixDistances << <grid, threads >> > (d_coordinate_matrix, d_coordinate_t_matrix, d_distance_matrix, node_rows, node_rows);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	//Copy results from device to host
-	float* h_distance_matrix = (float*)malloc(sizeof(float) * distance_matrix_size_gpu);
+	int* h_distance_matrix = (int*)malloc(sizeof(int) * distance_matrix_size_gpu);
 	cudaMemcpy(h_distance_matrix, d_distance_matrix, sizeof(float)* distance_matrix_size_gpu, cudaMemcpyDeviceToHost);
 
 	display(h_distance_matrix, node_rows, node_rows);
@@ -753,7 +737,6 @@ int main()
 		cudaGetDeviceProperties(&prop, i);
 		printf("GPU: %s\n", prop.name);
 		printf("Compute Mode: %d\n", prop.computeMode);
-		printf("Max Grid Size: %d\n", prop.maxGridSize);
 		printf("Warp Size: %d\n", prop.warpSize);
 		printf("Total Global Memory: %zd\n", prop.totalGlobalMem);
 		printf("Total Constant Memory: %zd\n", prop.totalConstMem);
@@ -762,7 +745,6 @@ int main()
 		printf("Max Threads Per Multiprocessor: %d\n", prop.maxThreadsPerMultiProcessor);
 		printf("Max Blocks Per Multiprocessor: %d\n", prop.maxBlocksPerMultiProcessor);
 		printf("Max Threads Per Block: %d\n", prop.maxThreadsPerBlock);
-		printf("Max Size of Each Dimension of a Block: %d\n", prop.maxThreadsDim);
 	}
 	printf("**********************************************************************************************\n");
 

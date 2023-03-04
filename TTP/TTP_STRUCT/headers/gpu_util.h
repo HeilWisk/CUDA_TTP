@@ -145,3 +145,78 @@ __device__ node getValidNextNode(tour& parent, tour& child, node& current_node, 
 
 #pragma endregion
 
+/// <summary>
+/// Function to test memory allocation in CUDA
+/// </summary>
+/// <param name="initial_population"></param>
+/// <param name="population_size"></param>
+/// <param name="node_quantity"></param>
+/// <param name="item_quantity"></param>
+/// <returns></returns>
+__global__ void testMemoryAllocation(population* initial_population, const int population_size)
+{
+	// Get thread ID
+	// Global index of every block on the grid
+	unsigned int block_number_in_grid = blockIdx.x + gridDim.x * blockIdx.y;
+	// Global index of every thread in block
+	unsigned int thread_number_in_block = threadIdx.x + blockDim.x * threadIdx.y;
+	// Number of thread per block
+	unsigned int threads_per_block = blockDim.x * blockDim.y;
+	// Global index of every thread on the grid
+	unsigned int thread_global_index = block_number_in_grid * threads_per_block + thread_number_in_block;
+
+
+	// Set the tours
+	if (thread_global_index < POPULATION_SIZE)
+	{
+		printf("Thread Id: %d", thread_global_index);
+		printf(" > population->id: %d", initial_population->id);
+		printf(" > population->tours: %p", initial_population->tours);
+		for (int p = 0; p < population_size; ++p)
+		{
+			printf(" > population[%d].id: %d", p, initial_population[p].id);
+			printf(" > population[%d].tours: %p", p, initial_population[p].tours);
+			printf(" > population[%d].tours->fitness: %f", p, initial_population[p].tours->fitness);
+			printf(" > population[%d].tours->total_distance: %f", p, initial_population[p].tours->total_distance);
+			printf(" > population[%d].tours->node_qty: %d", p, initial_population[p].tours->node_qty);
+			printf(" > population[%d].tours->nodes: %p", p, initial_population[p].tours->nodes);
+			for (int t = 0; t < POPULATION_SIZE; ++t)
+			{
+				printf(" > population[%d].tours[%d]", p, t);
+				printf(" > population[%d].tours[%d].fitness: %f", p, t, initial_population[p].tours[t].fitness);
+				printf(" > population[%d].tours[%d].total_distance: %f", p, t, initial_population[p].tours[t].total_distance);
+				printf(" > population[%d].tours[%d].node_qty: %d", p, t, initial_population[p].tours[t].node_qty);
+				printf(" > population[%d].tours[%d].nodes: %p", p, t, initial_population[p].tours[t].nodes);
+				printf(" > population[%d].tours[%d].nodes->id: %d", p, t, initial_population[p].tours[t].nodes->id);
+				printf(" > population[%d].tours[%d].nodes->x: %f", p, t, initial_population[p].tours[t].nodes->x);
+				printf(" > population[%d].tours[%d].nodes->y: %f", p, t, initial_population[p].tours[t].nodes->y);
+				printf(" > population[%d].tours[%d].nodes->item_qty: %d", p, t, initial_population[p].tours[t].nodes->item_qty);
+				printf(" > population[%d].tours[%d].nodes->items: %p", p, t, initial_population[p].tours[t].nodes->items);
+				for (int n = 0; n < initial_population[p].tours[t].node_qty; ++n)
+				{
+					printf(" > population[%d].tours[%d].nodes[%d]", p, t, n);
+					printf(" > population[%d].tours[%d].nodes[%d].id: %d", p, t, n, initial_population[p].tours[t].nodes[n].id);
+					printf(" > population[%d].tours[%d].nodes[%d].x: %f", p, t, n, initial_population[p].tours[t].nodes[n].x);
+					printf(" > population[%d].tours[%d].nodes[%d].y: %f", p, t, n, initial_population[p].tours[t].nodes[n].y);
+					printf(" > population[%d].tours[%d].nodes[%d].item_qty: %d", p, t, n, initial_population[p].tours[t].nodes[n].item_qty);
+					printf(" > population[%d].tours[%d].nodes[%d].items: %p", p, t, n, initial_population[p].tours[t].nodes[n].items);
+					printf(" > population[%d].tours[%d].nodes[%d].items->id: %d", p, t, n, initial_population[p].tours[t].nodes[n].items->id);
+					printf(" > population[%d].tours[%d].nodes[%d].items->node: %d", p, t, n, initial_population[p].tours[t].nodes[n].items->node);
+					printf(" > population[%d].tours[%d].nodes[%d].items->taken: %d", p, t, n, initial_population[p].tours[t].nodes[n].items->taken);
+					printf(" > population[%d].tours[%d].nodes[%d].items->value: %f", p, t, n, initial_population[p].tours[t].nodes[n].items->value);
+					printf(" > population[%d].tours[%d].nodes[%d].items->weight: %f", p, t, n, initial_population[p].tours[t].nodes[n].items->weight);
+					for (int i = 0; i < initial_population[p].tours[t].nodes[n].item_qty; ++i)
+					{
+						printf(" > population[%d].tours[%d].nodes[%d].items[%d]", p, t, n, i);
+						printf(" > population[%d].tours[%d].nodes[%d].items[%d].id: %d", p, t, n, i, initial_population[p].tours[t].nodes[n].items[i].id);
+						printf(" > population[%d].tours[%d].nodes[%d].items[%d].node: %d", p, t, n, i, initial_population[p].tours[t].nodes[n].items[i].node);
+						printf(" > population[%d].tours[%d].nodes[%d].items[%d].taken: %d", p, t, n, i, initial_population[p].tours[t].nodes[n].items[i].taken);
+						printf(" > population[%d].tours[%d].nodes[%d].items[%d].value: %f", p, t, n, i, initial_population[p].tours[t].nodes[n].items[i].value);
+						printf(" > population[%d].tours[%d].nodes[%d].items[%d].weight: %f", p, t, n, i, initial_population[p].tours[t].nodes[n].items[i].weight);
+					}
+				}
+			}
+		}
+		printf("\n\n");
+	}
+}

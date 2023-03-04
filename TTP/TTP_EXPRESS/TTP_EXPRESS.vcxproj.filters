@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="ttp.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\config.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\distance.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\exception.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\File.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\genetic.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\greedy.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_cuda.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_functions.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_image.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_string.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\helper_timer.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\item.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\node.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\params.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\population.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\tour.cuh">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="data">
+      <UniqueIdentifier>{bba4fe79-9d38-4195-85d2-e4328bcf449c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="header">
+      <UniqueIdentifier>{cb4ff007-4215-460d-9ca7-d420e3324b83}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\w5_n4_bounded-strongly-corr.ttp">
+      <Filter>data</Filter>
+    </None>
+  </ItemGroup>
+</Project>

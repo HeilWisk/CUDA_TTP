@@ -3,10 +3,10 @@
 //DEFINES: Item Data Type
 struct item {
 	int id;
-	float weight;
-	float value;
+	int weight;
+	int value;
 	int node;
-	int taken;
+	int pickup;
 
 	__host__ __device__ item()
 	{
@@ -14,26 +14,32 @@ struct item {
 		weight = -1;
 		value = -1;
 		node = -1;
-		taken = 0;
+		pickup = -1;
 	}
 
-	__host__ __device__ item(int id_item, float w, float v, int node_id, int t)
+	__host__ __device__ item(int id_item, int w, int v, int node_id)
 	{
 		id = id_item;
 		weight = w;
 		value = v;
 		node = node_id;
-		taken = t;
+		pickup = 0;
 	}
 
 	__host__ __device__ item& operator=(const item& var)
-	{		
+	{
 		id = var.id;
 		weight = var.weight;
 		value = var.value;
 		node = var.node;
-		taken = var.taken;
+		pickup = var.pickup;
 		return *this;
+	}
+
+	__host__ __device__ bool operator==(const item& itm)
+		const
+	{
+		return(id == itm.id && weight == itm.weight && value == itm.value && node == itm.node);
 	}
 };
 
@@ -46,10 +52,9 @@ struct item {
 void extractItems(int** matrix, int rows, item* i) {
 	for (int s = 0; s < rows; s++) {
 		i[s].id = matrix[s][0];
-		i[s].value = (float)matrix[s][1];
-		i[s].weight = (float)matrix[s][2];
+		i[s].value = matrix[s][1];
+		i[s].weight = matrix[s][2];
 		i[s].node = matrix[s][3];
-		i[s].taken = 0;
 	}
 }
 
@@ -64,9 +69,33 @@ void displayItems(item* c, int size) {
 	printf("****************************************************************************************\n");
 	printf("ID	X		Y		LOC\n");
 	for (int i = 0; i < size; i++) {
-		printf("%d	%f	%f	%d\n", c[i].id, c[i].value, c[i].weight, c[i].node);
+		printf("%d	%d	%d	%d\n", c[i].id, c[i].value, c[i].weight, c[i].node);
 	}
 	printf("****************************************************************************************\n");
 	printf("\n");
+}
+
+void randomPickup(item* items)
+{
+	for (int i = 0; i < ITEMS_PER_CITY; ++i)
+	{
+		if (items[i].id > 0)
+			items[i].pickup = rand() % 2;
+	}
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="items"></param>
+/// <param name="state"></param>
+/// <returns></returns>
+__device__ void randomPickup(item* items, curandState* state)
+{
+	for (int i = 0; i < ITEMS_PER_CITY; ++i)
+	{
+		if (items[i].id > 0)
+			items[i].pickup = curand(state) % 2;
+	}
 }
 

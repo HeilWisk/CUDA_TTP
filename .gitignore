@@ -328,3 +328,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/TTP/TTP_Express/output/30 attemp
+/TTP/TTP_Express/output/EXECUTION_0_ berlin52-TTP_CPU_10000.txt
+/TTP/TTP_Express/output/STATISTICS_CPU_ berlin52-TTP_10000.txt
+/TTP/TTP_EXPRESS/output/EXECUTION_0_ eil76-TTP_GPU.txt
+/TTP/TTP_EXPRESS/output/STATISTICS_GPU_ eil76-TTP.txt
