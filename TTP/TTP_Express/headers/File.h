@@ -307,6 +307,56 @@ int saveGlobalStatistics(char* name, bool isCuda, int fileNumber, double runtime
 	return 1;
 }
 
+int saveGlobalFittest(char* name, tour fittest, parameters& problem, int generation, bool isCuda)
+{
+	FILE* fp;
+	char bufferName[NAME_BUFFER];
+	char bufferWrite[WRITE_BUFFER];
+	int bufferPos;
+
+	if (isCuda)
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBAL_RESULTS_FILE_NAME_GPU, name);
+	else
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBAL_RESULTS_FILE_NAME_CPU, name);
+
+	fp = fopen(bufferName, "a");
+	if (fp == NULL)
+	{
+		printf("No fue posible abrir el archivo");
+		return 0;
+	}
+
+	bufferPos = snprintf(bufferWrite, sizeof(char) * WRITE_BUFFER, "");
+	for (int j = 0; j < problem.cities_amount + 1; ++j)
+	{
+		if (fittest.nodes[j].id > 0)
+		{
+			if (j > 0)
+			{
+				bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+			}
+			bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "%d", fittest.nodes[j].id);
+
+			for (int k = 0; k < problem.items_per_city; ++k)
+			{
+				if (fittest.nodes[j].items[k].id > 0)
+				{
+					if (k > 0)
+					{
+						bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, ", ");
+					}
+					bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "[%d]", fittest.nodes[j].items[k].pickup);
+				}
+			}
+		}
+	}
+	bufferPos += snprintf(bufferWrite + bufferPos, (sizeof(char) * WRITE_BUFFER) - bufferPos, "| %f | %f | %f | %f | %d", fittest.fitness, fittest.profit, fittest.time, fittest.total_distance, generation);
+	fprintf(fp, "%s\n", bufferWrite);
+
+	fclose(fp);
+	return 1;
+}
+
 int createStatisticsFile(char* name, bool generateGPUFile, bool generateCPUFile, int fileNumber)
 {
 	FILE* fp_cpu;
@@ -416,6 +466,44 @@ int createGlobalStatsFile(char* name, bool generateGPUFile, bool generateCPUFile
 		}
 
 		fprintf(fp_gpu, "EXECUTION|TOTAL TIME\n");
+		fclose(fp_gpu);
+	}
+	return 1;
+}
+
+int createGlobalOutputFile(char* name, bool generateGPUFile, bool generateCPUFile)
+{
+	FILE* fp_cpu;
+	FILE* fp_gpu;
+	char bufferName[NAME_BUFFER];
+
+	if (generateCPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBAL_RESULTS_FILE_NAME_CPU, name);
+
+		fp_cpu = fopen(bufferName, "w");
+		if (fp_cpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_cpu, "SOLUTION|PROFIT|REVENUE|TIME|DISTANCE|ITERATION\n");
+		fclose(fp_cpu);
+	}
+
+	if (generateGPUFile)
+	{
+		snprintf(bufferName, sizeof(char) * NAME_BUFFER, GLOBAL_RESULTS_FILE_NAME_GPU, name);
+
+		fp_gpu = fopen(bufferName, "w");
+		if (fp_gpu == NULL)
+		{
+			printf("No fue posible crear el archivo");
+			return 0;
+		}
+
+		fprintf(fp_gpu, "SOLUTION|PROFIT|REVENUE|TIME|DISTANCE|ITERATION\n");
 		fclose(fp_gpu);
 	}
 	return 1;
