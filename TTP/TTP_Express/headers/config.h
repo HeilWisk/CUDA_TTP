@@ -12,16 +12,16 @@
 #define ELITISM true
 #define MAX_COORD 250
 #define LOCAL_SEARCH_PROBABILITY 1
-#define EXECUTION_TIME 600
+#define EXECUTION_TIME 120
 #define TIME_RESTRICTED true
 
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
-#define CITIES 51
-#define ITEMS 50
+#define CITIES 50 //280
+#define ITEMS 51 //837
 #define TOURS 128
-#define ITEMS_PER_CITY 1
-#define NUMBER_EXECUTIONS 30
+#define ITEMS_PER_CITY 1 //3
+#define NUMBER_EXECUTIONS 10
 
 // Other
 //#define DEBUG
@@ -31,17 +31,17 @@
 #define SHOW // macros
 #endif // DEBUG
 
-#define GPU true
-#define CPU false
+#define GPU false
+#define CPU true
 #define CUDA true
 #define NO_CUDA false
 #define WRITE_BUFFER 6000
 #define NAME_BUFFER 1000
 
 // OUTPUT VARIABLES
-#define STATISTICS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_CPU_%s_%d.txt"
-#define STATISTICS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_GPU_%s_%d.txt"
-#define RESULTS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_CPU.txt"
-#define RESULTS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_GPU.txt"
-#define GLOBALSTATS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_CPU_%s.txt"
-#define GLOBALSTATS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_GPU_%s.txt"
+#define STATISTICS_FILE_NAME_CPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_CPU_%s_%d.txt"
+#define STATISTICS_FILE_NAME_GPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_GPU_%s_%d.txt"
+#define RESULTS_FILE_NAME_CPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_CPU.txt"
+#define RESULTS_FILE_NAME_GPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_GPU.txt"
+#define GLOBALSTATS_FILE_NAME_CPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_CPU_%s.txt"
+#define GLOBALSTATS_FILE_NAME_GPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_GPU_%s.txt"

@@ -3,8 +3,8 @@
 // DEFINES: Node Data Type
 struct node {
 	int id;
-	double x;
-	double y;
+	int x;
+	int y;
 	item items[ITEMS_PER_CITY];
 
 	__host__ __device__ node()
@@ -18,7 +18,7 @@ struct node {
 		}
 	}
 
-	__host__ __device__ node(int id_node, double x_coordinate, double y_coordinate)
+	__host__ __device__ node(int id_node, int x_coordinate, int y_coordinate)
 	{
 		id = id_node;
 		x = x_coordinate;
@@ -71,7 +71,7 @@ __host__ __device__ double distanceBetweenNodes(const node& src_node, const node
 {
 	double x_distance = pow(dst_node.x - src_node.x, 2);
 	double y_distance = pow(dst_node.y - src_node.y, 2);
-	return sqrt(x_distance + y_distance);
+	return ceil(sqrt(x_distance + y_distance));
 }
 
 /// <summary>
@@ -85,7 +85,7 @@ void displayNodes(node* c, int size) {
 	printf("****************************************************************************************\n");
 	printf("ID	X		Y		ITEMS\n");
 	for (int i = 0; i < size; ++i) {
-		printf("%d	%f	%f", c[i].id, c[i].x, c[i].y);
+		printf("%d	%d	%d", c[i].id, c[i].x, c[i].y);
 		for (int j = 0; j < ITEMS_PER_CITY; ++j)
 		{
 			if(c[i].items[j].id > 0)
@@ -106,8 +106,8 @@ void displayNodes(node* c, int size) {
 void extractNodes(int** matrix, int rows, node* c) {
 	for (int i = 0; i < rows; ++i) {
 		c[i].id = matrix[i][0];
-		c[i].x = (double)matrix[i][1];
-		c[i].y = (double)matrix[i][2];
+		c[i].x = matrix[i][1];
+		c[i].y = matrix[i][2];
 	}
 }
 

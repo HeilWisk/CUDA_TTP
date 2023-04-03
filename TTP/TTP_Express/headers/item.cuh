@@ -3,8 +3,8 @@
 //DEFINES: Item Data Type
 struct item {
 	int id;
-	int weight;
-	int value;
+	short weight;
+	short value;
 	int node;
 	int pickup;
 
