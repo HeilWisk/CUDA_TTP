@@ -18,10 +18,10 @@
 // Travelling Thief Problem Config
 #define POPULATION_SIZE 1
 #define CITIES 51
-#define ITEMS 150
+#define ITEMS 50
 #define TOURS 128
-#define ITEMS_PER_CITY 3
-#define NUMBER_EXECUTIONS 100
+#define ITEMS_PER_CITY 1
+#define NUMBER_EXECUTIONS 10
 
 // Other
 //#define DEBUG
@@ -43,11 +43,11 @@
 #define WRITE_RESULTS_PER_ITERATION false
 
 // OUTPUT VARIABLES
-#define STATISTICS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_CPU_%s_%d.txt"
-#define STATISTICS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_GPU_%s_%d.txt"
-#define RESULTS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_CPU.txt"
-#define RESULTS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_GPU.txt"
-#define GLOBALSTATS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_CPU_%s.txt"
-#define GLOBALSTATS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_GPU_%s.txt"
-#define GLOBAL_RESULTS_FILE_NAME_CPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_RESULTS_CPU_%s.txt"
-#define GLOBAL_RESULTS_FILE_NAME_GPU "D:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_RESULTS_GPU_%s.txt"
+#define STATISTICS_FILE_NAME_CPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_CPU_%s_%d.txt"
+#define STATISTICS_FILE_NAME_GPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\STATISTICS_GPU_%s_%d.txt"
+#define RESULTS_FILE_NAME_CPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_CPU.txt"
+#define RESULTS_FILE_NAME_GPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\EXECUTION_%d_%s_GPU.txt"
+#define GLOBALSTATS_FILE_NAME_CPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_CPU_%s.txt"
+#define GLOBALSTATS_FILE_NAME_GPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_STATS_GPU_%s.txt"
+#define GLOBAL_RESULTS_FILE_NAME_CPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_RESULTS_CPU_%s.txt"
+#define GLOBAL_RESULTS_FILE_NAME_GPU "E:\\Development\\CUDA_TTP\\TTP\\TTP_EXPRESS\\output\\GLOBAL_RESULTS_GPU_%s.txt"
