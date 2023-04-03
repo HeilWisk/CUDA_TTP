@@ -599,6 +599,11 @@ int main()
 	size_t position;
 	const char openMode[] = "r";
 
+	// Big File Variables
+	char lines[9][255];
+	unsigned int line_count = 0;
+	char* linePointer;
+
 	// Problem params
 	parameters problem;
 	int** matrix;
@@ -671,8 +676,6 @@ int main()
 	// Ask for the filepath & name where the problem is defined
 	printf("Enter name of a file you wish to see\n");
 	gets_s(file_name);
-	_splitpath(file_name, NULL, NULL, fname, NULL);
-	toUpperCase(fname);
 	printf("\n");
 
 	// Open the file in read mode
@@ -685,661 +688,712 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
-	// Print headers
-	printf("****************************************************************************************\n");
-	printf("CONTENTS OF THE FILE:\n");
-	printf("****************************************************************************************\n");
-	printf("The quantity of lines in the file are:	%d\n", countFileLines(file_name));
+	while (fgets(lines[line_count], 100, file_open) != NULL)
+	{
+		printf("line[%06d]: %s", line_count, lines[line_count]);
+		if (lines[line_count][strlen(lines[line_count]) - 1] != '\n')
+			printf("\n");
+		else
 
-	// Obtain general data from file
-	while (fgets(str, 100, file_open) != NULL) {
-		position = findCharacterPosition(str, ':');
-		// Extract problem name
-		if (strncmp(str, NAME, strlen(NAME)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position - 1);
-			strcpy(problem.name, sub);
-		}
-		// Extract amount of nodes (cities)
-		if (strncmp(str, DIMENSION, strlen(DIMENSION)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position);
-			problem.cities_amount = atoi(sub);
-			printf("Nodes (Cities):				%d\n", problem.cities_amount);
-		}
-		// Extract the amount of items
-		else if (strncmp(str, ITEM_QTY, strlen(ITEM_QTY)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position);
-			problem.items_amount = atoi(sub);
-			problem.items_per_city = problem.items_amount / (problem.cities_amount - 1);
-			printf("Item:					%d\n", problem.items_amount);
-			printf("Items Per City:				%f\n", problem.items_per_city);
-		}
-		// Extract the knapsack capacity
-		else if (strncmp(str, KNAPSACK_CAPACITY, strlen(KNAPSACK_CAPACITY)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position);
-			problem.knapsack_capacity = atof(sub);
-			printf("Knapsack Capacity:			%lf\n", problem.knapsack_capacity);
-		}
-		// Extract the minimal speed
-		else if (strncmp(str, MIN_SPEED, strlen(MIN_SPEED)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position);
-			problem.min_speed = atof(sub);
-			printf("Minimum Speed:				%lf\n", problem.min_speed);
-		}
-		// Extract the maximum speed
-		else if (strncmp(str, MAX_SPEED, strlen(MAX_SPEED)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position);
-			problem.max_speed = atof(sub);
-			printf("Maximum Speed:				%lf\n", problem.max_speed);
-		}
-		// Extract the renting ratio
-		else if (strncmp(str, RENTING_RATIO, strlen(RENTING_RATIO)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position);
-			problem.renting_ratio = atof(sub);
-			printf("Renting Ratio:				%lf\n", problem.renting_ratio);
-		}
-		// Extract the edge weight type
-		else if (strncmp(str, EDGE_WEIGHT_TYPE, strlen(EDGE_WEIGHT_TYPE)) == 0)
-		{
-			subString(str, sub, position + 1, strlen(str) - position);
-			strcpy(edge_weight_type, sub);
-			printf("Edge Weight Type is			%s", edge_weight_type);
-		}
+		++line_count;
 	}
 
-	// Close file
 	fclose(file_open);
-	printf("****************************************************************************************\n");
-	printf("\n");
+
+	for (int i = 0; i < 9; i++)
+	{
+		linePointer = lines[i];
+		linePointer[strlen(linePointer) - 1] = '\0';
+		// Open the file in read mode
+		file_open = fopen(lines[i], openMode);
+
+		// Validates for errors on file opening
+		if (file_open == NULL)
+		{
+			perror("Error while opening the file.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		_splitpath(lines[i], NULL, NULL, fname, NULL);
+		toUpperCase(fname);
+
+		// Print headers
+		printf("****************************************************************************************\n");
+		printf("CONTENTS OF THE FILE:\n");
+		printf("****************************************************************************************\n");
+		printf("The quantity of lines in the file are:	%d\n", countFileLines(lines[i]));
+
+		// Obtain general data from file
+		while (fgets(str, 100, file_open) != NULL) {
+			position = findCharacterPosition(str, ':');
+			// Extract problem name
+			if (strncmp(str, NAME, strlen(NAME)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position - 1);
+				strcpy(problem.name, sub);
+			}
+			// Extract amount of nodes (cities)
+			if (strncmp(str, DIMENSION, strlen(DIMENSION)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position);
+				problem.cities_amount = atoi(sub);
+				printf("Nodes (Cities):				%d\n", problem.cities_amount);
+			}
+			// Extract the amount of items
+			else if (strncmp(str, ITEM_QTY, strlen(ITEM_QTY)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position);
+				problem.items_amount = atoi(sub);
+				problem.items_per_city = problem.items_amount / (problem.cities_amount - 1);
+				printf("Item:					%d\n", problem.items_amount);
+				printf("Items Per City:				%f\n", problem.items_per_city);
+			}
+			// Extract the knapsack capacity
+			else if (strncmp(str, KNAPSACK_CAPACITY, strlen(KNAPSACK_CAPACITY)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position);
+				problem.knapsack_capacity = atof(sub);
+				printf("Knapsack Capacity:			%lf\n", problem.knapsack_capacity);
+			}
+			// Extract the minimal speed
+			else if (strncmp(str, MIN_SPEED, strlen(MIN_SPEED)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position);
+				problem.min_speed = atof(sub);
+				printf("Minimum Speed:				%lf\n", problem.min_speed);
+			}
+			// Extract the maximum speed
+			else if (strncmp(str, MAX_SPEED, strlen(MAX_SPEED)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position);
+				problem.max_speed = atof(sub);
+				printf("Maximum Speed:				%lf\n", problem.max_speed);
+			}
+			// Extract the renting ratio
+			else if (strncmp(str, RENTING_RATIO, strlen(RENTING_RATIO)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position);
+				problem.renting_ratio = atof(sub);
+				printf("Renting Ratio:				%lf\n", problem.renting_ratio);
+			}
+			// Extract the edge weight type
+			else if (strncmp(str, EDGE_WEIGHT_TYPE, strlen(EDGE_WEIGHT_TYPE)) == 0)
+			{
+				subString(str, sub, position + 1, strlen(str) - position);
+				strcpy(edge_weight_type, sub);
+				printf("Edge Weight Type is			%s", edge_weight_type);
+			}
+		}
+
+		// Close file
+		fclose(file_open);
+		printf("****************************************************************************************\n");
+		printf("\n");
 
 #pragma endregion
 
 #pragma region PROGRAM SETUP
 
-	/****************************************************************************************************
-	* PRINT CUDA AND GENETIC VALUES
-	****************************************************************************************************/
-	printf("****************************************************************************************\n");
-	printf("PRGRAM SETUP\n");
-	printf("****************************************************************************************\n");
-	printf("LOCAL SEARCH PROPABILITY:		%f\n", LOCAL_SEARCH_PROBABILITY);
-	printf("AMOUNT OF PARENTS:			%d\n", SELECTED_PARENTS);
-	printf("TOURNAMENT SIZE:			%d\n", TOURNAMENT_SIZE);
-	printf("AMOUNT OF EVOLUTIONS:			%d\n", NUM_EVOLUTIONS);
-	printf("AMOUNT OF SOLUTIONS PER EXECUTION:	%d\n", TOURS);
-	printf("AMOUNT OF EXECUTIONS:			%d\n", NUMBER_EXECUTIONS);
-	printf("****************************************************************************************\n");
+		/****************************************************************************************************
+		* PRINT CUDA AND GENETIC VALUES
+		****************************************************************************************************/
+		printf("****************************************************************************************\n");
+		printf("PRGRAM SETUP\n");
+		printf("****************************************************************************************\n");
+		printf("LOCAL SEARCH PROPABILITY:		%f\n", LOCAL_SEARCH_PROBABILITY);
+		printf("AMOUNT OF PARENTS:			%d\n", SELECTED_PARENTS);
+		printf("TOURNAMENT SIZE:			%d\n", TOURNAMENT_SIZE);
+		printf("AMOUNT OF EVOLUTIONS:			%d\n", NUM_EVOLUTIONS);
+		printf("AMOUNT OF SOLUTIONS PER EXECUTION:	%d\n", TOURS);
+		printf("AMOUNT OF EXECUTIONS:			%d\n", NUMBER_EXECUTIONS);
+		printf("****************************************************************************************\n");
 
 #pragma endregion
 
 #pragma region PRINT SIZE OF STRUCT AND VARIABLES
-	/****************************************************************************************************
-	* PRINT SIZE OF STRUCTS
-	****************************************************************************************************/
-	printf("****************************************************************************************\n");
-	printf("SIZE OF STRUCTS AND VARIABLES\n");
-	printf("****************************************************************************************\n");
-	printf("ITEM:				%lld\n", sizeof(item));
-	printf("NODE:				%lld\n", sizeof(node));
-	printf("TOUR:				%lld\n", sizeof(tour));
-	printf("POPULATION:			%lld\n", sizeof(population));
-	printf("PARAMETERS:			%lld\n", sizeof(parameters));
-	printf("****************************************************************************************\n");
+		/****************************************************************************************************
+		* PRINT SIZE OF STRUCTS
+		****************************************************************************************************/
+		printf("****************************************************************************************\n");
+		printf("SIZE OF STRUCTS AND VARIABLES\n");
+		printf("****************************************************************************************\n");
+		printf("ITEM:				%lld\n", sizeof(item));
+		printf("NODE:				%lld\n", sizeof(node));
+		printf("TOUR:				%lld\n", sizeof(tour));
+		printf("POPULATION:			%lld\n", sizeof(population));
+		printf("PARAMETERS:			%lld\n", sizeof(parameters));
+		printf("****************************************************************************************\n");
 #pragma endregion
 
 #pragma region READ FILE VALUES AND DISPLAY DATA
 
-	/*************************************************************************************************
-	* POPULATION INITIALIZATION ON HOST (CPU)
-	*************************************************************************************************/
+		/*************************************************************************************************
+		* POPULATION INITIALIZATION ON HOST (CPU)
+		*************************************************************************************************/
 
-	// Obtain the items
-	// Calculate amount of rows
-	unsigned int item_rows = countMatrixRows(file_name, ITEMS_SECTION);
+		// Obtain the items
+		// Calculate amount of rows
+		unsigned int item_rows = countMatrixRows(lines[i], ITEMS_SECTION);
 
-	// Calculate amount of columns
-	unsigned int item_columns = 4;
+		// Calculate amount of columns
+		unsigned int item_columns = 4;
 
-	// Validate file consistency
-	if (item_rows != problem.items_amount)
-	{
-		perror("The file information is not consistent. Number of items Inconsistency.\n");
-		exit(EXIT_FAILURE);
-	}
-
-	// Get matrix
-	matrix = extractMatrixFromFile(file_name, ITEMS_SECTION, problem.items_amount, item_columns);
-
-	// Allocate memory for the array of structs
-	item* cpu_item = (item*)malloc(problem.items_amount * sizeof(item));
-	if (cpu_item == NULL) {
-		fprintf(stderr, "Out of Memory");
-		exit(0);
-	}
-
-	// Convert to array of struct
-	extractItems(matrix, problem.items_amount, cpu_item);
-
-	// Visualize values for item matrix	
-	displayItems(cpu_item, problem.items_amount);
-
-	// Obtain nodes
-	// Calculate amount of nodes
-	unsigned int node_rows = countMatrixRows(file_name, NODE_COORD_SECTION);
-
-	// Validate file consistency
-	if (node_rows != problem.cities_amount)
-	{
-		perror("The file information is not consistent. Number of node Inconsistency.\n");
-		exit(EXIT_FAILURE);
-	}
-
-	// Calculate amount of columns
-	unsigned int node_columns = 3;
-
-	// Get matrix
-	matrix = extractMatrixFromFile(file_name, NODE_COORD_SECTION, problem.cities_amount, node_columns);
-
-	// Allocate memory for the array of structs
-	node* cpu_node = (node*)malloc(problem.cities_amount * sizeof(node));
-	if (cpu_node == NULL) {
-		fprintf(stderr, "Out of Memory");
-		exit(0);
-	}
-	// Convert to array of struct
-	extractNodes(matrix, problem.cities_amount, cpu_node);
-
-	// Assign items to node
-	assignItems(cpu_item, cpu_node);
-
-	// Print node information
-	displayNodes(cpu_node, problem.cities_amount);
-
-	// Create Global Stats File 
-	createGlobalStatsFile(fname, GPU, CPU);
-
-#pragma endregion
-
-	for (int clockCounter = 0; clockCounter < NUMBER_EXECUTIONS; ++clockCounter)
-	{
-#pragma region CENTRAL PROCESSING UNIT
-		if (CPU)
+		// Validate file consistency
+		if (item_rows != problem.items_amount)
 		{
-			// Create File For Statistics
-			createStatisticsFile(fname, false, CPU, clockCounter);
-
-			// Create Results File 
-			createOutputFile(fname, false, CPU, clockCounter);
-
-			if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
-
-			// Assign nodes to tour		
-			defineInitialTour(initial_tour, &problem, cpu_node, cpu_item);
-
-			if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
-
-			// Initialize population by generating POPULATION_SIZE number of permutations of the initial tour, all starting at the same city
-			initializePopulation(initial_population_cpu, initial_tour, problem);
-			
-			if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
-			
-			elapsedTimeInitialPopulationCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);		
-
-			fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
-			saveFittest(fname, fittestOnEarth, problem, 0, NO_CUDA, clockCounter);
-			saveStatistics(fname, NO_CUDA, 0, clockCounter, elapsedTimeInitialPopulationCPU, -1, -1, -1);		
-
-			if (TIME_RESTRICTED)
-			{
-				time_t endwait;
-				time_t start = time(NULL);
-
-				endwait = start + EXECUTION_TIME;
-
-				int iterationCount = 0;
-
-				while (start < endwait)
-				{
-					// Select the best parents of the current generation
-					if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					selection(initial_population_cpu, host_parents);
-					if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					elapsedSelectionCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-
-					// Breed the population performing crossover (Combination of Ordered Crossover 
-					// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-					if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					crossover(initial_population_cpu, host_parents, problem);
-					if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					elapsedCrossoverCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-
-					if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					localSearch(initial_population_cpu, problem);
-					if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					elapsedLocalSearchCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-
-					// Get Fittest tour of the generation
-					fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
-					saveFittest(fname, fittestOnEarth, problem, iterationCount + 1, NO_CUDA, clockCounter);
-					saveStatistics(fname, NO_CUDA, clockCounter, iterationCount + 1, elapsedTimeInitialPopulationCPU, elapsedSelectionCPU, elapsedCrossoverCPU, elapsedLocalSearchCPU);
-					Sleep(1);
-					start = time(NULL);
-				}
-			}
-			else
-			{
-				for (int i = 0; i < NUM_EVOLUTIONS; ++i)
-				{
-					// Select the best parents of the current generation
-					if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					selection(initial_population_cpu, host_parents);
-					if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					elapsedSelectionCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-
-					// Breed the population performing crossover (Combination of Ordered Crossover 
-					// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-					if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					crossover(initial_population_cpu, host_parents, problem);
-					if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					elapsedCrossoverCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-
-					if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					localSearch(initial_population_cpu, problem);
-					if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
-					{
-						printf("Error in calling timespec_get\n");
-						exit(EXIT_FAILURE);
-					}
-					elapsedLocalSearchCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
-
-					// Get Fittest tour of the generation
-					fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
-					saveFittest(fname, fittestOnEarth, problem, i + 1, NO_CUDA, clockCounter);
-					saveStatistics(fname, NO_CUDA, clockCounter, i + 1, elapsedTimeInitialPopulationCPU, elapsedSelectionCPU, elapsedCrossoverCPU, elapsedLocalSearchCPU);
-				}
-			}
-
-			if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
-
-			elapsedTimeCPU = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
-			saveGlobalStatistics(fname, NO_CUDA, clockCounter, elapsedTimeCPU);
+			perror("The file information is not consistent. Number of items Inconsistency.\n");
+			exit(EXIT_FAILURE);
 		}
-#pragma endregion
-#pragma region GRAPHICAL PROCESS UNIT
-		if (GPU)
+
+		// Get matrix
+		matrix = extractMatrixFromFile(lines[i], ITEMS_SECTION, problem.items_amount, item_columns);
+
+		// Allocate memory for the array of structs
+		item* cpu_item = (item*)malloc(problem.items_amount * sizeof(item));
+		if (cpu_item == NULL) {
+			fprintf(stderr, "Out of Memory");
+			exit(0);
+		}
+
+		// Convert to array of struct
+		extractItems(matrix, problem.items_amount, cpu_item);
+
+		// Visualize values for item matrix	
+		displayItems(cpu_item, problem.items_amount);
+
+		// Obtain nodes
+		// Calculate amount of nodes
+		unsigned int node_rows = countMatrixRows(lines[i], NODE_COORD_SECTION);
+
+		// Validate file consistency
+		if (node_rows != problem.cities_amount)
 		{
-			/****************************************************************************************************
-			* PRINT PROPERTIES OF THE CUDA DEVICE (IF ANY)
-			****************************************************************************************************/
-			deviceErr = cudaGetDeviceCount(&deviceCount);
-			if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
+			perror("The file information is not consistent. Number of node Inconsistency.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		// Calculate amount of columns
+		unsigned int node_columns = 3;
+
+		// Get matrix
+		matrix = extractMatrixFromFile(lines[i], NODE_COORD_SECTION, problem.cities_amount, node_columns);
+
+		// Allocate memory for the array of structs
+		node* cpu_node = (node*)malloc(problem.cities_amount * sizeof(node));
+		if (cpu_node == NULL) {
+			fprintf(stderr, "Out of Memory");
+			exit(0);
+		}
+		// Convert to array of struct
+		extractNodes(matrix, problem.cities_amount, cpu_node);
+
+		// Assign items to node
+		assignItems(cpu_item, cpu_node);
+
+		// Print node information
+		displayNodes(cpu_node, problem.cities_amount);
+
+		// Create Global Stats File 
+		createGlobalStatsFile(fname, GPU, CPU);
+
+		// Create Global Output File
+		createGlobalOutputFile(fname, GPU, CPU);
+
+#pragma endregion
+
+		for (int clockCounter = 0; clockCounter < NUMBER_EXECUTIONS; ++clockCounter)
+		{
+#pragma region CENTRAL PROCESSING UNIT
+			if (CPU)
 			{
-				printf("****************************************************************************************\n");
-				printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
-				printf("****************************************************************************************\n");
-				for (int i = 0; i < deviceCount; i++)
+				// Create File For Statistics
+				createStatisticsFile(fname, false, CPU, clockCounter);
+
+				// Create Results File 
+				createOutputFile(fname, false, CPU, clockCounter);
+
+				if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
 				{
-					checkCudaErrors(cudaGetDeviceProperties(&properties, i));
-					printf("GPU:					%s\n", properties.name);
-					printf("Warp Size:				%d\n", properties.warpSize);
-					printf("Total Global Memory:			%zd\n", properties.totalGlobalMem);
-					printf("Total Constant Memory:			%zd\n", properties.totalConstMem);
-					printf("Shared Memory Per Block:		%zd\n", properties.sharedMemPerBlock);
-					printf("Multiprocessor:				%d\n", properties.multiProcessorCount);
-					printf("Max Threads Per Multiprocessor:		%d\n", properties.maxThreadsPerMultiProcessor);
-					printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
-					printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
 				}
-				printf("****************************************************************************************\n");
-			}
 
-			// Create File For Statistics
-			createStatisticsFile(fname, GPU, false, clockCounter);
+				// Assign nodes to tour		
+				defineInitialTour(initial_tour, &problem, cpu_node, cpu_item);
 
-			// Create Results File 
-			createOutputFile(fname, GPU, false, clockCounter);
+				if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
 
-			if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
+				// Initialize population by generating POPULATION_SIZE number of permutations of the initial tour, all starting at the same city
+				initializePopulation(initial_population_cpu, initial_tour, problem);
 
-			// Assign nodes to tour		
-			defineInitialTour(initial_tour, &problem, cpu_node, cpu_item);
+				if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
 
-			if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
-			{
-				printf("Error in calling timespec_get\n");
-				exit(EXIT_FAILURE);
-			}
+				elapsedTimeInitialPopulationCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
-			elapsedTimeGPU = (float)(stopCPU.tv_sec - startCPU.tv_sec) + ((float)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
+				fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
+				//saveFittest(fname, fittestOnEarth, problem, 0, NO_CUDA, clockCounter);
+				//saveStatistics(fname, NO_CUDA, 0, clockCounter, elapsedTimeInitialPopulationCPU, -1, -1, -1);
 
-			if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
-			{
-				checkCudaErrors(cudaEventCreate(&startGPU));
-				checkCudaErrors(cudaEventCreate(&stopGPU));
-				checkCudaErrors(cudaEventRecord(startGPU, 0));
-				/*************************************************************************************************
-				* ALLOCATE MEMORY FOR STRUCTS ON DEVICE
-				*************************************************************************************************/
-
-				// Allocate device memory for population
-				checkCudaErrors(cudaMalloc((void**)&device_population, sizeof(population) * size_t(population_size)));
-
-				// Allocate device memory for initial tour
-				checkCudaErrors(cudaMalloc((void**)&device_initial_tour, sizeof(tour)));
-
-				// Allocate device memory for parents selected from tournament selection
-				checkCudaErrors(cudaMalloc((void**)&device_parents, sizeof(tour) * size_t(tour_size) * SELECTED_PARENTS));
-
-				// Allocate device memory for states
-				checkCudaErrors(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(problem.cities_amount)));
-
-				// Allocate device memory for the descendants
-				checkCudaErrors(cudaMalloc((void**)&device_offspring, sizeof(tour) * size_t(tour_size) * TOURS));
-
-				// Allocate device memory for the parameters
-				checkCudaErrors(cudaMalloc((void**)&device_parameters, sizeof(parameters)));
-
-				// Allocate device memory for node matrix, node matrix transpose and distance matrix
-				//checkCudaErrors(cudaMalloc(&device_node_matrix, size_t(problem.cities_amount) * sizeof(node)));
-				//checkCudaErrors(cudaMalloc(&device_node_t_matrix, size_t(problem.cities_amount) * sizeof(node)));
-				//checkCudaErrors(cudaMalloc(&device_distance, sizeof(distance) * CITIES * CITIES));
-
-				/*************************************************************************************************
-				* COPY HOST MEMORY TO DEVICE
-				*************************************************************************************************/
-
-				// Copy problem data
-				checkCudaErrors(cudaMemcpy(device_parameters, &problem, sizeof(parameters), cudaMemcpyHostToDevice));
-
-				// Copy initial tour data
-				checkCudaErrors(cudaMemcpy(device_initial_tour, &initial_tour, sizeof(tour), cudaMemcpyHostToDevice));
-
-				// Copy node data
-				//checkCudaErrors(cudaMemcpy(device_node_matrix, cpu_node, size_t(problem.cities_amount) * sizeof(node), cudaMemcpyHostToDevice));
-
-				/*************************************************************************************************
-				* INITIALIZE RANDOM VALUES
-				*************************************************************************************************/				
-				initCuRand << <numBlocks, threadsPerBlock >> > (device_states, time(NULL));
-				//initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));
-				checkCudaErrors(cudaDeviceSynchronize());
-
-				/*************************************************************************************************
-				* POPULATION INITIALIZATION ON DEVICE (GPU)
-				*************************************************************************************************/
-				checkCudaErrors(cudaEventCreate(&startKernel));
-				checkCudaErrors(cudaEventCreate(&stopKernel));
-				checkCudaErrors(cudaEventRecord(startKernel, 0));
-				initializePopulationCuda << <numBlocks, threadsPerBlock >> > (device_population, device_initial_tour, device_parameters, device_states);
-				//initializePopulationCuda << <BLOCKS, THREADS >> > (device_population, device_initial_tour, device_parameters, device_states);
-				checkCudaErrors(cudaEventRecord(stopKernel, 0));
-				checkCudaErrors(cudaEventSynchronize(stopKernel));
-				checkCudaErrors(cudaEventElapsedTime(&elapsedTimeInitialPopulationGPU, startKernel, stopKernel));
-				//checkCudaErrors(cudaDeviceSynchronize());
-
-				/*************************************************************************************************
-				* COPY RESULTS TO HOST - OPTIONAL: REMOVE FOR PERFORMANCE
-				*************************************************************************************************/
-				//checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
-				//checkCudaErrors(cudaDeviceSynchronize());
-
-				/*************************************************************************************************
-				* OUTPUT - OPTIONAL: REMOVE FOR PERFORMANCE
-				*************************************************************************************************/
-				//printPopulation(initial_population_gpu);
-				//saveInitialPopulation(problem.name, initial_population_gpu, problem, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter]);
-
-				// Copy Device Information to Host
-				checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
-				checkCudaErrors(cudaDeviceSynchronize());
-
-				fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
-				saveFittest(fname, fittestOnEarth, problem, 0, CUDA, clockCounter);
-				saveStatistics(fname, CUDA, 0, clockCounter, elapsedTimeInitialPopulationGPU, -1, -1, -1);
-				
 				if (TIME_RESTRICTED)
 				{
 					time_t endwait;
 					time_t start = time(NULL);
-					
+
 					endwait = start + EXECUTION_TIME;
 
 					int iterationCount = 0;
 
 					while (start < endwait)
 					{
-						// Select Parents For The Next Generation
-						checkCudaErrors(cudaEventRecord(startKernel, 0));
-						selectionKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_states);
-						err = cudaGetLastError();
-						if (err != cudaSuccess)
+						// Select the best parents of the current generation
+						if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
 						{
-							fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
-							exit(0);
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
 						}
-						checkCudaErrors(cudaEventRecord(stopKernel, 0));
-						checkCudaErrors(cudaEventSynchronize(stopKernel));
-						checkCudaErrors(cudaEventElapsedTime(&elapsedSelectionGPU, startKernel, stopKernel));						
+						selection(initial_population_cpu, host_parents);
+						if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+						{
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
+						}
+						elapsedSelectionCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
 						// Breed the population performing crossover (Combination of Ordered Crossover 
 						// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-						checkCudaErrors(cudaEventRecord(startKernel, 0));
-						crossoverKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_offspring, device_parameters, device_states);
-						err = cudaGetLastError();
-						if (err != cudaSuccess)
+						if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
 						{
-							fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
-							exit(0);
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
 						}
-						checkCudaErrors(cudaEventRecord(stopKernel, 0));
-						checkCudaErrors(cudaEventSynchronize(stopKernel));
-						checkCudaErrors(cudaEventElapsedTime(&elapsedCrossoverGPU, startKernel, stopKernel));
-
-						// Perform local search (mutation)
-						checkCudaErrors(cudaEventRecord(startKernel, 0));
-						localSearchKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parameters, device_states);
-						err = cudaGetLastError();
-						if (err != cudaSuccess)
+						crossover(initial_population_cpu, host_parents, problem);
+						if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
 						{
-							fprintf(stderr, "Local Search Kernel: %s\n", cudaGetErrorString(err));
-							exit(0);
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
 						}
-						checkCudaErrors(cudaEventRecord(stopKernel, 0));
-						checkCudaErrors(cudaEventSynchronize(stopKernel));
-						checkCudaErrors(cudaEventElapsedTime(&elapsedLocalSearchGPU, startKernel, stopKernel));
+						elapsedCrossoverCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
-						// Copy Device Information to Host
-						checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
-						checkCudaErrors(cudaDeviceSynchronize());
+						if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
+						{
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
+						}
+						localSearch(initial_population_cpu, problem);
+						if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+						{
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
+						}
+						elapsedLocalSearchCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
 						// Get Fittest tour of the generation
-						fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
-						saveFittest(fname, fittestOnEarth, problem, iterationCount + 1, CUDA, clockCounter);
-						saveStatistics(fname, CUDA, clockCounter, iterationCount + 1, elapsedTimeInitialPopulationGPU, elapsedSelectionGPU, elapsedCrossoverGPU, elapsedLocalSearchGPU);
-						iterationCount++;
+						fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
+						//saveFittest(fname, fittestOnEarth, problem, iterationCount + 1, NO_CUDA, clockCounter);
+						saveStatistics(fname, NO_CUDA, clockCounter, iterationCount + 1, elapsedTimeInitialPopulationCPU, elapsedSelectionCPU, elapsedCrossoverCPU, elapsedLocalSearchCPU);
 						Sleep(1);
 						start = time(NULL);
 					}
+
+					saveGlobalFittest(fname, fittestOnEarth, problem, clockCounter, NO_CUDA);
 				}
 				else
 				{
 					for (int i = 0; i < NUM_EVOLUTIONS; ++i)
 					{
-						// Select Parents For The Next Generation
-						checkCudaErrors(cudaEventRecord(startKernel, 0));
-						selectionKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_states);
-						//selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_states);
-						err = cudaGetLastError();
-						if (err != cudaSuccess)
+						// Select the best parents of the current generation
+						if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
 						{
-							fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
-							exit(0);
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
 						}
-						checkCudaErrors(cudaEventRecord(stopKernel, 0));
-						checkCudaErrors(cudaEventSynchronize(stopKernel));
-						checkCudaErrors(cudaEventElapsedTime(&elapsedSelectionGPU, startKernel, stopKernel));
-						//checkCudaErrors(cudaDeviceSynchronize());
-
-						// Copy Device Information to Host
-						//checkCudaErrors(cudaMemcpy(&host_parents, device_parents, sizeof(tour) * SELECTED_PARENTS, cudaMemcpyDeviceToHost));
-						//checkCudaErrors(cudaDeviceSynchronize());
-
-						// Save Parents Information To File
-						//saveParents(problem.name, host_parents, problem, i + 1, CUDA, clockCounter, elapsedSelectionGPU[i]);
+						selection(initial_population_cpu, host_parents);
+						if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+						{
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
+						}
+						elapsedSelectionCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
 						// Breed the population performing crossover (Combination of Ordered Crossover 
 						// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
-						checkCudaErrors(cudaEventRecord(startKernel, 0));
-						crossoverKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_offspring, device_parameters, device_states);
-						//crossoverKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_offspring, device_parameters, device_states);
-						err = cudaGetLastError();
-						if (err != cudaSuccess)
+						if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
 						{
-							fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
-							exit(0);
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
 						}
-						checkCudaErrors(cudaEventRecord(stopKernel, 0));
-						checkCudaErrors(cudaEventSynchronize(stopKernel));
-						checkCudaErrors(cudaEventElapsedTime(&elapsedCrossoverGPU, startKernel, stopKernel));
-						//checkCudaErrors(cudaDeviceSynchronize());
+						crossover(initial_population_cpu, host_parents, problem);
+						if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+						{
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
+						}
+						elapsedCrossoverCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
 
-						// Perform local search (mutation)
-						checkCudaErrors(cudaEventRecord(startKernel, 0));
-						localSearchKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parameters, device_states);
-						//localSearchKernel << <BLOCKS, THREADS >> > (device_population, device_parameters, device_states);
-						err = cudaGetLastError();
-						if (err != cudaSuccess)
+						if (timespec_get(&startMethod, TIME_UTC) != TIME_UTC)
 						{
-							fprintf(stderr, "Local Search Kernel: %s\n", cudaGetErrorString(err));
-							exit(0);
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
 						}
-						checkCudaErrors(cudaEventRecord(stopKernel, 0));
-						checkCudaErrors(cudaEventSynchronize(stopKernel));
-						checkCudaErrors(cudaEventElapsedTime(&elapsedLocalSearchGPU, startKernel, stopKernel));
-						//checkCudaErrors(cudaDeviceSynchronize());
+						localSearch(initial_population_cpu, problem);
+						if (timespec_get(&stopMethod, TIME_UTC) != TIME_UTC)
+						{
+							printf("Error in calling timespec_get\n");
+							exit(EXIT_FAILURE);
+						}
+						elapsedLocalSearchCPU = (double)(stopMethod.tv_sec - startMethod.tv_sec) + ((double)(stopMethod.tv_nsec - startMethod.tv_nsec) * 1.e-6);
+
+						// Get Fittest tour of the generation
+						fittestOnEarth = getFittestTour(initial_population_cpu.tours, TOURS);
+						//saveFittest(fname, fittestOnEarth, problem, i + 1, NO_CUDA, clockCounter);
+						saveStatistics(fname, NO_CUDA, clockCounter, i + 1, elapsedTimeInitialPopulationCPU, elapsedSelectionCPU, elapsedCrossoverCPU, elapsedLocalSearchCPU);
+					}
+					saveGlobalFittest(fname, fittestOnEarth, problem, clockCounter, NO_CUDA);
+				}
+
+				if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+
+				elapsedTimeCPU = (double)(stopCPU.tv_sec - startCPU.tv_sec) + ((double)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
+				saveGlobalStatistics(fname, NO_CUDA, clockCounter, elapsedTimeCPU);
+			}
+#pragma endregion
+#pragma region GRAPHICAL PROCESS UNIT
+			if (GPU)
+			{
+				/****************************************************************************************************
+				* PRINT PROPERTIES OF THE CUDA DEVICE (IF ANY)
+				****************************************************************************************************/
+				deviceErr = cudaGetDeviceCount(&deviceCount);
+				if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
+				{
+					printf("****************************************************************************************\n");
+					printf("PROPERTIES OF THE GRAPHICAL PROCESSING UNIT\n");
+					printf("****************************************************************************************\n");
+					for (int i = 0; i < deviceCount; i++)
+					{
+						checkCudaErrors(cudaGetDeviceProperties(&properties, i));
+						printf("GPU:					%s\n", properties.name);
+						printf("Warp Size:				%d\n", properties.warpSize);
+						printf("Total Global Memory:			%zd\n", properties.totalGlobalMem);
+						printf("Total Constant Memory:			%zd\n", properties.totalConstMem);
+						printf("Shared Memory Per Block:		%zd\n", properties.sharedMemPerBlock);
+						printf("Multiprocessor:				%d\n", properties.multiProcessorCount);
+						printf("Max Threads Per Multiprocessor:		%d\n", properties.maxThreadsPerMultiProcessor);
+						printf("Max Blocks Per Multiprocessor:		%d\n", properties.maxBlocksPerMultiProcessor);
+						printf("Max Threads Per Block:			%d\n", properties.maxThreadsPerBlock);
+					}
+					printf("****************************************************************************************\n");
+				}
+
+				// Create File For Statistics
+				createStatisticsFile(fname, GPU, false, clockCounter);
+
+				// Create Results File 
+				createOutputFile(fname, GPU, false, clockCounter);
+
+				if (timespec_get(&startCPU, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+
+				// Assign nodes to tour		
+				defineInitialTour(initial_tour, &problem, cpu_node, cpu_item);
+
+				if (timespec_get(&stopCPU, TIME_UTC) != TIME_UTC)
+				{
+					printf("Error in calling timespec_get\n");
+					exit(EXIT_FAILURE);
+				}
+
+				elapsedTimeGPU = (float)(stopCPU.tv_sec - startCPU.tv_sec) + ((float)(stopCPU.tv_nsec - startCPU.tv_nsec) * 1.e-6);
+
+				if (deviceCount > 0 && deviceErr == cudaSuccess && GPU)
+				{
+					checkCudaErrors(cudaEventCreate(&startGPU));
+					checkCudaErrors(cudaEventCreate(&stopGPU));
+					checkCudaErrors(cudaEventRecord(startGPU, 0));
+					/*************************************************************************************************
+					* ALLOCATE MEMORY FOR STRUCTS ON DEVICE
+					*************************************************************************************************/
+
+					// Allocate device memory for population
+					checkCudaErrors(cudaMalloc((void**)&device_population, sizeof(population) * size_t(population_size)));
+
+					// Allocate device memory for initial tour
+					checkCudaErrors(cudaMalloc((void**)&device_initial_tour, sizeof(tour)));
+
+					// Allocate device memory for parents selected from tournament selection
+					checkCudaErrors(cudaMalloc((void**)&device_parents, sizeof(tour) * size_t(tour_size) * SELECTED_PARENTS));
+
+					// Allocate device memory for states
+					checkCudaErrors(cudaMalloc((void**)&device_states, sizeof(curandState) * TOURS * size_t(problem.cities_amount)));
+
+					// Allocate device memory for the descendants
+					checkCudaErrors(cudaMalloc((void**)&device_offspring, sizeof(tour) * size_t(tour_size) * TOURS));
+
+					// Allocate device memory for the parameters
+					checkCudaErrors(cudaMalloc((void**)&device_parameters, sizeof(parameters)));
+
+					// Allocate device memory for node matrix, node matrix transpose and distance matrix
+					//checkCudaErrors(cudaMalloc(&device_node_matrix, size_t(problem.cities_amount) * sizeof(node)));
+					//checkCudaErrors(cudaMalloc(&device_node_t_matrix, size_t(problem.cities_amount) * sizeof(node)));
+					//checkCudaErrors(cudaMalloc(&device_distance, sizeof(distance) * CITIES * CITIES));
+
+					/*************************************************************************************************
+					* COPY HOST MEMORY TO DEVICE
+					*************************************************************************************************/
+
+					// Copy problem data
+					checkCudaErrors(cudaMemcpy(device_parameters, &problem, sizeof(parameters), cudaMemcpyHostToDevice));
+
+					// Copy initial tour data
+					checkCudaErrors(cudaMemcpy(device_initial_tour, &initial_tour, sizeof(tour), cudaMemcpyHostToDevice));
+
+					// Copy node data
+					//checkCudaErrors(cudaMemcpy(device_node_matrix, cpu_node, size_t(problem.cities_amount) * sizeof(node), cudaMemcpyHostToDevice));
+
+					/*************************************************************************************************
+					* INITIALIZE RANDOM VALUES
+					*************************************************************************************************/
+					initCuRand << <numBlocks, threadsPerBlock >> > (device_states, time(NULL));
+					//initCuRand << <BLOCKS, THREADS >> > (device_states, time(NULL));
+					checkCudaErrors(cudaDeviceSynchronize());
+
+					/*************************************************************************************************
+					* POPULATION INITIALIZATION ON DEVICE (GPU)
+					*************************************************************************************************/
+					checkCudaErrors(cudaEventCreate(&startKernel));
+					checkCudaErrors(cudaEventCreate(&stopKernel));
+					checkCudaErrors(cudaEventRecord(startKernel, 0));
+					initializePopulationCuda << <numBlocks, threadsPerBlock >> > (device_population, device_initial_tour, device_parameters, device_states);
+					//initializePopulationCuda << <BLOCKS, THREADS >> > (device_population, device_initial_tour, device_parameters, device_states);
+					checkCudaErrors(cudaEventRecord(stopKernel, 0));
+					checkCudaErrors(cudaEventSynchronize(stopKernel));
+					checkCudaErrors(cudaEventElapsedTime(&elapsedTimeInitialPopulationGPU, startKernel, stopKernel));
+					//checkCudaErrors(cudaDeviceSynchronize());
+
+					/*************************************************************************************************
+					* COPY RESULTS TO HOST - OPTIONAL: REMOVE FOR PERFORMANCE
+					*************************************************************************************************/
+					//checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+					//checkCudaErrors(cudaDeviceSynchronize());
+
+					/*************************************************************************************************
+					* OUTPUT - OPTIONAL: REMOVE FOR PERFORMANCE
+					*************************************************************************************************/
+					//printPopulation(initial_population_gpu);
+					//saveInitialPopulation(problem.name, initial_population_gpu, problem, CUDA, clockCounter, elapsedTimeInitialPopulationGPU[clockCounter]);
+
+					// Copy Device Information to Host
+					//checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+					//checkCudaErrors(cudaDeviceSynchronize());
+
+					//fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
+					//saveFittest(fname, fittestOnEarth, problem, 0, CUDA, clockCounter);
+					//saveStatistics(fname, CUDA, 0, clockCounter, elapsedTimeInitialPopulationGPU, -1, -1, -1);
+
+					if (TIME_RESTRICTED)
+					{
+						time_t endwait;
+						time_t start = time(NULL);
+
+						endwait = start + EXECUTION_TIME;
+
+						int iterationCount = 0;
+
+						while (start < endwait)
+						{
+							// Select Parents For The Next Generation
+							checkCudaErrors(cudaEventRecord(startKernel, 0));
+							selectionKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_states);
+							err = cudaGetLastError();
+							if (err != cudaSuccess)
+							{
+								fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
+								exit(0);
+							}
+							checkCudaErrors(cudaEventRecord(stopKernel, 0));
+							checkCudaErrors(cudaEventSynchronize(stopKernel));
+							checkCudaErrors(cudaEventElapsedTime(&elapsedSelectionGPU, startKernel, stopKernel));
+
+							// Breed the population performing crossover (Combination of Ordered Crossover 
+							// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
+							checkCudaErrors(cudaEventRecord(startKernel, 0));
+							crossoverKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_offspring, device_parameters, device_states);
+							err = cudaGetLastError();
+							if (err != cudaSuccess)
+							{
+								fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
+								exit(0);
+							}
+							checkCudaErrors(cudaEventRecord(stopKernel, 0));
+							checkCudaErrors(cudaEventSynchronize(stopKernel));
+							checkCudaErrors(cudaEventElapsedTime(&elapsedCrossoverGPU, startKernel, stopKernel));
+
+							// Perform local search (mutation)
+							checkCudaErrors(cudaEventRecord(startKernel, 0));
+							localSearchKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parameters, device_states);
+							err = cudaGetLastError();
+							if (err != cudaSuccess)
+							{
+								fprintf(stderr, "Local Search Kernel: %s\n", cudaGetErrorString(err));
+								exit(0);
+							}
+							checkCudaErrors(cudaEventRecord(stopKernel, 0));
+							checkCudaErrors(cudaEventSynchronize(stopKernel));
+							checkCudaErrors(cudaEventElapsedTime(&elapsedLocalSearchGPU, startKernel, stopKernel));
+
+							// Copy Device Information to Host
+							//checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+							//checkCudaErrors(cudaDeviceSynchronize());
+
+							// Get Fittest tour of the generation
+							//fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
+							//saveFittest(fname, fittestOnEarth, problem, iterationCount + 1, CUDA, clockCounter);
+							saveStatistics(fname, CUDA, clockCounter, iterationCount + 1, elapsedTimeInitialPopulationGPU, elapsedSelectionGPU, elapsedCrossoverGPU, elapsedLocalSearchGPU);
+							iterationCount++;
+							Sleep(1);
+							start = time(NULL);
+						}
 
 						// Copy Device Information to Host
 						checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
 						checkCudaErrors(cudaDeviceSynchronize());
 
-						//saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA, clockCounter, elapsedCrossoverGPU[i], elapsedLocalSearchGPU[i]);
-
-						// Get Fittest tour of the generation
+						// Get Fittest tour of the execution
 						fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
-						saveFittest(fname, fittestOnEarth, problem, i + 1, CUDA, clockCounter);
-						saveStatistics(fname, CUDA, clockCounter, i + 1, elapsedTimeInitialPopulationGPU, elapsedSelectionGPU, elapsedCrossoverGPU, elapsedLocalSearchGPU);
+						saveGlobalFittest(fname, fittestOnEarth, problem, clockCounter, CUDA);
 					}
-				}				
+					else
+					{
+						for (int i = 0; i < NUM_EVOLUTIONS; ++i)
+						{
+							// Select Parents For The Next Generation
+							checkCudaErrors(cudaEventRecord(startKernel, 0));
+							selectionKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_states);
+							//selectionKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_states);
+							err = cudaGetLastError();
+							if (err != cudaSuccess)
+							{
+								fprintf(stderr, "Selection Kernel: %s\n", cudaGetErrorString(err));
+								exit(0);
+							}
+							checkCudaErrors(cudaEventRecord(stopKernel, 0));
+							checkCudaErrors(cudaEventSynchronize(stopKernel));
+							checkCudaErrors(cudaEventElapsedTime(&elapsedSelectionGPU, startKernel, stopKernel));
+							//checkCudaErrors(cudaDeviceSynchronize());
 
-				checkCudaErrors(cudaEventRecord(stopGPU, 0));
-				checkCudaErrors(cudaEventSynchronize(stopGPU));
-				checkCudaErrors(cudaEventElapsedTime(&gpuExecutionTime, startGPU, stopGPU));
-				elapsedTimeGPU += gpuExecutionTime;
+							// Copy Device Information to Host
+							//checkCudaErrors(cudaMemcpy(&host_parents, device_parents, sizeof(tour) * SELECTED_PARENTS, cudaMemcpyDeviceToHost));
+							//checkCudaErrors(cudaDeviceSynchronize());
 
-				/*************************************************************************************************
-				* RELEASE CUDA MEMORY
-				*************************************************************************************************/
-				checkCudaErrors(cudaFree(device_population));
-				checkCudaErrors(cudaFree(device_initial_tour));
-				checkCudaErrors(cudaFree(device_parents));
-				checkCudaErrors(cudaFree(device_offspring));
-				checkCudaErrors(cudaFree(device_parameters));
-				checkCudaErrors(cudaFree(device_states));
-				//cudaFree(device_node_matrix);
-				//cudaFree(device_node_t_matrix);
-				//cudaFree(device_distance);
-				checkCudaErrors(cudaEventDestroy(startGPU));
-				checkCudaErrors(cudaEventDestroy(startKernel));
-				checkCudaErrors(cudaEventDestroy(stopKernel));
-				checkCudaErrors(cudaEventDestroy(stopGPU));
-			}			
+							// Save Parents Information To File
+							//saveParents(problem.name, host_parents, problem, i + 1, CUDA, clockCounter, elapsedSelectionGPU[i]);
 
-			saveGlobalStatistics(fname, CUDA, clockCounter, elapsedTimeGPU);
-		}
+							// Breed the population performing crossover (Combination of Ordered Crossover 
+							// for the TSP sub-problem and One Point Crossover for the KP sub-problem)
+							checkCudaErrors(cudaEventRecord(startKernel, 0));
+							crossoverKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parents, device_offspring, device_parameters, device_states);
+							//crossoverKernel << <BLOCKS, THREADS >> > (device_population, device_parents, device_offspring, device_parameters, device_states);
+							err = cudaGetLastError();
+							if (err != cudaSuccess)
+							{
+								fprintf(stderr, "Crossover Kernel: %s\n", cudaGetErrorString(err));
+								exit(0);
+							}
+							checkCudaErrors(cudaEventRecord(stopKernel, 0));
+							checkCudaErrors(cudaEventSynchronize(stopKernel));
+							checkCudaErrors(cudaEventElapsedTime(&elapsedCrossoverGPU, startKernel, stopKernel));
+							//checkCudaErrors(cudaDeviceSynchronize());
+
+							// Perform local search (mutation)
+							checkCudaErrors(cudaEventRecord(startKernel, 0));
+							localSearchKernel << <numBlocks, threadsPerBlock >> > (device_population, device_parameters, device_states);
+							//localSearchKernel << <BLOCKS, THREADS >> > (device_population, device_parameters, device_states);
+							err = cudaGetLastError();
+							if (err != cudaSuccess)
+							{
+								fprintf(stderr, "Local Search Kernel: %s\n", cudaGetErrorString(err));
+								exit(0);
+							}
+							checkCudaErrors(cudaEventRecord(stopKernel, 0));
+							checkCudaErrors(cudaEventSynchronize(stopKernel));
+							checkCudaErrors(cudaEventElapsedTime(&elapsedLocalSearchGPU, startKernel, stopKernel));
+							//checkCudaErrors(cudaDeviceSynchronize());
+
+							// Copy Device Information to Host
+							//checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+							//checkCudaErrors(cudaDeviceSynchronize());
+
+							//saveOffspring(problem.name, initial_population_gpu, problem, i + 1, CUDA, clockCounter, elapsedCrossoverGPU[i], elapsedLocalSearchGPU[i]);
+
+							// Get Fittest tour of the generation
+							//fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
+							//saveFittest(fname, fittestOnEarth, problem, i + 1, CUDA, clockCounter);
+							saveStatistics(fname, CUDA, clockCounter, i + 1, elapsedTimeInitialPopulationGPU, elapsedSelectionGPU, elapsedCrossoverGPU, elapsedLocalSearchGPU);
+						}
+
+						// Copy Device Information to Host
+						checkCudaErrors(cudaMemcpy(&initial_population_gpu, device_population, sizeof(population), cudaMemcpyDeviceToHost));
+						checkCudaErrors(cudaDeviceSynchronize());
+
+						// Get Fittest tour of the execution
+						fittestOnEarth = getFittestTour(initial_population_gpu.tours, TOURS);
+						saveGlobalFittest(fname, fittestOnEarth, problem, clockCounter, CUDA);
+					}
+
+					checkCudaErrors(cudaEventRecord(stopGPU, 0));
+					checkCudaErrors(cudaEventSynchronize(stopGPU));
+					checkCudaErrors(cudaEventElapsedTime(&gpuExecutionTime, startGPU, stopGPU));
+					elapsedTimeGPU += gpuExecutionTime;
+
+					/*************************************************************************************************
+					* RELEASE CUDA MEMORY
+					*************************************************************************************************/
+					checkCudaErrors(cudaFree(device_population));
+					checkCudaErrors(cudaFree(device_initial_tour));
+					checkCudaErrors(cudaFree(device_parents));
+					checkCudaErrors(cudaFree(device_offspring));
+					checkCudaErrors(cudaFree(device_parameters));
+					checkCudaErrors(cudaFree(device_states));
+					//cudaFree(device_node_matrix);
+					//cudaFree(device_node_t_matrix);
+					//cudaFree(device_distance);
+					checkCudaErrors(cudaEventDestroy(startGPU));
+					checkCudaErrors(cudaEventDestroy(startKernel));
+					checkCudaErrors(cudaEventDestroy(stopKernel));
+					checkCudaErrors(cudaEventDestroy(stopGPU));
+				}
+
+				saveGlobalStatistics(fname, CUDA, clockCounter, elapsedTimeGPU);
+			}
 #pragma endregion
 
-		// Calculate distance matrix in CPU
-		//int distance_matrix_size = problem.cities_amount * problem.cities_amount;
+			// Calculate distance matrix in CPU
+			//int distance_matrix_size = problem.cities_amount * problem.cities_amount;
 
-		// Allocate memory for the distance matrix
-		//distance* d = (distance*)malloc(distance_matrix_size * sizeof(distance));
-		//if (d == NULL) {
-		//	fprintf(stderr, "Out of Memory");
-		//	exit(0);
-		//}
+			// Allocate memory for the distance matrix
+			//distance* d = (distance*)malloc(distance_matrix_size * sizeof(distance));
+			//if (d == NULL) {
+			//	fprintf(stderr, "Out of Memory");
+			//	exit(0);
+			//}
 
-		//euclideanDistanceCPU(cpu_node, cpu_node, d, problem.cities_amount, distance_matrix_size);
-		//displayDistance(d, distance_matrix_size);
+			//euclideanDistanceCPU(cpu_node, cpu_node, d, problem.cities_amount, distance_matrix_size);
+			//displayDistance(d, distance_matrix_size);
 
 #pragma region DISTANCE MATRIX GRAPHICAL PROCESSING UNIT
 
@@ -1377,9 +1431,10 @@ int main()
 			//displayDistance(h_distance, CITIES * CITIES);
 		//}
 #pragma endregion		
+		}
+
+		free(cpu_item);
+		free(cpu_node);
 	}
-	
-	free(cpu_item);
-	free(cpu_node);
 	return 0;
 }
